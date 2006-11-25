@@ -40,6 +40,9 @@
 #define INCL_DOS
 #include <os2.h>
 
+#include <nom.h>
+#include <nomtk.h>
+
 #include <string.h>
 #include "wpobject.ih"
 
@@ -63,10 +66,13 @@ NOM_Scope void NOMLINK impl_WPObject_nomInit(WPObject* nomSelf, CORBA_Environmen
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
-#if 0
   /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
   WPObject_nomInit_parent(nomSelf,  ev);
-#endif
+
+  nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
+            __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
+
+  _wpInitData(nomSelf, ev);
 }
 
 NOM_Scope void NOMLINK impl_WPObject_nomUninit(WPObject* nomSelf, CORBA_Environment *ev)

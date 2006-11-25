@@ -52,6 +52,7 @@ interface WPFolder : WPFileSystem
   BOOL wpAddToContent(in WPObject Object);
 #endif
 
+  NOMOVERRIDE(wpInitData);
 };
 
 #endif /* WPFOLDER_IDL_INCLUDED */
