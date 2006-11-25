@@ -1,0 +1,24 @@
+#
+# This is the makefile for the EMX wrapper loading and initializing
+# the GTK2 DLLs. It *must* be compiled with EMX. Libc won't work. 
+# 
+# A patched GTK2.DLL is still needed.
+#
+
+CC		=	gcc
+GCCFLAGS	=	-Zmt -D__OS2__ -D__ST_MT_ERRNO__ -Wall 
+GCCLDFLAGS	=	-Zmt
+
+OBJDIR	=	.
+CDIR	=	.
+
+OBJECTS		=	voyager-desktop.o
+
+all: voyager-desktop.exe
+
+
+voyager-desktop.exe:	voyager-desktop.c
+	$(CC)  -o $@ voyager-desktop.c $(LIBS) $(GCCFLAGS)
+
+
+
