@@ -44,8 +44,8 @@ interface WPDataFile : WPFileSystem
   long  wpSetFileSizeInfo(in long cbFileSize,
                           in long cbEASize);
 
-
-   NOMINSTANCEVAR(long cbFileSize); /* Used to be in WPFileSystem */
+  NOMOVERRIDE(wpQueryIcon);
+  NOMINSTANCEVAR(long cbFileSize); /* Used to be in WPFileSystem */
 
 };
 

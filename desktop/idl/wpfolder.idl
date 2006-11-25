@@ -37,8 +37,6 @@
 
 #include "wpfilesystem.idl"
 
-#include "wpfoldertypes.idl"
-
 interface WPFolder : WPFileSystem
 {
   NOMCLASSVERSION(1, 0);
@@ -56,6 +54,8 @@ interface WPFolder : WPFileSystem
 
   NOMOVERRIDE(wpInitData);
   NOMOVERRIDE(wpOpen);
+  NOMOVERRIDE(wpQueryIcon);
+
   NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData);
 };
 

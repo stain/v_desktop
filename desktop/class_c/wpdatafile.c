@@ -42,7 +42,13 @@
 #include <os2.h>
 
 #include <string.h>
+
+#include "nom.h"
+#include "nomtk.h"
+
 #include "wpdatafile.ih"
+#include "helper.h"
+#include "desktop.h"
 
 NOM_Scope CORBA_long NOMLINK impl_WPDataFile_wpQueryFileSize(WPDataFile* nomSelf, CORBA_Environment *ev)
 {
@@ -58,5 +64,31 @@ NOM_Scope CORBA_long NOMLINK impl_WPDataFile_wpSetFileSizeInfo(WPDataFile* nomSe
   CORBA_long nomRetval;
 
   return nomRetval;
+}
+
+NOM_Scope void NOMLINK impl_WPDataFile_wpQueryIcon(WPDataFile* nomSelf, CORBA_Environment *ev)
+{
+  static const gchar *gchrIconName=NULLHANDLE;
+  static gpointer ptrIcon=NULLHANDLE;
+  GError *error=NULL;
+
+  /* WPDataFileData* nomThis=WPDataFileGetData(nomSelf); */
+
+  /* Load default wpObject icon */
+  if(!gchrIconName){
+    gchrIconName=g_build_filename(priv_getIconDir(), WPOBJECT_ICON_FILE, NULL);
+    
+    g_return_val_if_fail(g_file_test (gchrIconName, G_FILE_TEST_EXISTS), NULLHANDLE);
+    nomPrintf("IconFile: %s\n", gchrIconName);  
+    //  _hPointerCls = (HPOINTER)gdk_pixbuf_new_from_file (gchrIconName, &error);
+    ptrIcon=gdk_pixbuf_new_from_file (gchrIconName, &error);
+  }
+#warning !!!!! Dont create an icon for each object !!!!!
+  return gdk_pixbuf_new_from_file (gchrIconName, &error);
+
+#if 0
+  /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
+  WPDataFile_wpQueryIcon_parent(nomSelf,  ev);
+#endif
 }
 
