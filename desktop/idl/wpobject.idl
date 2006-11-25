@@ -57,8 +57,8 @@ interface WPObject : NOMObject
   boolean wpFreeMem(in gpointer pByte);
 
   void wpInitData();
-
   void wpUnInitData();
+  gpointer wpOpen(in gpointer ptrReserved, in unsigned long ulView, in gpointer ptrParams);
 
   NOMOVERRIDE(nomInit);
   NOMOVERRIDE(nomUninit);

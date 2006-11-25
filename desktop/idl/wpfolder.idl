@@ -37,6 +37,8 @@
 
 #include "wpfilesystem.idl"
 
+
+
 interface WPFolder : WPFileSystem
 {
   NOMCLASSVERSION(1, 0);
@@ -53,6 +55,7 @@ interface WPFolder : WPFileSystem
 #endif
 
   NOMOVERRIDE(wpInitData);
+  NOMOVERRIDE(wpOpen);
 };
 
 #endif /* WPFOLDER_IDL_INCLUDED */
