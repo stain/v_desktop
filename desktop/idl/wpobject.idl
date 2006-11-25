@@ -51,8 +51,8 @@ interface WPObject : NOMObject
 #endif
 
   /* Memory allocation */
-  gpointer wpAllocMem(in long cbBytes,
-                      in long prc);
+  gpointer wpAllocMem(in unsigned long cbBytes,
+                      inout unsigned long prc);
 
   boolean wpFreeMem(in gpointer pByte);
 
