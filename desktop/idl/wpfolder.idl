@@ -37,7 +37,7 @@
 
 #include "wpfilesystem.idl"
 
-
+#include "wpfoldertypes.idl"
 
 interface WPFolder : WPFileSystem
 {
@@ -56,6 +56,7 @@ interface WPFolder : WPFileSystem
 
   NOMOVERRIDE(wpInitData);
   NOMOVERRIDE(wpOpen);
+  NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData);
 };
 
 #endif /* WPFOLDER_IDL_INCLUDED */
