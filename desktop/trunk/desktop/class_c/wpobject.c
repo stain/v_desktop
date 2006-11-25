@@ -46,7 +46,8 @@
 #include <string.h>
 #include "wpobject.ih"
 
-NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const CORBA_long cbBytes, const CORBA_long prc, CORBA_Environment *ev)
+NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const CORBA_unsigned_long cbBytes,
+                                                    CORBA_unsigned_long* prc, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
   gpointer nomRetval;
