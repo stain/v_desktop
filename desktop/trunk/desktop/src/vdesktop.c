@@ -43,33 +43,12 @@
 #include "nomtk.h"
 #include "wpobject.h"
 
-#define SOM_NO_OBJECTS  /* Otherwise som.h includes the IBM SOM classes */
-
 int createQuitWindow(void);
 
 PNOM_ENV pEnv;
 NOMClassMgr *NOMClassMgrObject;
 
 #if 0
-#include "cwsom.h"
-
-
-/* Core SOM classes */
-#include <cwsomobj.h>
-#include "cwsomcls.h"
-#include "somclassmanager.h"
-
-/* WPS classes */
-#include "cwwpobject.h"
-#include "cwwpdataf.h"
-#include "cwwpfolder.h"
-
-int createQuitWindow(void);
-
-
-
-int SOM_TraceLevel=0;
-
 /* Desktop folder */
 WPFolder *wpDesktop;
 #endif
@@ -82,7 +61,7 @@ int _System  main_loop()
 {
  char desktopDir[CCHMAXPATH]={0};
  
- printf("We started...\n");    
+ g_message("We started...\n");    
 
 
   /* Create a window with a 'quit' button to terminate us */

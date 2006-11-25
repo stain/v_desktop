@@ -32,7 +32,8 @@ DLLOBJECTS	=	$(OBJDIR)/vdesktop.o \
 
 CLASSOBJECTS	=	$(OBJDIR)/wpobject.o \
 			$(OBJDIR)/wpfilesystem.o \
-			$(OBJDIR)/wpdatafile.o
+			$(OBJDIR)/wpdatafile.o \
+			$(OBJDIR)/wpfolder.o
 
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c
