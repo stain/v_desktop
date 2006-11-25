@@ -33,7 +33,8 @@ DLLOBJECTS	=	$(OBJDIR)/vdesktop.o \
 CLASSOBJECTS	=	$(OBJDIR)/wpobject.o \
 			$(OBJDIR)/wpfilesystem.o \
 			$(OBJDIR)/wpdatafile.o \
-			$(OBJDIR)/wpfolder.o
+			$(OBJDIR)/wpfolder.o \
+			$(OBJDIR)/helper.o
 
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c
@@ -69,7 +70,9 @@ BASE_NOMCOMPILEC	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --c-template 
 
 # Rules for desktop classes
 $(OBJDIR)/%.o:	$(CLASSCDIR)/%.c $(CLASSINC)/%.ih
-	@echo 'Compiling...' $(INC)
+	$(CC) -I $(INC) $(GCCFLAGS)  -o$@ $<
+
+$(OBJDIR)/%.o:	$(CLASSCDIR)/%.c
 	$(CC) -I $(INC) $(GCCFLAGS)  -o$@ $<
 
 $(CLASSINC)/%.ih:	$(IDLDIR)/%.idl

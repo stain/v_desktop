@@ -58,6 +58,8 @@ typedef struct _PRIVFOLDERDATA
 
 #include "wpfolder.ih"
 #include "wpdatafile.h"
+#include "desktop.h"
+#include "helper.h"
 
 /* Enum for the folder store */
 enum
@@ -80,6 +82,118 @@ static GtkListStore * fldr_CreateStore (void)
 			      G_TYPE_BOOLEAN);
 
   return store;
+}
+
+static void
+itemActivated (GtkIconView *icon_view,
+		GtkTreePath *tree_path,
+		gpointer     user_data)
+{
+  DosBeep(1500, 100);
+}
+
+static gboolean
+fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+#if 0
+  if(fldr_checkContextButton(event))
+    {
+      WPObject *wpObject=(WPObject*)user_data;
+      
+      if(!somIsObj(wpObject))
+        return TRUE;
+
+      /* ptlPopupPt is NULLHANDLE because GTK automatically pick a useful position for the popup
+         menu. */
+      _wpDisplayMenu(wpObject, NULLHANDLE, (HWND) widget, NULLHANDLE, 0, (ULONG) 0);
+      return TRUE;
+    }
+#endif
+  return FALSE;
+}
+
+/*
+  This function creates the folder window it doesn't queries any files or creates
+  models and stuff.
+*/
+GtkWidget* fldr_createFolderWindow(WPFolder *nomSelf, const gchar* gcPath)
+{
+  GtkWidget* window;
+  GtkWidget *vbox;
+  GtkWidget *sw;
+  GtkWidget *icon_view;
+  GtkWidget *tool_bar;
+  GtkToolItem *up_button;
+  PPRIVFOLDERDATA priv;
+
+  WPFolderData *nomThis = WPFolderGetData(nomSelf);
+
+  /* Folder toplevel window. */
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  /* Set title */
+  gtk_window_set_title (GTK_WINDOW (window), gcPath);
+  /* FIXME: Set default size of folder frame. Will later use a stored value */
+  gtk_window_set_default_size (GTK_WINDOW (window), 650, 400);
+
+  vbox = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (window), vbox);
+
+  /* Create and pack the toolbar */
+  tool_bar = gtk_toolbar_new ();
+  gtk_box_pack_start (GTK_BOX (vbox), tool_bar, FALSE, FALSE, 0); /* Don't expand the toolbar vertically if sized */
+  
+  /* Parent button */
+  up_button = gtk_tool_button_new_from_stock (GTK_STOCK_GO_UP);
+  gtk_tool_item_set_is_important (up_button, TRUE);
+  /* Disable button */
+  gtk_widget_set_sensitive (GTK_WIDGET (up_button), FALSE);
+  /* Put it into the toolbar */
+  gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), up_button, -1);
+  
+  sw = gtk_scrolled_window_new (NULL, NULL);
+  /* Drawing style */
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw),
+                                       GTK_SHADOW_ETCHED_IN);
+  /* Show scrollbars only if necessary */
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw),
+                                  GTK_POLICY_AUTOMATIC,
+                                  GTK_POLICY_AUTOMATIC);
+  /* Pack it into the vbox with size adjusting to the vbox */
+  gtk_box_pack_start (GTK_BOX (vbox), sw, TRUE, TRUE, 0);
+  /* Create an icon view without model */
+  icon_view = gtk_icon_view_new ();
+  /* Allow multiple selection in icon view */
+  gtk_icon_view_set_selection_mode (GTK_ICON_VIEW (icon_view),
+                                    GTK_SELECTION_MULTIPLE);
+  /* Connect to the "item_activated" signal */
+  g_signal_connect (icon_view, "item-activated",
+                    G_CALLBACK (itemActivated), nomSelf);
+  /* This is for kb binding only */
+#if 0
+  g_signal_connect (GTK_WIDGET(icon_view), "popup-menu",
+                    G_CALLBACK (fldr_cbPopupMenu), nomSelf);
+#endif
+  /* Handle mouse buttons */
+  g_signal_connect (GTK_WIDGET(icon_view), "button-press-event",
+                    G_CALLBACK (fldr_handleButtonEvent), nomSelf);
+  g_signal_connect (GTK_WIDGET(icon_view), "button-release-event",
+                    G_CALLBACK (fldr_handleButtonEvent), nomSelf);
+
+#if 0
+  /* Connect to the "clicked" signal of the "Up" tool button */
+  g_signal_connect (up_button, "clicked",
+                    G_CALLBACK (up_clicked), store);
+#endif
+  /* Add icon view as child to the scroll window created earlier */
+  gtk_container_add (GTK_CONTAINER (sw), icon_view);
+  priv=(PPRIVFOLDERDATA)_privFolderData;
+  priv->gtkIconView=icon_view;
+
+  gtk_widget_grab_focus (icon_view);
+
+  gtk_widget_show_all (window);
+  
+  return window;
 }
 
 static BOOL
@@ -139,14 +253,15 @@ fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
               if(nomIsObj(wpDataFile))
                 {
                   gtk_list_store_append (store, &iter);
-#if 0
+
+#warning !!!! some problems with icon handling here !!!!
+                  nomPrintf("Icon ptr: %x\n", _wpQueryIcon(wpDataFile, NULLHANDLE));
                   gtk_list_store_set (store, &iter,
                                       COL_PATH, path,
                                       COL_DISPLAY_NAME, display_name,
                                       COL_IS_DIRECTORY, is_dir,
-                                      COL_PIXBUF, _wpQueryIcon(wpDataFile), //file_pixbuf,
+                                      COL_PIXBUF, _wpQueryIcon(wpDataFile, NULLHANDLE), //file_pixbuf,
                                       -1);
-#endif
                 }
             }
           g_free (path);
@@ -172,6 +287,9 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
   g_return_val_if_fail(_privFolderData!=NULLHANDLE, FALSE);      /* Huh! What happened in wpInitData()? */
   g_log("WPFolder", G_LOG_LEVEL_DEBUG, "%s: Populating %s\n", __FUNCTION__, pszPath);
 
+#warning !!!!! Window creation must be done elsewhere !!!!!
+  fldr_createFolderWindow(nomSelf, pszPath);
+
 #if 0
   /* Already populated? */
   if(fFoldersOnly && 
@@ -194,8 +312,10 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
   /* Fill our store */
   fldr_fillStore(gStore, pszPath);
 
-#if 0
+
   gtk_icon_view_set_model(GTK_ICON_VIEW (priv->gtkIconView), GTK_TREE_MODEL (priv->gstoreFldContents));
+
+
   /* We now set which model columns that correspont to the text
    * and pixbuf of each item
    */
@@ -205,7 +325,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
                                 100);
 
   g_object_unref (gStore);
-#endif
+
   return FALSE;
 }
 
@@ -233,6 +353,27 @@ NOM_Scope void NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, CORBA_Environment
 #endif
 }
 
+NOM_Scope void NOMLINK impl_WPFolder_wpQueryIcon(WPFolder* nomSelf, CORBA_Environment *ev)
+{
+  static const gchar *gchrIconName=NULLHANDLE;
+  static gpointer ptrIcon=NULLHANDLE;
+  GError *error=NULL;
+
+/* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
+
+  /* Load default wpObject icon */
+  if(!gchrIconName){
+    gchrIconName=g_build_filename(priv_getIconDir(), WPFOLDER_ICON_FILE, NULL);
+    
+    g_return_val_if_fail(g_file_test (gchrIconName, G_FILE_TEST_EXISTS), NULLHANDLE);
+    nomPrintf("IconFile: %s\n", gchrIconName);  
+    //  _hPointerCls = (HPOINTER)gdk_pixbuf_new_from_file (gchrIconName, &error);
+    ptrIcon=gdk_pixbuf_new_from_file (gchrIconName, &error);
+  }
+  return ptrIcon;
+
+  /*  WPFolder_wpQueryIcon_parent(nomSelf,  ev); */
+}
 
 
 
