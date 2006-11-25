@@ -37,6 +37,8 @@
 
 #include <nomobj.idl>
 
+#include "wpnativetypes.idl"
+
 interface WPObject : NOMObject
 {
   NOMCLASSVERSION(1, 0);
@@ -59,9 +61,18 @@ interface WPObject : NOMObject
   void wpInitData();
   void wpUnInitData();
   gpointer wpOpen(in gpointer ptrReserved, in unsigned long ulView, in gpointer ptrParams);
+  void wpLockObject();
+  boolean wpUnlockObject();
+  boolean wpObjectIsLocked();
 
   NOMOVERRIDE(nomInit);
   NOMOVERRIDE(nomUninit);
+  NOMINSTANCEVAR(gint iLockCounter);
 };
 
 #endif
+
+
+
+
+
