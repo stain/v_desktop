@@ -46,13 +46,36 @@
 #include <string.h>
 #include "wpobject.ih"
 
+#include "desktoptypes.h"
+
 NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const CORBA_unsigned_long cbBytes,
                                                     CORBA_unsigned_long* prc, CORBA_Environment *ev)
 {
-/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
-  gpointer nomRetval;
 
-  return nomRetval;
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  gpointer ptrMem=NULLHANDLE;
+  PUSEITEM pui;
+
+  /* Add mem for the inuse list structures */
+  ptrMem=NOMMalloc(cbBytes+sizeof(USEITEM)+sizeof(MEMORYITEM));
+
+  if(!ptrMem) {
+    if(prc)
+      *prc=(gulong)NOMERROR_NOT_ENOUGH_MEMORY;
+    return NULLHANDLE;
+  }
+
+  /* Fill the structures */
+  pui=(PUSEITEM)ptrMem;
+  pui->type=(ULONG)USAGE_MEMORY;
+  pui++;
+  ((MEMORYITEM*)pui)->cbBuffer=cbBytes;
+  
+#warning !!!!! Memory is not in inuse list !!!!!
+  /* Add memory to in use list */
+  //_wpAddToObjUseList(somSelf, (PUSEITEM)pMem);
+  
+  return ptrMem+sizeof(USEITEM)+sizeof(MEMORYITEM);    
 }
 
 NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpFreeMem(WPObject* nomSelf, const gpointer pByte, CORBA_Environment *ev)
@@ -60,7 +83,15 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpFreeMem(WPObject* nomSelf, const
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
   CORBA_boolean nomRetval;
 
-  return nomRetval;
+  if(!pByte)
+    return FALSE;
+
+  /* remove from inuse list */
+#warning !!!!! Memory not removed from inuse list !!!!!
+  //_wpDeleteFromObjUseList(somSelf, (PUSEITEM)(pByte-sizeof(USEITEM)-sizeof(MEMORYITEM)) );
+
+  NOMFree(pByte-sizeof(USEITEM)-sizeof(MEMORYITEM));
+  return TRUE; /* free can't fail */;
 }
 
 NOM_Scope void NOMLINK impl_WPObject_nomInit(WPObject* nomSelf, CORBA_Environment *ev)
