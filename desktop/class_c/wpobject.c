@@ -81,7 +81,6 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const COR
 NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpFreeMem(WPObject* nomSelf, const gpointer pByte, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
-  CORBA_boolean nomRetval;
 
   if(!pByte)
     return FALSE;
@@ -111,10 +110,9 @@ NOM_Scope void NOMLINK impl_WPObject_nomUninit(WPObject* nomSelf, CORBA_Environm
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
-#if 0
-  /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
+  _wpUnInitData(nomSelf, ev);
+
   WPObject_nomUninit_parent(nomSelf,  ev);
-#endif
 }
 
 NOM_Scope void NOMLINK impl_WPObject_wpInitData(WPObject* nomSelf, CORBA_Environment *ev)
@@ -136,3 +134,32 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const gpointe
 
   return nomRetval;
 }
+
+
+NOM_Scope void NOMLINK impl_WPObject_wpLockObject(WPObject* nomSelf, CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  g_atomic_int_inc(&_iLockCounter);
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpUnlockObject(WPObject* nomSelf, CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  /* We return TRUE if the counter is 0 */
+  if(g_atomic_int_dec_and_test(&_iLockCounter))
+    {
+      /* Counter is 0 so the object should go dormant */
+      return TRUE;
+    }
+  return FALSE;
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpObjectIsLocked(WPObject* nomSelf, CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  return g_atomic_int_get(&_iLockCounter) && TRUE;
+}
+
