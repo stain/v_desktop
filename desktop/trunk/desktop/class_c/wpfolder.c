@@ -70,10 +70,17 @@ NOM_Scope void NOMLINK impl_WPFolder_wpInitData(WPFolder* nomSelf, CORBA_Environ
 
   nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
             __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
-
-
 }
 
+NOM_Scope void NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, CORBA_Environment *ev)
+{
+/* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
+
+#if 0
+  /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
+  WPFolder_wpOpen_parent(nomSelf,  ev);
+#endif
+}
 
 
 

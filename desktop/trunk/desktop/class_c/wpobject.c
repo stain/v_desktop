@@ -67,7 +67,7 @@ NOM_Scope void NOMLINK impl_WPObject_nomInit(WPObject* nomSelf, CORBA_Environmen
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
   /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
-  WPObject_nomInit_parent(nomSelf,  ev);
+  WPObject_nomInit_parent((NOMObject*) nomSelf,  ev);
 
   nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
             __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
@@ -97,3 +97,10 @@ NOM_Scope void NOMLINK impl_WPObject_wpUnInitData(WPObject* nomSelf, CORBA_Envir
 
 }
 
+NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const gpointer ptrReserved, const CORBA_unsigned_long ulView, const gpointer ptrParams, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  gpointer nomRetval=NULLHANDLE;
+
+  return nomRetval;
+}
