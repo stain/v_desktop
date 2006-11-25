@@ -15,14 +15,13 @@ EXPORTS
 	_WPFileSystemClassData
 	_WPFileSystemCClassData
 	WPFileSystemNewClass
-
 ;	_M_WPFileSystemClassData
 ;	_M_WPFileSystemCClassData
 ;	M_WPFileSystemNewClass
 
-;	_WPFolderClassData
-;	_WPFolderCClassData
-;	WPFolderNewClass
+	_WPFolderClassData
+	_WPFolderCClassData
+	WPFolderNewClass
 ;	_M_WPFolderClassData
 ;	_M_WPFolderCClassData
 ;	M_WPFolderNewClass
