@@ -21,7 +21,7 @@ TKIDLDIR	=	$(NOMPATH)/idl  # The object TK lives here
 #INC		= 	./include -I $(NOMPATH)/include -I $(NOMPATH)/class_h
 INC		= 	./include -I ./class_h -I $(NOMPATH)/class_h -I $(NOMPATH)/include
 
-ADDLIBS		=	-l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
+ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
 CLASSDLLLIBS	=	-l$(OBJDIR)/nobjtk
 
 # Define objects to build

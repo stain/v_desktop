@@ -41,15 +41,37 @@
 #define INCL_DOS
 #include <os2.h>
 
+#include "nom.h"
+#include <nomtk.h>
+
 #include <string.h>
 #include "wpfolder.ih"
 
+
+/* pszPath contains the fully qualified path (checked with WPS) */
 NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, const CORBA_unsigned_long ulReserved, const CORBA_char * pszPath, const CORBA_boolean fFoldersOnly, CORBA_Environment *ev)
 {
 /* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
   CORBA_boolean nomRetval;
 
+  nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s. Path is %s\n",
+            __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName, pszPath);
+
   return nomRetval;
+}
+
+
+NOM_Scope void NOMLINK impl_WPFolder_wpInitData(WPFolder* nomSelf, CORBA_Environment *ev)
+{
+/* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
+
+  /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
+  WPFolder_wpInitData_parent(nomSelf,  ev);
+
+  nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
+            __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
+
+
 }
 
 

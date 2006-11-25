@@ -42,16 +42,17 @@
 #include "nom.h"
 #include "nomtk.h"
 #include "wpobject.h"
+#include "wpfolder.h"
 
 int createQuitWindow(void);
 
 PNOM_ENV pEnv;
 NOMClassMgr *NOMClassMgrObject;
 
-#if 0
+
 /* Desktop folder */
 WPFolder *wpDesktop;
-#endif
+
 
 /*
   Main entry point. This function is called from the EMX wrapper. Be aware that gtk_init()
@@ -65,18 +66,18 @@ int _System  main_loop()
 
 
   /* Create a window with a 'quit' button to terminate us */
-  createQuitWindow();
+ createQuitWindow();
 
 
   /* Query current dir */
   g_strlcpy(desktopDir, g_get_current_dir(), sizeof(desktopDir));
-  nomPrintf("Desktop: %s\n", desktopDir);
+  dbgPrintf("Desktop: %s", desktopDir);
 
     /*
       Bootstrap our objects...
      */
     pEnv=nomTkInit();
-    dbgPrintf( "nomTKinit returned: %x", pEnv);
+    //dbgPrintf( "nomTKinit returned: %x", pEnv);
 
     if(!pEnv) {
       nomPrintf("Can't initialize NOM environment. Exit...\n");
@@ -85,13 +86,22 @@ int _System  main_loop()
 
     /* Init SOM */
     NOMClassMgrObject=nomEnvironmentNew();
-    dbgPrintf( "NOMClassMgrObject: %x", NOMClassMgrObject);
+    //dbgPrintf( "NOMClassMgrObject: %x", NOMClassMgrObject);
 
 
 
     WPObject* wpObject;
     wpObject=WPObjectNew();
-    dbgPrintf( "wpObject: %x", wpObject);
+    //dbgPrintf( "wpObject: %x", wpObject);
+
+    /* Create desktop folder */
+    wpDesktop=WPFolderNew();
+    dbgPrintf( "Created desktop object: %x", wpDesktop);
+
+    WPFolder_wpPopulate(wpDesktop, 0, desktopDir, 0,  NULL);
+    /*    WPFolder_wpPopulate(wpObject, 0,"blabla 2", 0,  NULL);  */
+
+    
 #if 0
     /* Base classes */
     wpObject=WPDataFileNew();
@@ -99,9 +109,6 @@ int _System  main_loop()
     somPrintf("\nNew wpObject: %x\n", wpObject);
     somPrintf("  -> Classname is: %s\n", _somGetClassName(wpObject));
 
-    /* Create desktop folder */
-    wpDesktop=WPFolderNew();
-    dbgPrintf( "Created desktop object: %x", wpDesktop);
 
     /* Test only!!! */
     _tstSetFullPath(wpDesktop, desktopDir);
