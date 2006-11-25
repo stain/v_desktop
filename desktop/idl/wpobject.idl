@@ -64,6 +64,7 @@ interface WPObject : NOMObject
   void wpLockObject();
   boolean wpUnlockObject();
   boolean wpObjectIsLocked();
+  gpointer wpQueryIcon();
 
   NOMOVERRIDE(nomInit);
   NOMOVERRIDE(nomUninit);

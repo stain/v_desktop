@@ -163,3 +163,9 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpObjectIsLocked(WPObject* nomSelf
   return g_atomic_int_get(&_iLockCounter) && TRUE;
 }
 
+NOM_Scope gpointer NOMLINK impl_WPObject_wpQueryIcon(WPObject* nomSelf, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  return NULLHANDLE;
+}
