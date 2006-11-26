@@ -38,15 +38,17 @@
  * And remember, phase 3 is near...
  */
 #define INCL_DOS
+#define INCL_DOSERRORS
+#define INCL_DOSSEMAPHORES
 #include <os2.h>
 
 #include <nom.h>
 #include <nomtk.h>
 
 #include <string.h>
+#include "desktoptypes.h"
 #include "wpobject.ih"
 
-#include "desktoptypes.h"
 
 NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const CORBA_unsigned_long cbBytes,
                                                     CORBA_unsigned_long* prc, CORBA_Environment *ev)
@@ -95,7 +97,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpFreeMem(WPObject* nomSelf, const
 
 NOM_Scope void NOMLINK impl_WPObject_nomInit(WPObject* nomSelf, CORBA_Environment *ev)
 {
-/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
 
   /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
   WPObject_nomInit_parent((NOMObject*) nomSelf,  ev);
@@ -103,15 +105,24 @@ NOM_Scope void NOMLINK impl_WPObject_nomInit(WPObject* nomSelf, CORBA_Environmen
   nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
             __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
 
+  /* Initialize important data before letting subclasses do their stuff */
+  //_gObjectMutex=g_mutex_new();
+  if(NO_ERROR!=DosCreateMutexSem(NULL, &_gObjectMutex, 0, FALSE))
+    {
+      g_error("Can't create a mutex for WPObject!");
+    }
+
   _wpInitData(nomSelf, ev);
 }
 
 NOM_Scope void NOMLINK impl_WPObject_nomUninit(WPObject* nomSelf, CORBA_Environment *ev)
 {
-/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
 
   _wpUnInitData(nomSelf, ev);
 
+  //g_mutex_free(_gObjectMutex);
+  DosCloseMutexSem(_gObjectMutex);
   WPObject_nomUninit_parent(nomSelf,  ev);
 }
 
@@ -168,4 +179,18 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpQueryIcon(WPObject* nomSelf, CORBA_En
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
   return NULLHANDLE;
+}
+
+NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpRequestObjectMutexSem(WPObject* nomSelf,
+                                                                            const CORBA_unsigned_long ulReserved, CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  return DosRequestMutexSem(_gObjectMutex, -1L);
+}
+
+NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpReleaseObjectMutexSem(WPObject* nomSelf, CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+  return DosReleaseMutexSem(_gObjectMutex);
 }

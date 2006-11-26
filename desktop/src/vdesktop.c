@@ -64,6 +64,11 @@ int _System  main_loop()
  
  g_message("We started...\n");    
 
+#if 0
+ /* Initialize thread subsystem */
+ if(!g_thread_supported())
+   g_thread_init(NULL);
+#endif
 
   /* Create a window with a 'quit' button to terminate us */
  createQuitWindow();
