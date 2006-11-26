@@ -55,20 +55,27 @@ interface WPObject : NOMObject
   /* Memory allocation */
   gpointer wpAllocMem(in unsigned long cbBytes,
                       inout unsigned long prc);
-
-  boolean wpFreeMem(in gpointer pByte);
-
-  void wpInitData();
-  void wpUnInitData();
+  boolean  wpFreeMem(in gpointer pByte);
+  void     wpInitData();
+  void     wpUnInitData();
   gpointer wpOpen(in gpointer ptrReserved, in unsigned long ulView, in gpointer ptrParams);
-  void wpLockObject();
-  boolean wpUnlockObject();
-  boolean wpObjectIsLocked();
+  void     wpLockObject();
+  boolean  wpUnlockObject();
+  boolean  wpObjectIsLocked();
   gpointer wpQueryIcon();
+  unsigned long  wpRequestObjectMutexSem(in unsigned long ulReserved);
+  unsigned long     wpReleaseObjectMutexSem();
 
+  /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);
   NOMOVERRIDE(nomUninit);
+
+  /* Instancce variables of this class. Theses are not
+     attributes. */
   NOMINSTANCEVAR(gint iLockCounter);
+  NOMINSTANCEVAR(HMUX gObjectMutex);
+  NOMINSTANCEVAR(PGSList glstObjectInUse);
+
 };
 
 #endif

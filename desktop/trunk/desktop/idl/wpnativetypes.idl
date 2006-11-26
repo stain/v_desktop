@@ -37,6 +37,9 @@
 
 native PPRIVFOLDERDATA;
 native gint;
+native PGMutex; /* For the object mutex */
+native HMUX;    /* This one will be removed when a threaded glib is avail */
+native PGSList; /* For inuse list */
 
 #endif /* WPFOLDERTYPES_IDL_INCLUDED */
 
