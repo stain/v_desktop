@@ -66,7 +66,7 @@ NOM_Scope CORBA_long NOMLINK impl_WPDataFile_wpSetFileSizeInfo(WPDataFile* nomSe
   return nomRetval;
 }
 
-NOM_Scope void NOMLINK impl_WPDataFile_wpQueryIcon(WPDataFile* nomSelf, CORBA_Environment *ev)
+NOM_Scope gpointer NOMLINK impl_WPDataFile_wpQueryIcon(WPDataFile* nomSelf, CORBA_Environment *ev)
 {
   static const gchar *gchrIconName=NULLHANDLE;
   static gpointer ptrIcon=NULLHANDLE;

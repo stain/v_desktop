@@ -59,7 +59,7 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const COR
   PUSEITEM pui;
 
   /* Add mem for the inuse list structures */
-  ptrMem=NOMMalloc(cbBytes+sizeof(USEITEM)+sizeof(MEMORYITEM));
+  ptrMem=NOMCalloc(1, cbBytes+sizeof(USEITEM)+sizeof(MEMORYITEM));
 
   if(!ptrMem) {
     if(prc)

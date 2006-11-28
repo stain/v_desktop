@@ -32,35 +32,59 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef WPFOLDER_IDL_INCLUDED
-#define WPFOLDER_IDL_INCLUDED
+#ifndef NOMSTRING_IDL_INCLUDED
+#define NOMSTRING_IDL_INCLUDED
 
-#include "wpfilesystem.idl"
+#include "nomobj.idl"
+#include "nomfoundation.idl"
 
-interface WPFolder : WPFileSystem
+NOMCLASSNAME(NOMString);
+
+interface NOMString : NOMObject
 {
   NOMCLASSVERSION(1, 0);
 
-  boolean wpPopulate(in unsigned long ulReserved,
-                  in string pszPath,
-                  in boolean fFoldersOnly);
-  gpointer wpCreateFolderWindow();
+  PNOMString assignString(in PNOMString nomString);   
+  /* Assign a C string to this NOMString */
+  PNOMString assignCString(in string chrString);   
+  /* Returns the C string held by this NOMString*/
+  string getCString();
+  PNOMString appendString(in PNOMString nomString);   
+  PNOMString prependString(in PNOMString nomString);
+  PNOMString appendCString(in string chrString);   
+  PNOMString prependCString(in string chrString);
 
-#if 0
-  WPObject wpQueryContent(in WPObject Object,
-                          in ULONG ulOption);
 
-  BOOL wpAddToContent(in WPObject Object);
-#endif
-
-  NOMOVERRIDE(wpInitData);
-  NOMOVERRIDE(wpOpen);
-  NOMOVERRIDE(wpQueryIcon);
-
-  NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData);
+  /* Init and uninit the GString */
+  NOMOVERRIDE(nomInit);
+  NOMOVERRIDE(nomUninit);
+  /* The GString holding the data */
+  NOMINSTANCEVAR(PGString gString);
 };
 
-#endif /* WPFOLDER_IDL_INCLUDED */
+#endif  /* NOMSTRING_IDL_INCLUDED */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

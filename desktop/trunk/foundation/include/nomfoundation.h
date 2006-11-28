@@ -31,37 +31,9 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
+#ifndef NOMFOUNDATION_H_INCLUDED
+#define NOMFOUNDATION_H_INCLUDED
 
-#ifndef WPFOLDER_IDL_INCLUDED
-#define WPFOLDER_IDL_INCLUDED
+typedef GString *PGString;
 
-#include "wpfilesystem.idl"
-
-interface WPFolder : WPFileSystem
-{
-  NOMCLASSVERSION(1, 0);
-
-  boolean wpPopulate(in unsigned long ulReserved,
-                  in string pszPath,
-                  in boolean fFoldersOnly);
-  gpointer wpCreateFolderWindow();
-
-#if 0
-  WPObject wpQueryContent(in WPObject Object,
-                          in ULONG ulOption);
-
-  BOOL wpAddToContent(in WPObject Object);
-#endif
-
-  NOMOVERRIDE(wpInitData);
-  NOMOVERRIDE(wpOpen);
-  NOMOVERRIDE(wpQueryIcon);
-
-  NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData);
-};
-
-#endif /* WPFOLDER_IDL_INCLUDED */
-
-
-
-
+#endif /* NOMFOUNDATION_H_INCLUDED */
