@@ -16,6 +16,10 @@ typedef struct _MEMORYITEM
 
 #define USAGE_MEMORY          1
 
+#define OPEN_DEFAULT          0
+#define OPEN_CONTENTS         1
+#define OPEN_SETTINGS         2
+
 /* Misc types used with objects */
 typedef GSList *PGSList;
 typedef GMutex *PGMutex;

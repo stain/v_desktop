@@ -32,36 +32,6 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef WPFOLDER_IDL_INCLUDED
-#define WPFOLDER_IDL_INCLUDED
-
-#include "wpfilesystem.idl"
-
-interface WPFolder : WPFileSystem
-{
-  NOMCLASSVERSION(1, 0);
-
-  boolean wpPopulate(in unsigned long ulReserved,
-                  in string pszPath,
-                  in boolean fFoldersOnly);
-  gpointer wpCreateFolderWindow();
-
-#if 0
-  WPObject wpQueryContent(in WPObject Object,
-                          in ULONG ulOption);
-
-  BOOL wpAddToContent(in WPObject Object);
-#endif
-
-  NOMOVERRIDE(wpInitData);
-  NOMOVERRIDE(wpOpen);
-  NOMOVERRIDE(wpQueryIcon);
-
-  NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData);
-};
-
-#endif /* WPFOLDER_IDL_INCLUDED */
-
-
-
+native GString;
+native PGString; /* Pointer on GString */
 
