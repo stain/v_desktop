@@ -25,7 +25,8 @@ ADDLIBS		=	 -l$(OBJDIR)/nobjtk
 # Define objects to build
 
 
-CLASSOBJECTS	=	$(OBJDIR)/nomstring.o
+CLASSOBJECTS	=	$(OBJDIR)/nomstring.o \
+			$(OBJDIR)/nomfilepath.o
 
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c
@@ -65,6 +66,12 @@ $(CLASSINC)/%.ih:	$(IDLDIR)/%.idl
 
 $(OBJDIR)/%.o:	$(CDIR)/%.c
 	$(CC) -I $(INC) $(GCCFLAGSDLL)  -o$@ $<
+
+$(CLASSCDIR)/%.c:	$(IDLDIR)/%.idl
+	$(BASE_NOMCOMPILEIH)
+	$(BASE_NOMCOMPILEH)
+	$(BASE_NOMCOMPILEC)
+
 
 # Create the directories for temp files
 $(OBJDIR)/o.dep:

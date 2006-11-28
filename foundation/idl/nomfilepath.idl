@@ -31,10 +31,47 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
-#ifndef NOMFOUNDATION_IDL_INCLUDED
-#define NOMFOUNDATION_IDL_INCLUDED
 
-native GString;
-native PGString; /* Pointer on GString */
+#ifndef NOMFILEPATH_IDL_INCLUDED
+#define NOMFILEPATH_IDL_INCLUDED
 
-#endif /* NOMFOUNDATION_IDL_INCLUDED */
+#include "nomstring.idl"
+#include "nomfoundation.idl"
+
+NOMCLASSNAME(NOMFilePath);
+
+interface NOMFilePath : NOMString
+{
+  NOMCLASSVERSION(1, 0);
+
+  PNOMFilePath appendPath(in PNOMFilePath nomFPath);   
+
+};
+
+#endif  /* NOMFILEPATH_IDL_INCLUDED */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
