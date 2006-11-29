@@ -62,6 +62,10 @@ typedef struct _PRIVFOLDERDATA
 #include "helper.h"
 #include "desktoptypes.h"
 
+/* Gui stuff */
+#include "nomguitk.h"
+#include "nomfolderwindow.h"
+
 /* Enum for the folder store */
 enum
 {
@@ -84,69 +88,6 @@ static GtkListStore * fldr_CreateStore (void)
 
   return store;
 }
-
-static void
-itemActivated (GtkIconView *icon_view,
-		GtkTreePath *tree_path,
-		gpointer     user_data)
-{
-  DosBeep(1500, 100);
-}
-
-/*
-  Check if the right button click was within a certain time. That means
-  the user released the button again within a short time period. On OS/2
-  a context menu will display after the user released the button not when
-  the user pressed it.
- */
-#define CTXT_MENU_BUTTON_DELAY 250
-static gboolean
-fldr_checkContextButton(GdkEventButton *event)
-{
-  static guint guiTime=0;
-
-  /* Right mouse button */
-  if (event->button != 3)
-    return FALSE;
-
-  /* Ignore double-clicks and triple-clicks */
-  if(event->type == GDK_BUTTON_PRESS)
-    guiTime=event->time;
-
-  if(event->type == GDK_BUTTON_RELEASE)
-    {
-      if(event->time-guiTime<CTXT_MENU_BUTTON_DELAY)
-        return TRUE;
-    }
-
-  return FALSE;
-}
-
-static gboolean
-fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
-{
-  if(fldr_checkContextButton(event))
-    {
-      DosBeep(5000, 100);
-      /* This is the folder object not the object on which a click occured */
-      WPObject *wpObject=(WPObject*)user_data;
-      if(nomIsObj(wpObject)){
-        nomPrintf("%s: %x->%s\n", __FUNCTION__, wpObject, wpObject->mtab->nomClassName);        
-      }
-#if 0      
-      if(!somIsObj(wpObject))
-        return TRUE;
-
-      /* ptlPopupPt is NULLHANDLE because GTK automatically pick a useful position for the popup
-         menu. */
-      _wpDisplayMenu(wpObject, NULLHANDLE, (HWND) widget, NULLHANDLE, 0, (ULONG) 0);
-      return TRUE;
-#endif
-    }
-
-  return FALSE;
-}
-
 
 static BOOL
 fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
@@ -229,7 +170,9 @@ fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
 }
 
 /* pszPath contains the fully qualified path (checked with WPS) */
-NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, const CORBA_unsigned_long ulReserved, const CORBA_char * pszPath, const CORBA_boolean fFoldersOnly, CORBA_Environment *ev)
+NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, const CORBA_unsigned_long ulReserved,
+                                                         const CORBA_char * pszPath, const CORBA_boolean fFoldersOnly,
+                                                         CORBA_Environment *ev)
 {
  WPFolderData* nomThis=WPFolderGetData(nomSelf); 
   GtkListStore* gStore;
@@ -368,89 +311,25 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpQueryIcon(WPFolder* nomSelf, CORBA_En
 }
 
 /*
-  This method creates the folder window it doesn't queries any files or creates
+  This method creates the folder window it doesn't query any files or creates
   models and stuff.
 */
 NOM_Scope gpointer NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* nomSelf, CORBA_Environment *ev)
 {
-/* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
-  GtkWidget* window;
-  GtkWidget *vbox;
-  GtkWidget *sw;
-  GtkWidget *icon_view;
-  GtkWidget *tool_bar;
-  GtkToolItem *up_button;
+  NOMFolderWindow * nomFldrWindow;
   PPRIVFOLDERDATA priv;
-
   WPFolderData *nomThis = WPFolderGetData(nomSelf);
 
-  /* Folder toplevel window. */
-  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  /* Set title */
-  //  gtk_window_set_title (GTK_WINDOW (window), gcPath);
-  gtk_window_set_title (GTK_WINDOW (window), "");
-  /* FIXME: Set default size of folder frame. Will later use a stored value */
-  gtk_window_set_default_size (GTK_WINDOW (window), 650, 400);
-
-  vbox = gtk_vbox_new (FALSE, 0);
-  gtk_container_add (GTK_CONTAINER (window), vbox);
-
-  /* Create and pack the toolbar */
-  tool_bar = gtk_toolbar_new ();
-  gtk_box_pack_start (GTK_BOX (vbox), tool_bar, FALSE, FALSE, 0); /* Don't expand the toolbar vertically if sized */
-  
-  /* Parent button */
-  up_button = gtk_tool_button_new_from_stock (GTK_STOCK_GO_UP);
-  gtk_tool_item_set_is_important (up_button, TRUE);
-  /* Disable button */
-  gtk_widget_set_sensitive (GTK_WIDGET (up_button), FALSE);
-  /* Put it into the toolbar */
-  gtk_toolbar_insert (GTK_TOOLBAR (tool_bar), up_button, -1);
-  
-  sw = gtk_scrolled_window_new (NULL, NULL);
-  /* Drawing style */
-  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw),
-                                       GTK_SHADOW_ETCHED_IN);
-  /* Show scrollbars only if necessary */
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw),
-                                  GTK_POLICY_AUTOMATIC,
-                                  GTK_POLICY_AUTOMATIC);
-  /* Pack it into the vbox with size adjusting to the vbox */
-  gtk_box_pack_start (GTK_BOX (vbox), sw, TRUE, TRUE, 0);
-  /* Create an icon view without model */
-  icon_view = gtk_icon_view_new ();
-  /* Allow multiple selection in icon view */
-  gtk_icon_view_set_selection_mode (GTK_ICON_VIEW (icon_view),
-                                    GTK_SELECTION_MULTIPLE);
-  /* Connect to the "item_activated" signal */
-  g_signal_connect (icon_view, "item-activated",
-                    G_CALLBACK (itemActivated), nomSelf);
-  /* This is for kb binding only */
-#if 0
-  g_signal_connect (GTK_WIDGET(icon_view), "popup-menu",
-                    G_CALLBACK (fldr_cbPopupMenu), nomSelf);
-#endif
-  /* Handle mouse buttons */
-  g_signal_connect (GTK_WIDGET(icon_view), "button-press-event",
-                    G_CALLBACK (fldr_handleButtonEvent), nomSelf);
-  g_signal_connect (GTK_WIDGET(icon_view), "button-release-event",
-                    G_CALLBACK (fldr_handleButtonEvent), nomSelf);
-
-#if 0
-  /* Connect to the "clicked" signal of the "Up" tool button */
-  g_signal_connect (up_button, "clicked",
-                    G_CALLBACK (up_clicked), store);
-#endif
-  /* Add icon view as child to the scroll window created earlier */
-  gtk_container_add (GTK_CONTAINER (sw), icon_view);
   priv=(PPRIVFOLDERDATA)_privFolderData;
-  priv->gtkIconView=icon_view;
 
-  gtk_widget_grab_focus (icon_view);
+  nomFldrWindow=NOMFolderWindowNew();
 
-  gtk_widget_show_all (window);
-  
-  return window;
+#warning !!!!! This is only for testing !!!!!
+  priv->gtkIconView=NOMFolderWindow_getContainerHandle(nomFldrWindow, ev);
+
+  NOMFolderWindow_show(nomFldrWindow, ev);
+
+  return NOMFolderWindow_getWindowHandle(nomFldrWindow, ev);;
 }
 
 

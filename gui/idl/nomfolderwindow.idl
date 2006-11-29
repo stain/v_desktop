@@ -44,6 +44,8 @@ interface NOMFolderWindow : NOMWindow
   PGtkWidget getContainerHandle();
   void setContainerHandle(in PGtkWidget pgWidget);   
 
+  NOMOVERRIDE(nomInit);
+
   NOMINSTANCEVAR(PGtkWidget _pgContainerHandle);
 };
 

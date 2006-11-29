@@ -58,7 +58,21 @@ NOM_Scope PGtkWidget NOMLINK impl_NOMWindow_getWindowHandle(NOMWindow* nomSelf, 
 
 NOM_Scope void NOMLINK impl_NOMWindow_setWindowHandle(NOMWindow* nomSelf, const PGtkWidget pgWidget, CORBA_Environment *ev)
 {
-/* NOMWindowData* nomThis=NOMWindowGetData(nomSelf); */
+  NOMWindowData* nomThis=NOMWindowGetData(nomSelf);
 
+  _pgWindowHandle=pgWidget;
+}
+
+NOM_Scope void NOMLINK impl_NOMWindow_show(NOMWindow* nomSelf, CORBA_Environment *ev)
+{
+  /* NOMWindowData* nomThis=NOMWindowGetData(nomSelf); */
+
+  gtk_widget_show_all(NOMWindow_getWindowHandle(nomSelf, NULLHANDLE));
+}
+
+NOM_Scope void NOMLINK impl_NOMWindow_hide(NOMWindow* nomSelf, CORBA_Environment *ev)
+{
+  /* NOMWindowData* nomThis=NOMWindowGetData(nomSelf); */
+  gtk_widget_hide(NOMWindow_getWindowHandle(nomSelf, NULLHANDLE));
 }
 
