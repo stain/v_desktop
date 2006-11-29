@@ -16,7 +16,8 @@
 NOM_Scope PNOMFilePath NOMLINK impl_NOMFilePath_appendPath(NOMFilePath* nomSelf, const PNOMFilePath nomFPath, CORBA_Environment *ev)
 {
 /* NOMFilePathData* nomThis=NOMFilePathGetData(nomSelf); */
-
+#warning !!!!! NOMFilePath_appendPath() is a stub !!!!!
+  NOMFilePath_appendString((NOMString*) nomSelf, (NOMString*)nomFPath, NULLHANDLE);
   return nomSelf;
 }
 

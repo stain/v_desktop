@@ -37,6 +37,8 @@
 
 #include "wpfilesystem.idl"
 
+NOMCLASSNAME(WPFolder);
+
 interface WPFolder : WPFileSystem
 {
   NOMCLASSVERSION(1, 0);
