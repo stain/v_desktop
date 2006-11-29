@@ -25,9 +25,8 @@ ADDLIBS		=	 -l$(OBJDIR)/nobjtk
 # Define objects to build
 
 
-CLASSOBJECTS	=	$(OBJDIR)/nomstring.o \
-			$(OBJDIR)/nomfilepath.o
-
+CLASSOBJECTS	=	$(OBJDIR)/nomwindow.o \
+			$(OBJDIR)/nomfolderwindow.o
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c
 
