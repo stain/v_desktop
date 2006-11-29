@@ -3,7 +3,7 @@
 # Note: that the desktop is compiled as a DLL
 # due to some problems with libc<->EMX
 
-include ./make.inc
+include ./../make.inc
 
 
 OBJDIR		=	./../../../o
@@ -19,10 +19,11 @@ IDLDIR		=	./idl
 TKIDLDIR	=	$(NOMPATH)/idl  # The object TK lives here
 
 #INC		= 	./include -I $(NOMPATH)/include -I $(NOMPATH)/class_h
-INC		= 	./include -I ./class_h -I $(NOMPATH)/class_h -I $(NOMPATH)/include
+INC		= 	./include -I ./class_h -I $(NOMPATH)/class_h -I $(NOMPATH)/include \
+			-I $(GUITKPATH)/class_h -I $(GUITKPATH)/include
 
 ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
-CLASSDLLLIBS	=	-l$(OBJDIR)/nobjtk
+CLASSDLLLIBS	=	-l$(OBJDIR)/nobjtk -l$(OBJDIR)/voyguitk
 
 # Define objects to build
 
