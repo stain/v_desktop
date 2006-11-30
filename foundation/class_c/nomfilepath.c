@@ -13,11 +13,11 @@
 
 #include "nomfilepath.ih"
 
-NOM_Scope PNOMFilePath NOMLINK impl_NOMFilePath_appendPath(NOMFilePath* nomSelf, const PNOMFilePath nomFPath, CORBA_Environment *ev)
+NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendPath(NOMPath* nomSelf, const PNOMPath nomPath, CORBA_Environment *ev)
 {
 /* NOMFilePathData* nomThis=NOMFilePathGetData(nomSelf); */
-#warning !!!!! NOMFilePath_appendPath() is a stub !!!!!
-  NOMFilePath_appendString((NOMString*) nomSelf, (NOMString*)nomFPath, NULLHANDLE);
+#warning !!!!! NOMPath_appendPath() is a stub !!!!!
+  NOMPath_appendString((NOMString*) nomSelf, (NOMString*)nomPath, NULLHANDLE);
   return nomSelf;
 }
 

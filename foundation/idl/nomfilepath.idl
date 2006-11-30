@@ -32,23 +32,23 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef NOMFILEPATH_IDL_INCLUDED
-#define NOMFILEPATH_IDL_INCLUDED
+#ifndef NOMPATH_IDL_INCLUDED
+#define NOMPATH_IDL_INCLUDED
 
 #include "nomstring.idl"
 #include "nomfoundation.idl"
 
-NOMCLASSNAME(NOMFilePath);
+NOMCLASSNAME(NOMPath);
 
-interface NOMFilePath : NOMString
+interface NOMPath : NOMString
 {
   NOMCLASSVERSION(1, 0);
 
-  PNOMFilePath appendPath(in PNOMFilePath nomFPath);   
+  PNOMPath appendPath(in PNOMPath nomPath);   
 
 };
 
-#endif  /* NOMFILEPATH_IDL_INCLUDED */
+#endif  /* NOMPATH_IDL_INCLUDED */
 
 
 
