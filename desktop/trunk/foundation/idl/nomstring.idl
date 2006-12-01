@@ -53,8 +53,8 @@ interface NOMString : NOMObject
   PNOMString prependString(in PNOMString nomString);
   PNOMString appendCString(in string chrString);   
   PNOMString prependCString(in string chrString);
-
-
+  unsigned long length();
+  PNOMString truncateString(in unsigned long ulNewLen);
   /* Init and uninit the GString */
   NOMOVERRIDE(nomInit);
   NOMOVERRIDE(nomUninit);

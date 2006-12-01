@@ -45,7 +45,8 @@ interface NOMPath : NOMString
   NOMCLASSVERSION(1, 0);
 
   PNOMPath appendPath(in PNOMPath nomPath);   
-
+  PNOMPath appendSeparator();
+  PNOMPath stripSeparator();
 };
 
 #endif  /* NOMPATH_IDL_INCLUDED */
