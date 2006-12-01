@@ -61,7 +61,7 @@ NOM_Scope PNOMString NOMLINK impl_NOMString_assignCString(NOMString* nomSelf, co
   return nomSelf;
 }
 
-/* Returns the C string held by this NOMString*/
+/* Returns the C string held by this NOMString */
 NOM_Scope CORBA_string NOMLINK impl_NOMString_getCString(NOMString* nomSelf, CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
@@ -103,14 +103,32 @@ NOM_Scope PNOMString NOMLINK impl_NOMString_prependCString(NOMString* nomSelf, c
   return nomSelf;
 }
 
+NOM_Scope CORBA_unsigned_long NOMLINK impl_NOMString_length(NOMString* nomSelf, CORBA_Environment *ev)
+{
+  NOMStringData* nomThis=NOMStringGetData(nomSelf);
+
+  return _gString->len;
+}
+
+NOM_Scope PNOMString NOMLINK impl_NOMString_truncateString(NOMString* nomSelf, const CORBA_unsigned_long ulNewLen,
+                                                           CORBA_Environment *ev)
+{
+  NOMStringData* nomThis=NOMStringGetData(nomSelf);
+
+  g_string_truncate(_gString, ulNewLen);
+
+  return nomSelf;
+}
+
+
 NOM_Scope void NOMLINK impl_NOMString_nomInit(NOMString* nomSelf, CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
 
   NOMString_nomInit_parent((NOMObject*)nomSelf,  ev);
 
-  /* Alloc an empty  GString */
-  _gString=g_string_new(NULL);
+  /* Alloc a zero length GString */
+  _gString=g_string_new("");
 }
 
 
