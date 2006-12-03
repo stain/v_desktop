@@ -47,21 +47,45 @@ int main( int   argc,
   UCHAR uchrError[256];
   HMODULE hModule;
   HMODULE hModuleGTK;
+  HMODULE hModuleGC;
   PFN proc;
 
+  /*
+    Initialize the garbage collector.
+   */
+  if((rc=DosLoadModule(uchrError, sizeof(uchrError),"vdesktop.dll", &hModuleGC))!=NO_ERROR)
+    {
+      printf("DosLoadmodule for vdesktop.dll failed with rc=0x%x because of module %s.\n", (int)rc, uchrError);
+      return 1;
+    };
+  fprintf(stderr, "DLL handle for Vdesktop.dll is: 0x%x\n", (int)hModuleGC);
+  if((rc = DosQueryProcAddr(hModuleGC,                  /* Handle to module           */
+                            0L,                         /* No ProcName specified      */
+                            "initGarbageCollection",    /* ProcName (not specified)   */
+                            &proc))!=NO_ERROR)          /* Address returned           0 */
+    {
+       fprintf(stderr, "DosQueryProcAddr for initGarbageCollection() failed with rc=0x%x\n",(int) rc);
+      return 1;
+    }
+  fprintf(stderr, "   Proc address for initGarbageCollection() is: 0x%x\n", (int)proc);
+  proc();
+
+  /*
+    Init GTK
+   */
   if((rc=DosLoadModule(uchrError, sizeof(uchrError),"gtk2.dll", &hModuleGTK))!=NO_ERROR)
     {
       fprintf(stderr, "DosLoadmodule for gtk2.dll failed with rc=0x%x because of module %s.\n", (int)rc, uchrError);
       return 1;
     };
   fprintf(stderr, "DLL handle for gtk2.dll is: 0x%x\n", (int) hModuleGTK);
-  if((rc = DosQueryProcAddr(hModuleGTK,         /* Handle to module           */
-                        0L,                  /* No ProcName specified      */
-                        "gtk_init"    ,                 /* ProcName (not specified)   */
-                            &proc))!=NO_ERROR)         /* Address returned           0 */
+  if((rc = DosQueryProcAddr(hModuleGTK,                /* Handle to module           */
+                            0L,                        /* No ProcName specified      */
+                            "gtk_init",                /* ProcName (not specified)   */
+                            &proc))!=NO_ERROR)         /* Address returned         0 */
     {
        fprintf(stderr, "DosQueryProcAddr for gtk_init() failed with rc=0x%x\n",(int) rc);
-       DosFreeModule(hModule);
+       DosFreeModule(hModuleGC);
       return 1;
     }
   fprintf(stderr, "   Proc address for gtk_init() is: 0x%x\n", (int)proc);
@@ -77,13 +101,14 @@ int main( int   argc,
       return 1;
     };
   fprintf(stderr, "DLL handle for Vdesktop.dll is: 0x%x\n", (int)hModule);
-  if((rc = DosQueryProcAddr(hModule,         /* Handle to module           */
-                        0L,                  /* No ProcName specified      */
-                        "main_loop"    ,                 /* ProcName (not specified)   */
-                            &proc))!=NO_ERROR)         /* Address returned           0 */
+  if((rc = DosQueryProcAddr(hModule,                /* Handle to module           */
+                            0L,                     /* No ProcName specified      */
+                            "main_loop"    ,        /* ProcName (not specified)   */
+                            &proc))!=NO_ERROR)      /* Address returned           0 */
     {
        fprintf(stderr, "DosQueryProcAddr for main_loop() failed with rc=0x%x\n",(int) rc);
-       DosFreeModule(hModule);
+       DosFreeModule(hModuleGTK);
+       DosFreeModule(hModuleGC);
       return 1;
     }
   fprintf(stderr, "   Proc address for main_loop() is: 0x%x\n", (int)proc);
@@ -95,6 +120,8 @@ int main( int   argc,
     Cleaning up GTK
    */
   DosFreeModule(hModuleGTK);
+
+  DosFreeModule(hModuleGC);
 
   return 0; 
 }
