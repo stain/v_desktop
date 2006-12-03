@@ -252,6 +252,7 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const gpointe
     case OPEN_CONTENTS:
     case OPEN_DEFAULT:
       {
+        WPFolder_wpCreateFolderWindow(nomSelf, ev);
 #if 0
         char path[CCHMAXPATH];
         ULONG ulSize;
@@ -332,6 +333,13 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* nomSelf,
   return NOMFolderWindow_getWindowHandle(nomFldrWindow, ev);;
 }
 
+
+NOM_Scope void NOMLINK impl_WPFolder_tstSetFolderPath(WPFolder* nomSelf, const CORBA_char * thePath, CORBA_Environment *ev)
+{
+/* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
+
+
+}
 
 
 

@@ -36,6 +36,7 @@
 #define WPFOLDER_IDL_INCLUDED
 
 #include "wpfilesystem.idl"
+#include "nomfilepath.idl"
 
 NOMCLASSNAME(WPFolder);
 
@@ -47,7 +48,7 @@ interface WPFolder : WPFileSystem
                   in string pszPath,
                   in boolean fFoldersOnly);
   gpointer wpCreateFolderWindow();
-
+  void tstSetFolderPath(in string thePath); /* Only for testing */
 #if 0
   WPObject wpQueryContent(in WPObject Object,
                           in ULONG ulOption);
@@ -60,6 +61,7 @@ interface WPFolder : WPFileSystem
   NOMOVERRIDE(wpQueryIcon);
 
   NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData);
+  NOMINSTANCEVAR(PNOMPath pnomPath);
 };
 
 #endif /* WPFOLDER_IDL_INCLUDED */
