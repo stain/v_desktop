@@ -12,15 +12,13 @@ GCCLDFLAGS	=	-Zmt
 OBJDIR		=	./../../../o
 CDIR	=	.
 
-GCLIB		=	-l$(OBJDIR)/gc
-
 OBJECTS		=	voyager-desktop.o
 
 all: voyager-desktop.exe
 
 
 voyager-desktop.exe:	voyager-desktop.c
-	$(CC)  -o $@ voyager-desktop.c $(LIBS) $(GCLIB) $(GCCFLAGS)
+	$(CC)  -o $@ voyager-desktop.c $(LIBS) $(GCCFLAGS)
 
 
 
