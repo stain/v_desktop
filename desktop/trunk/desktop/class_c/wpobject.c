@@ -200,16 +200,37 @@ NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpReleaseObjectMutexSem(WPOb
 NOM_Scope PNOMString NOMLINK impl_WPObject_wpSetTitle(WPObject* nomSelf, const PNOMString pnomStrNewTitle, CORBA_Environment *ev)
 {
   WPObjectData* nomThis=WPObjectGetData(nomSelf);
+  PNOMString tmpString=NOMStringNew();
+  gpointer tmpPtr;
 
-  NOMString_assignString(_pnomStringTitle, pnomStrNewTitle, ev);
+  /* Create a new title */
+  NOMString_assignString(tmpString, pnomStrNewTitle, ev);
 
-  return _pnomStringTitle;
+  /* It may happen that someone changed the title from another thread. We may either
+     bail out then or just use our string as the mother of all strings. Since we are the last one
+     trying to change the title our string is presumably the correct one. At least we act
+     so :P. The memory holding the old string (which may not be the correct one anymore) is
+     still valid because we hold a pointer to it in tmpPtr. Garbage collection won't free it
+     under our feet.  */
+  do{
+    /* Get old NOMString containing old title */
+    tmpPtr=g_atomic_pointer_get(&_pnomStringTitle);
+  }while(!g_atomic_pointer_compare_and_exchange((gpointer*)&_pnomStringTitle, tmpPtr, (gpointer) tmpString));
+
+  return pnomStrNewTitle;
 }
 
 NOM_Scope PNOMString NOMLINK impl_WPObject_wpQueryTitle(WPObject* nomSelf, CORBA_Environment *ev)
 {
+  gpointer tmpPtr;
   WPObjectData* nomThis=WPObjectGetData(nomSelf);
 
-  return _pnomStringTitle;
+  /*
+    This string will remain valid as long as we use it. Even if someone changes the title
+    while we are in this method the garbage collector won't free it. The other thread
+    changing the title is working on a copy so no problem here. */
+  tmpPtr=g_atomic_pointer_get(&_pnomStringTitle);
+
+  return NOMString_copyString(tmpPtr, ev);
 }
 
