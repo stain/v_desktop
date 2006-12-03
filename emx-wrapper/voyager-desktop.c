@@ -53,21 +53,21 @@ int main( int   argc,
   /*
     Initialize the garbage collector.
    */
-  if((rc=DosLoadModule(uchrError, sizeof(uchrError),"vdesktop.dll", &hModuleGC))!=NO_ERROR)
+  if((rc=DosLoadModule(uchrError, sizeof(uchrError),"nobjtk.dll", &hModuleGC))!=NO_ERROR)
     {
-      printf("DosLoadmodule for vdesktop.dll failed with rc=0x%x because of module %s.\n", (int)rc, uchrError);
+      printf("DosLoadmodule for nobjtk.dll failed with rc=0x%x because of module %s.\n", (int)rc, uchrError);
       return 1;
     };
-  fprintf(stderr, "DLL handle for Vdesktop.dll is: 0x%x\n", (int)hModuleGC);
+  fprintf(stderr, "DLL handle for nobjtk.dll is: 0x%x\n", (int)hModuleGC);
   if((rc = DosQueryProcAddr(hModuleGC,                  /* Handle to module           */
                             0L,                         /* No ProcName specified      */
-                            "initGarbageCollection",    /* ProcName (not specified)   */
+                            "nomInitGarbageCollection",    /* ProcName (not specified)   */
                             &proc))!=NO_ERROR)          /* Address returned           0 */
     {
-       fprintf(stderr, "DosQueryProcAddr for initGarbageCollection() failed with rc=0x%x\n",(int) rc);
+       fprintf(stderr, "DosQueryProcAddr for nomInitGarbageCollection() failed with rc=0x%x\n",(int) rc);
       return 1;
     }
-  fprintf(stderr, "   Proc address for initGarbageCollection() is: 0x%x\n", (int)proc);
+  fprintf(stderr, "   Proc address for nomInitGarbageCollection() is: 0x%x\n", (int)proc);
   proc();
 
   /*
