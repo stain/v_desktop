@@ -120,6 +120,16 @@ NOM_Scope PNOMString NOMLINK impl_NOMString_truncateString(NOMString* nomSelf, c
   return nomSelf;
 }
 
+NOM_Scope PNOMString NOMLINK impl_NOMString_copyString(NOMString* nomSelf, CORBA_Environment *ev)
+{
+  /*  NOMStringData* nomThis=NOMStringGetData(nomSelf); */
+  PNOMString nomRetval=NOMStringNew();
+
+  NOMString_assignString(nomRetval, nomSelf, ev);
+
+  return nomRetval;
+}
+
 
 NOM_Scope void NOMLINK impl_NOMString_nomInit(NOMString* nomSelf, CORBA_Environment *ev)
 {
