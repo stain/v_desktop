@@ -36,13 +36,16 @@
 #define INCL_PM
 #include <os2.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <gtk/gtk.h> 
 #include "debug_window.h"
+#include <gc.h>
 
 #include "nom.h"
 #include "nomtk.h"
 #include "wpobject.h"
 #include "wpfolder.h"
+#include "desktoptypes.h"
 
 int createQuitWindow(void);
 
@@ -52,8 +55,6 @@ NOMClassMgr *NOMClassMgrObject;
 
 /* Desktop folder */
 WPFolder *wpDesktop;
-
-
 /*
   Main entry point. This function is called from the EMX wrapper. Be aware that gtk_init()
   is already called in the wrapper.
@@ -61,8 +62,9 @@ WPFolder *wpDesktop;
 int _System  main_loop()
 {
  char desktopDir[CCHMAXPATH]={0};
- 
- g_message("We started...\n");    
+
+ g_message("We started...\n");
+
 
 #if 0
  /* Initialize thread subsystem */
@@ -102,8 +104,9 @@ int _System  main_loop()
     /* Create desktop folder */
     wpDesktop=WPFolderNew();
     dbgPrintf( "Created desktop object: %x", wpDesktop);
+    WPFolder_tstSetFullPath(wpDesktop, desktopDir, NULLHANDLE);
 
-    WPFolder_wpPopulate(wpDesktop, 0, desktopDir, 0,  NULL);
+    WPFolder_wpOpen(wpDesktop, NULL, OPEN_DEFAULT,  NULL, NULL);
     /*    WPFolder_wpPopulate(wpObject, 0,"blabla 2", 0,  NULL);  */
 
     

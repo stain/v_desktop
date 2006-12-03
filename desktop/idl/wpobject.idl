@@ -38,6 +38,7 @@
 #include <nomobj.idl>
 
 #include "wpnativetypes.idl"
+#include "nomstring.idl"
 
 //interface WPFolder;
 
@@ -68,8 +69,11 @@ interface WPObject : NOMObject
   boolean  wpObjectIsLocked();
   gpointer wpQueryIcon();
   unsigned long  wpRequestObjectMutexSem(in unsigned long ulReserved);
-  unsigned long     wpReleaseObjectMutexSem();
+  unsigned long  wpReleaseObjectMutexSem();
   /*  boolean wpSetFolder(in WPFolder wpParentFolder); */
+
+  PNOMString wpSetTitle(in PNOMString pnomStrNewTitle);
+  PNOMString wpQueryTitle();
 
   /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);
@@ -80,6 +84,7 @@ interface WPObject : NOMObject
   NOMINSTANCEVAR(gint iLockCounter);
   NOMINSTANCEVAR(HMUX gObjectMutex);
   NOMINSTANCEVAR(PGSList glstObjectInUse);
+  NOMINSTANCEVAR(PNOMString pnomStringTitle);
 
 };
 

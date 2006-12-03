@@ -38,6 +38,9 @@
 #define INCL_DOS
 #include <os2.h>
 
+#include "nom.h"
+#include "nomtk.h"
+
 #include <string.h>
 #include "wpfilesystem.ih"
 
@@ -45,5 +48,6 @@ NOM_Scope void NOMLINK impl_WPFileSystem_tstSetFullPath(WPFileSystem* nomSelf, c
 {
 /* WPFileSystemData* nomThis=WPFileSystemGetData(nomSelf); */
 
+  nomPrintf("thePath: ---> %s \n", fullPath);
 }
 

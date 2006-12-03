@@ -7,7 +7,6 @@ EXPORTS
 	_WPObjectClassData  
 	_WPObjectCClassData 
 	WPObjectNewClass    
-
 ;	_M_WPObjectClassData
 ;	_M_WPObjectCClassData
 ;	M_WPObjectNewClass
@@ -29,7 +28,6 @@ EXPORTS
 	_WPDataFileClassData
 	_WPDataFileCClassData
 	WPDataFileNewClass
-
 ;	_M_WPDataFileClassData
 ;	_M_WPDataFileCClassData
 ;	M_WPDataFileNewClass

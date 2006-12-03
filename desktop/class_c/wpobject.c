@@ -123,13 +123,15 @@ NOM_Scope void NOMLINK impl_WPObject_nomUninit(WPObject* nomSelf, CORBA_Environm
 
   //g_mutex_free(_gObjectMutex);
   DosCloseMutexSem(_gObjectMutex);
-  WPObject_nomUninit_parent(nomSelf,  ev);
+  WPObject_nomUninit_parent((NOMObject*)nomSelf, ev);
 }
 
 NOM_Scope void NOMLINK impl_WPObject_wpInitData(WPObject* nomSelf, CORBA_Environment *ev)
 {
-/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
 
+  /* Make sure a title exists (even if it's an empty string */
+  _pnomStringTitle=NOMStringNew();
 }
 
 NOM_Scope void NOMLINK impl_WPObject_wpUnInitData(WPObject* nomSelf, CORBA_Environment *ev)
@@ -194,3 +196,20 @@ NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpReleaseObjectMutexSem(WPOb
   WPObjectData* nomThis=WPObjectGetData(nomSelf);
   return DosReleaseMutexSem(_gObjectMutex);
 }
+
+NOM_Scope PNOMString NOMLINK impl_WPObject_wpSetTitle(WPObject* nomSelf, const PNOMString pnomStrNewTitle, CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  NOMString_assignString(_pnomStringTitle, pnomStrNewTitle, ev);
+
+  return _pnomStringTitle;
+}
+
+NOM_Scope PNOMString NOMLINK impl_WPObject_wpQueryTitle(WPObject* nomSelf, CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  return _pnomStringTitle;
+}
+

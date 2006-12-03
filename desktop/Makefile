@@ -17,13 +17,16 @@ INCDIR		=	./include
 IDLDIR		=	./idl
 
 TKIDLDIR	=	$(NOMPATH)/idl  # The object TK lives here
+IDLINC		=	--include=$(FOUNDATIONPATH)/idl
 
 #INC		= 	./include -I $(NOMPATH)/include -I $(NOMPATH)/class_h
 INC		= 	./include -I ./class_h -I $(NOMPATH)/class_h -I $(NOMPATH)/include \
-			-I $(GUITKPATH)/class_h -I $(GUITKPATH)/include
+			-I $(GUITKPATH)/class_h -I $(GUITKPATH)/include -I $(FOUNDATIONPATH)/class_h \
+			-I $(FOUNDATIONPATH)/include
 
 ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
-CLASSDLLLIBS	=	-l$(OBJDIR)/nobjtk -l$(OBJDIR)/voyguitk
+CLASSDLLLIBS	=	-l$(OBJDIR)/nobjtk -l$(OBJDIR)/voyguitk -l$(OBJDIR)/voyfcls
+GCLIB		=	-l$(OBJDIR)/gc
 
 # Define objects to build
 
@@ -46,7 +49,7 @@ all:	$(BINDIR)/voywp.dll $(BINDIR)/vdesktop.dll
 $(BINDIR)/vdesktop.dll:	$(OBJDIR)/o.dep $(DLLOBJECTS) ./src/exports.def
 	@echo "[33;1;mLinking "$@"...[0;m"
 	cmd.exe /C .\src\create_vdesktop_def $(OBJDIR)/vdesktop.def
-	$(CC) $(GCCLDFLAGSDLL)  -o $@ $(DLLOBJECTS) $(LIBS) $(ADDLIBS) $(OBJDIR)/vdesktop.def
+	$(CC) $(GCCLDFLAGSDLL)  -o $@ $(DLLOBJECTS) $(LIBS) $(ADDLIBS) $(GCLIB) $(OBJDIR)/vdesktop.def
 	@echo "[32;1;mDone linking "$@"...[0;m"
 
 
@@ -64,22 +67,25 @@ $(BINDIR)/voywp.dll:	 $(OBJDIR)/o.dep $(CLASSOBJECTS) exports.def
 #
 ###################################
 
-BASE_NOMCOMPILEH	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --header --output-dir=$(CLASSINC) $<
-BASE_NOMCOMPILEIH	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
-BASE_NOMCOMPILEC	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --c-template --output-dir=$(CLASSTEMPLATEDIR) $< 
+BASE_NOMCOMPILEH	=	$(IDLCOMP) -include=$(TKIDLDIR) $(IDLINC) --showcpperrors --header --output-dir=$(CLASSINC) $<
+BASE_NOMCOMPILEIH	=	$(IDLCOMP) -include=$(TKIDLDIR) $(IDLINC) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
+BASE_NOMCOMPILEC	=	$(IDLCOMP) -include=$(TKIDLDIR) $(IDLINC) --showcpperrors --c-template --output-dir=$(CLASSTEMPLATEDIR) $< 
 
 
 # Rules for desktop classes
 $(OBJDIR)/%.o:	$(CLASSCDIR)/%.c $(CLASSINC)/%.ih
 	$(CC) -I $(INC) $(GCCFLAGS)  -o$@ $<
 
-$(OBJDIR)/%.o:	$(CLASSCDIR)/%.c
+$(OBJDIR)/helper.o:	$(CLASSCDIR)/helper.c
 	$(CC) -I $(INC) $(GCCFLAGS)  -o$@ $<
 
 $(CLASSINC)/%.ih:	$(IDLDIR)/%.idl
 	$(BASE_NOMCOMPILEIH)
 	$(BASE_NOMCOMPILEH)
 	$(BASE_NOMCOMPILEC)
+
+$(CLASSINC)/%.h:	$(IDLDIR)/%.idl
+	$(BASE_NOMCOMPILEH)
 
 $(OBJDIR)/%.o:	$(CDIR)/%.c
 	$(CC) -I $(INC) $(GCCFLAGSDLL)  -o$@ $<
