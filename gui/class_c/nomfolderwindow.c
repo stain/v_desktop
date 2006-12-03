@@ -45,11 +45,15 @@
 #include "nomguitk.h"
 #include "nomfolderwindow.ih"
 
+#warning !!!!! nomIsObj() must be globaly defined !!!!!
+#define nomIsObj(a) ((a)!= 0)
+
+
 NOM_Scope PGtkWidget NOMLINK impl_NOMFolderWindow_getContainerHandle(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
 {
   NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
 
-  return _pgContainerHandle;
+  return (PGtkWidget) g_atomic_pointer_get(&_pgContainerHandle);
 }
 
 NOM_Scope void NOMLINK impl_NOMFolderWindow_setContainerHandle(NOMFolderWindow* nomSelf, const PGtkWidget pgWidget,
@@ -60,6 +64,23 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_setContainerHandle(NOMFolderWindow* 
   _pgContainerHandle=pgWidget;
 }
 
+NOM_Scope void NOMLINK impl_NOMFolderWindow_setWPFolderObject(NOMFolderWindow* nomSelf, const PWPFolder pWPFolderObject,
+                                                              CORBA_Environment *ev)
+{
+  NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
+
+  if(!nomIsObj(pWPFolderObject))
+    return;
+
+  _pWPFolderObj=pWPFolderObject;
+}
+
+NOM_Scope PWPFolder NOMLINK impl_NOMFolderWindow_getWPFolderObject(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
+{
+  NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
+
+  return _pWPFolderObj;
+}
 
 static void
 itemActivated (GtkIconView *icon_view,
@@ -103,7 +124,41 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
 {
   if(fldr_checkContextButton(event))
     {
+      PNOMFolderWindow pWindow;
+      GtkTreePath* treePath;
+
       DosBeep(5000, 100);
+      pWindow=(NOMFolderWindow*)user_data;
+
+      treePath=gtk_icon_view_get_path_at_pos(GTK_ICON_VIEW(widget), event->x, event->y );
+      if(NULL==treePath)
+        {
+          /* Click on white space */
+          WPFolder* wpFolder;
+          wpFolder=NOMFolderWindow_getWPFolderObject(pWindow, NULLHANDLE);
+          g_message("%s: %s", __FUNCTION__, wpFolder->mtab->nomClassName);
+        }
+      else
+        {
+          GtkTreeIter iter;
+          GtkTreeModel* model;
+          WPObject *wpObject;
+          /* Click on an icon */
+
+          g_message("%s: %s", __FUNCTION__, gtk_tree_path_to_string(treePath));
+
+          model=gtk_icon_view_get_model(GTK_ICON_VIEW(widget));
+          g_message("%s: model: %x", __FUNCTION__, model);
+
+          gtk_tree_model_get_iter(model , &iter, treePath);
+
+          gtk_tree_model_get(model, &iter,
+                             0, &wpObject,
+                             -1);
+          g_message("%s: %s", __FUNCTION__, wpObject->mtab->nomClassName);
+
+        }
+
 #if 0      
       /* This is the folder object not the object on which a click occured */
       WPObject *wpObject=(WPObject*)user_data;
@@ -206,4 +261,13 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
   NOMFolderWindow_setWindowHandle(nomSelf, window, NULLHANDLE);
   /* Window is hidden here and must be shown by the caller */
 }
+
+
+
+
+
+
+
+
+
 

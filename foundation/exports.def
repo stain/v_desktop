@@ -8,3 +8,6 @@ EXPORTS
 	_NOMStringCClassData 
 	NOMStringNewClass    
 
+	_NOMPathClassData  
+	_NOMPathCClassData 
+	NOMPathNewClass    

@@ -17,10 +17,10 @@ INCDIR		=	./include
 IDLDIR		=	./idl
 
 TKIDLDIR	=	$(NOMPATH)/idl  # The object TK lives here
-IDLINC		=	--include=$(FOUNDATIONPATH)/idl
+IDLINC		=	-include=$(FOUNDATIONPATH)/idl -include=$(TKIDLDIR) \
+			-include=$(GUITKPATH)/idl
 
-#INC		= 	./include -I $(NOMPATH)/include -I $(NOMPATH)/class_h
-INC		= 	./include -I ./class_h -I $(NOMPATH)/class_h -I $(NOMPATH)/include \
+INC		= 	./include -I ./class_h -I $(NOMPATH)/class_h -I $(NOMPATH)/include\
 			-I $(GUITKPATH)/class_h -I $(GUITKPATH)/include -I $(FOUNDATIONPATH)/class_h \
 			-I $(FOUNDATIONPATH)/include
 
@@ -67,9 +67,9 @@ $(BINDIR)/voywp.dll:	 $(OBJDIR)/o.dep $(CLASSOBJECTS) exports.def
 #
 ###################################
 
-BASE_NOMCOMPILEH	=	$(IDLCOMP) -include=$(TKIDLDIR) $(IDLINC) --showcpperrors --header --output-dir=$(CLASSINC) $<
-BASE_NOMCOMPILEIH	=	$(IDLCOMP) -include=$(TKIDLDIR) $(IDLINC) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
-BASE_NOMCOMPILEC	=	$(IDLCOMP) -include=$(TKIDLDIR) $(IDLINC) --showcpperrors --c-template --output-dir=$(CLASSTEMPLATEDIR) $< 
+BASE_NOMCOMPILEH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --header --output-dir=$(CLASSINC) $<
+BASE_NOMCOMPILEIH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
+BASE_NOMCOMPILEC	=	$(IDLCOMP) $(IDLINC) --showcpperrors --c-template --output-dir=$(CLASSTEMPLATEDIR) $< 
 
 
 # Rules for desktop classes

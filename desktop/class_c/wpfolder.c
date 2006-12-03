@@ -56,19 +56,21 @@ typedef struct _PRIVFOLDERDATA
   GtkWidget    *gtkIconView;
 }PRIVFOLDERDATA, *PPRIVFOLDERDATA;
 
+/* Gui stuff */
+#include "nomguitk.h"
+#include "nomfolderwindow.h"
+
 #include "wpfolder.ih"
 #include "wpdatafile.h"
 #include "desktop.h"
 #include "helper.h"
 #include "desktoptypes.h"
 
-/* Gui stuff */
-#include "nomguitk.h"
-#include "nomfolderwindow.h"
 
 /* Enum for the folder store */
 enum
 {
+  COL_OBJECT_PTR,
   COL_PATH,
   COL_DISPLAY_NAME,
   COL_PIXBUF,
@@ -81,11 +83,12 @@ static GtkListStore * fldr_CreateStore (void)
   GtkListStore *store;
 
   store = gtk_list_store_new (NUM_COLS,
-			      G_TYPE_STRING, 
-			      G_TYPE_STRING, 
-			      GDK_TYPE_PIXBUF,
-			      G_TYPE_BOOLEAN);
-
+                              G_TYPE_POINTER,
+                              G_TYPE_STRING, 
+                              G_TYPE_STRING, 
+                              GDK_TYPE_PIXBUF,
+                              G_TYPE_BOOLEAN);
+  g_message("%s: store: %x", __FUNCTION__, store);
   return store;
 }
 
@@ -130,6 +133,7 @@ fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
                   gtk_list_store_append (store, &iter);
 
                   gtk_list_store_set (store, &iter,
+                                      COL_OBJECT_PTR, wpFolder,
                                       COL_PATH, path,
                                       COL_DISPLAY_NAME, display_name,
                                       COL_IS_DIRECTORY, is_dir,
@@ -152,6 +156,7 @@ fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
 #warning !!!! some problems with icon handling here !!!!
                   nomPrintf("Icon ptr: %x\n", _wpQueryIcon((WPObject*)wpDataFile, NULLHANDLE));
                   gtk_list_store_set (store, &iter,
+                                      COL_OBJECT_PTR, wpDataFile,
                                       COL_PATH, path,
                                       COL_DISPLAY_NAME, display_name,
                                       COL_IS_DIRECTORY, is_dir,
@@ -184,8 +189,6 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
   g_return_val_if_fail(_privFolderData!=NULLHANDLE, FALSE);      /* Huh! What happened in wpInitData()? */
   g_log("WPFolder", G_LOG_LEVEL_DEBUG, "%s: Populating %s\n", __FUNCTION__, pszPath);
 
-#warning !!!!! Window creation must be done elsewhere !!!!!
-  _wpCreateFolderWindow(nomSelf, NULLHANDLE);
 
 #if 0
   /* Already populated? */
@@ -214,7 +217,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
 
   gtk_icon_view_set_model(GTK_ICON_VIEW (priv->gtkIconView), GTK_TREE_MODEL (priv->gstoreFldContents));
 
-  /* We now set which model columns that correspont to the text
+  /* We now set which model columns that correspond to the text
    * and pixbuf of each item
    */
   gtk_icon_view_set_text_column (GTK_ICON_VIEW (priv->gtkIconView), COL_DISPLAY_NAME);
@@ -225,20 +228,6 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
   g_object_unref (gStore);
 
   return FALSE;
-}
-
-
-NOM_Scope void NOMLINK impl_WPFolder_wpInitData(WPFolder* nomSelf, CORBA_Environment *ev)
-{
-  gulong ulErr;
-  WPFolderData* nomThis=WPFolderGetData(nomSelf); 
-
-  /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
-  WPFolder_wpInitData_parent((WPObject*)nomSelf,  ev);
-
-  nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
-            __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
-  _privFolderData=_wpAllocMem((WPObject*)nomSelf, sizeof(PRIVFOLDERDATA), (CORBA_unsigned_long*)&ulErr, NULLHANDLE);
 }
 
 NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const gpointer ptrReserved,
@@ -252,7 +241,16 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const gpointe
     case OPEN_CONTENTS:
     case OPEN_DEFAULT:
       {
-        WPFolder_wpCreateFolderWindow(nomSelf, ev);
+        NOMFolderWindow * nomFldrWindow;
+
+#warning !!!!! Folder window must be inserted into inuse list !!!!!
+        nomFldrWindow=WPFolder_wpCreateFolderWindow(nomSelf, ev);
+        NOMFolderWindow_setWPFolderObject(nomFldrWindow, nomSelf, ev);
+
+#warning !!!!! Path taken from a test location !!!!!
+        WPFolder_wpPopulate(nomSelf, 0L, NOMPath_getCString(WPFolder_wpQueryRealName(nomSelf, TRUE, ev) , ev), FALSE,  ev);
+        break;
+
 #if 0
         char path[CCHMAXPATH];
         ULONG ulSize;
@@ -270,11 +268,6 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const gpointe
         
         if(!hwndFolder)
           return NULLHANDLE;
-        
-        somPrintf("somSelf: %x, hwndFolder: %x\n", somSelf, hwndFolder);
-        /* Set object pointer */
-        /*          dw_window_set_data(hwndFolder, "thisObject", somSelf);
-                    msg("somSelf 2: %x, hwnd: %x", dw_window_get_data(hwndFolder, "thisObject"), hwndFolder); */
 
         /* populate the folder */
         _wpPopulate(somSelf, 0, path, FALSE); /* Contents or details. Tree isn't supported yet */
@@ -315,7 +308,7 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpQueryIcon(WPFolder* nomSelf, CORBA_En
   This method creates the folder window it doesn't query any files or creates
   models and stuff.
 */
-NOM_Scope gpointer NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* nomSelf, CORBA_Environment *ev)
+NOM_Scope PNOMFolderWindow NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* nomSelf, CORBA_Environment *ev)
 {
   NOMFolderWindow * nomFldrWindow;
   PPRIVFOLDERDATA priv;
@@ -328,19 +321,23 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* nomSelf,
 #warning !!!!! This is only for testing !!!!!
   priv->gtkIconView=NOMFolderWindow_getContainerHandle(nomFldrWindow, ev);
 
+  /* Show the new window */
   NOMFolderWindow_show(nomFldrWindow, ev);
 
-  return NOMFolderWindow_getWindowHandle(nomFldrWindow, ev);;
+  return nomFldrWindow;
 }
 
-
-NOM_Scope void NOMLINK impl_WPFolder_tstSetFolderPath(WPFolder* nomSelf, const CORBA_char * thePath, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_WPFolder_wpInitData(WPFolder* nomSelf, CORBA_Environment *ev)
 {
-/* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
+  gulong ulErr;
+  WPFolderData* nomThis=WPFolderGetData(nomSelf); 
 
+  WPFolder_wpInitData_parent((WPObject*)nomSelf,  ev);
 
+  nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
+            __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
+  _privFolderData=_wpAllocMem((WPObject*)nomSelf, sizeof(PRIVFOLDERDATA), (CORBA_unsigned_long*)&ulErr, NULLHANDLE);
 }
-
 
 
 
