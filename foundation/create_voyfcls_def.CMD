@@ -23,7 +23,7 @@ def=def||"; */"||'0d'x||'0a'x
 
 def=def||'0d'x||'0a'x
 
-def=def||"LIBRARY VOYWP INITGLOBAL"||'0d'x||'0a'x
+def=def||"LIBRARY VOYFCLS INITGLOBAL"||'0d'x||'0a'x
 def=def||"DESCRIPTION '$@#(C) C. Wohlgemuth 2004-"
 def=def||WORD(DATE(),3)||":"||LEFT(theVersion,3)||"        #@##1## "||DATE("E")||" "||TIME("N")||"        My ;-)  ::::"||WORD(TRANSLATE(theVersion," ", "."),3)||"::@@Voyager foundation classes V"||theVersion||"'"||'0d'x||'0a'x
 
