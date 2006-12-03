@@ -36,6 +36,7 @@
 #define NOMFLDRWINDOW_IDL_INCLUDED
 
 #include "nomwindow.idl"
+#include "wpfolder.idl"
 
 interface NOMFolderWindow : NOMWindow
 {
@@ -43,10 +44,14 @@ interface NOMFolderWindow : NOMWindow
 
   PGtkWidget getContainerHandle();
   void setContainerHandle(in PGtkWidget pgWidget);   
+  void setWPFolderObject(in PWPFolder pWPFolderObject);
+  PWPFolder getWPFolderObject();
 
   NOMOVERRIDE(nomInit);
 
-  NOMINSTANCEVAR(PGtkWidget _pgContainerHandle);
+  NOMINSTANCEVAR(PGtkWidget pgContainerHandle);
+  NOMINSTANCEVAR(PWPFolder pWPFolderObj);
+
 };
 
 #endif  /* NOMFLDRWINDOW_IDL_INCLUDED */

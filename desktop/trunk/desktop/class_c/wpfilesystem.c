@@ -44,10 +44,23 @@
 #include <string.h>
 #include "wpfilesystem.ih"
 
-NOM_Scope void NOMLINK impl_WPFileSystem_tstSetFullPath(WPFileSystem* nomSelf, const CORBA_char * fullPath, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_WPFileSystem_tstSetFullPath(WPFileSystem* nomSelf, const CORBA_char * fullPath,
+                                                        CORBA_Environment *ev)
 {
-/* WPFileSystemData* nomThis=WPFileSystemGetData(nomSelf); */
+  WPFileSystemData* nomThis=WPFileSystemGetData(nomSelf);
 
   nomPrintf("thePath: ---> %s \n", fullPath);
+  _pszFullPath=fullPath;
+}
+
+NOM_Scope PNOMPath NOMLINK impl_WPFileSystem_wpQueryRealName(WPFileSystem* nomSelf, const CORBA_boolean bFullPath,
+                                                             CORBA_Environment *ev)
+{
+  WPFileSystemData* nomThis=WPFileSystemGetData(nomSelf);
+  PNOMPath nomRetval=NOMPathNew();
+  
+  NOMPath_assignCString(nomRetval, _pszFullPath, ev);
+
+  return nomRetval;
 }
 

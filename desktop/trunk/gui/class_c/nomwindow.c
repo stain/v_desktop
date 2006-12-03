@@ -52,8 +52,7 @@ NOM_Scope PGtkWidget NOMLINK impl_NOMWindow_getWindowHandle(NOMWindow* nomSelf, 
 {
   NOMWindowData* nomThis=NOMWindowGetData(nomSelf);
 
-
-  return _pgWindowHandle;
+  return (PGtkWidget) g_atomic_pointer_get(&_pgWindowHandle);
 }
 
 NOM_Scope void NOMLINK impl_NOMWindow_setWindowHandle(NOMWindow* nomSelf, const PGtkWidget pgWidget, CORBA_Environment *ev)

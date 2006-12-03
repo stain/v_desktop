@@ -16,9 +16,14 @@ CLASSINC	=	./class_h
 INCDIR		=	./include
 IDLDIR		=	./idl
 
-TKIDLDIR	=	$(NOMPATH)/idl  # The object TK lives here
-
-INC		= 	./include -I ./class_h -I $(NOMPATH)/class_h -I $(NOMPATH)/include
+# The object TK lives here
+TKIDLDIR	=	$(NOMPATH)/idl
+IDLINC		=	-include=$(TKIDLDIR) -include=$(DESKTOPPATH)/idl -include=$(FOUNDATIONPATH)/idl
+ 
+INC		= 	./include -I ./class_h \
+			-I $(NOMPATH)/class_h -I $(NOMPATH)/include \
+			-I $(DESKTOPPATH)/class_h -I $(DESKTOPPATH)/include \
+			-I $(FOUNDATIONPATH)/class_h -I $(FOUNDATIONPATH)/include
 
 ADDLIBS		=	 -l$(OBJDIR)/nobjtk
 
@@ -48,9 +53,9 @@ $(BINDIR)/$(DLLNAME).dll:	 $(OBJDIR)/o.dep $(CLASSOBJECTS) exports.def
 #
 ###################################
 
-BASE_NOMCOMPILEH	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --header --output-dir=$(CLASSINC) $<
-BASE_NOMCOMPILEIH	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
-BASE_NOMCOMPILEC	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --c-template --output-dir=$(CLASSTEMPLATEDIR) $< 
+BASE_NOMCOMPILEH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --header --output-dir=$(CLASSINC) $<
+BASE_NOMCOMPILEIH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
+BASE_NOMCOMPILEC	=	$(IDLCOMP) $(IDLINC) --showcpperrors --c-template --output-dir=$(CLASSTEMPLATEDIR) $< 
 
 
 # Rules for desktop classes
