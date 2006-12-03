@@ -9,8 +9,10 @@ CC		=	gcc
 GCCFLAGS	=	-Zmt -D__OS2__ -D__ST_MT_ERRNO__ -Wall 
 GCCLDFLAGS	=	-Zmt
 
-OBJDIR	=	.
+OBJDIR		=	./../../../o
 CDIR	=	.
+
+GCLIB		=	-l$(OBJDIR)/gc
 
 OBJECTS		=	voyager-desktop.o
 
@@ -18,7 +20,7 @@ all: voyager-desktop.exe
 
 
 voyager-desktop.exe:	voyager-desktop.c
-	$(CC)  -o $@ voyager-desktop.c $(LIBS) $(GCCFLAGS)
+	$(CC)  -o $@ voyager-desktop.c $(LIBS) $(GCLIB) $(GCCFLAGS)
 
 
 
