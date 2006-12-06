@@ -18,7 +18,10 @@ IDLDIR		=	./idl
 
 TKIDLDIR	=	$(NOMPATH)/idl  # The object TK lives here
 
-INC		= 	./include -I ./class_h -I $(NOMPATH)/class_h -I $(NOMPATH)/include
+INC		= 	./include -I ./class_h \
+			-I $(NOMPATH)/class_h -I $(NOMPATH)/include \
+			-I $(GUITKPATH)/class_h -I $(GUITKPATH)/include
+
 
 ADDLIBS		=	 -l$(OBJDIR)/nobjtk
 
@@ -26,7 +29,10 @@ ADDLIBS		=	 -l$(OBJDIR)/nobjtk
 
 
 CLASSOBJECTS	=	$(OBJDIR)/nomstring.o \
-			$(OBJDIR)/nomfilepath.o
+			$(OBJDIR)/nomfilepath.o \
+			$(OBJDIR)/nommenu.o \
+			$(OBJDIR)/nommenuitem.o
+
 
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c
