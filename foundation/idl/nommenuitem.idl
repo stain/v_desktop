@@ -38,10 +38,13 @@
 #include "nomobj.idl"
 #include "nomfoundation.idl"
 
-NOMCLASSNAME(NOMMenu);
+NOMCLASSNAME(NOMMenuItem);
 
+#ifndef PGtkWidget_defined
+#define PGtkWidget_defined
 /* This should be moved in a header file */
 native PGtkWidget;
+#endif
 
 interface NOMMenuItem : NOMObject
 {
