@@ -39,8 +39,13 @@
 
 #include "wpnativetypes.idl"
 #include "nomstring.idl"
+#include "nommenu.idl"
 
-//interface WPFolder;
+
+#ifndef NOMFolderWindow_defined
+#define NOMFolderWindow_defined
+native PNOMFolderWindow;
+#endif
 
 NOMCLASSNAME(WPObject);
 
@@ -74,6 +79,14 @@ interface WPObject : NOMObject
 
   PNOMString wpSetTitle(in PNOMString pnomStrNewTitle);
   PNOMString wpQueryTitle();
+
+  PNOMMenu wpDisplayMenu(in PNOMFolderWindow nomFolder, in gpointer gReserved, in unsigned long ulMenuType,
+                         in unsigned long ulReserved);
+  void wpModifyMenu(in PNOMFolderWindow nomFolder, in PNOMMenu nomMenu, in unsigned long ulMenuType);
+  void wpFilterMenu(in PNOMFolderWindow nomFolder, in PNOMMenu nomMenu, in unsigned long ulMenuType,
+                    in unsigned long ulFlags);
+  boolean wpMenuItemSelected(in PNOMFolderWindow nomFolder, in PNOMMenu nomMenu, in unsigned long ulMenuType);
+  void wpInsertMenuItem( in PNOMMenu nomMenu, in unsigned long ulId);
 
   /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);

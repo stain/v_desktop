@@ -46,9 +46,24 @@
 #include <nomtk.h>
 
 #include <string.h>
+#include <gtk/gtk.h>
+#include <nomguitk.h>
 #include "desktoptypes.h"
+
+/* We have to declare this here to make PNOMFolderWindow known
+   to wpDisplayMenu(). */
+#ifndef NOMFolderWindow
+typedef struct NOMFolderWindow_struct {
+  struct nomMethodTabStruct  *mtab;
+  gulong body[1];
+} NOMFolderWindowObj;
+#define NOMFolderWindow NOMFolderWindowObj
+typedef NOMFolderWindow *PNOMFolderWindow;
+#endif
+
 #include "wpobject.ih"
 
+#include "nomfolderwindow.h"
 
 NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const CORBA_unsigned_long cbBytes,
                                                     CORBA_unsigned_long* prc, CORBA_Environment *ev)
@@ -234,3 +249,51 @@ NOM_Scope PNOMString NOMLINK impl_WPObject_wpQueryTitle(WPObject* nomSelf, CORBA
   return NOMString_copyString(tmpPtr, ev);
 }
 
+NOM_Scope PNOMMenu NOMLINK impl_WPObject_wpDisplayMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
+                                                       const gpointer gReserved, const CORBA_unsigned_long ulMenuType,
+                                                       const CORBA_unsigned_long ulReserved, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  PNOMMenu nomMenu=NOMMenuNew();
+
+  /* Let classes insert menu items now */
+  WPObject_wpModifyMenu(nomSelf, nomFolder, nomMenu, ulMenuType, ev);
+
+  /* Let classes filter menu items now */
+  WPObject_wpFilterMenu(nomSelf, nomFolder, nomMenu, ulMenuType, 0, ev);
+
+  /* And finally show it */
+  gtk_menu_popup(GTK_MENU(NOMMenu_getMenuHandle(nomMenu,ev)), NULL, NULL, NULL, NULL, 0,
+                 gtk_get_current_event_time());
+  return nomMenu;
+}
+
+NOM_Scope void NOMLINK impl_WPObject_wpModifyMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder, const PNOMMenu nomMenu, const CORBA_unsigned_long ulMenuType, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+}
+
+NOM_Scope void NOMLINK impl_WPObject_wpFilterMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder, const PNOMMenu nomMenu, const CORBA_unsigned_long ulMenuType, const CORBA_unsigned_long ulFlags, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMenuItemSelected(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
+                                                                 const PNOMMenu nomMenu,
+                                                                 const CORBA_unsigned_long ulMenuType,
+                                                                 CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  CORBA_boolean nomRetval;
+
+  return nomRetval;
+}
+
+NOM_Scope void NOMLINK impl_WPObject_wpInsertMenuItem(WPObject* nomSelf, const PNOMMenu nomMenu,
+                                                      const CORBA_unsigned_long ulId, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+}
