@@ -32,8 +32,8 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef NOMMENU_IDL_INCLUDED
-#define NOMMENU_IDL_INCLUDED
+#ifndef NOMMENUITEM_IDL_INCLUDED
+#define NOMMENUITEM_IDL_INCLUDED
 
 #include "nomobj.idl"
 #include "nomfoundation.idl"
@@ -54,7 +54,7 @@ interface NOMMenuItem : NOMObject
   NOMINSTANCEVAR(PGtkWidget _pgMenuItemHandle);
 };
 
-#endif  /* NOMMENU_IDL_INCLUDED */
+#endif  /* NOMMENUITEM_IDL_INCLUDED */
 
 
 
