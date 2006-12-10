@@ -49,10 +49,12 @@
 #include "nomguitk.h"
 #include "nommenu.ih"
 
-NOM_Scope void NOMLINK impl_NOMMenu_appendMenuItem(NOMMenu* nomSelf, CORBA_Environment *ev)
-{
-/* NOMMenuData* nomThis=NOMMenuGetData(nomSelf); */
 
+NOM_Scope PGtkWidget NOMLINK impl_NOMMenu_getMenuHandle(NOMMenu* nomSelf, CORBA_Environment *ev)
+{
+  NOMMenuData* nomThis=NOMMenuGetData(nomSelf);
+
+  return _pgMenuHandle;
 }
 
 
@@ -60,9 +62,15 @@ NOM_Scope void NOMLINK impl_NOMMenu_appendMenuItem(NOMMenu* nomSelf, CORBA_Envir
 NOM_Scope void NOMLINK impl_NOMMenu_nomInit(NOMMenu* nomSelf, CORBA_Environment *ev)
 {
   NOMMenuData* nomThis=NOMMenuGetData(nomSelf);
+  GtkWidget* menuItem;
 
   NOMMenu_nomInit_parent(nomSelf,  ev);
   _pgMenuHandle=gtk_menu_new();
+
+  /* This is only for testing... */
+  menuItem=gtk_menu_item_new_with_label("Blabbla");
+  gtk_widget_show(menuItem);
+  gtk_menu_shell_append(GTK_MENU_SHELL(_pgMenuHandle), menuItem);
 }
 
 

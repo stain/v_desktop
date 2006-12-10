@@ -40,15 +40,17 @@
 
 NOMCLASSNAME(NOMMenu);
 
+#ifndef PGtkWidget_defined
+#define PGtkWidget_defined
 /* This should be moved in a header file */
 native PGtkWidget;
+#endif
 
 interface NOMMenu : NOMObject
 {
   NOMCLASSVERSION(1, 0);
 
-  void appendMenuItem();
-
+  PGtkWidget getMenuHandle();
   NOMOVERRIDE(nomInit);
   NOMOVERRIDE(nomUninit);
 
