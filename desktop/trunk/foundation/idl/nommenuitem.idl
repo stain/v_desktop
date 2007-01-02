@@ -50,11 +50,20 @@ interface NOMMenuItem : NOMObject
 {
   NOMCLASSVERSION(1, 0);
 
-  void appendMenuItem();
+  PGtkWidget queryMenuItemHandle();
+  void setNameSpaceId(in nomId nameSpaceId);
+  nomId queryNameSpaceId();
+  void setMenuItemId(in unsigned long ulMenuItemId);
+  unsigned long queryMenuItemId();
+
+  PNOMMenuItem setupMenuItem(in string chrLabel, in nomId nameSpaceId, in unsigned long ulMenuItemId);
 
   NOMOVERRIDE(nomInit);
 
-  NOMINSTANCEVAR(PGtkWidget _pgMenuItemHandle);
+  NOMINSTANCEVAR(PGtkWidget pgMenuItemHandle);
+  NOMINSTANCEVAR(nomId nomIdNameSpace);
+  NOMINSTANCEVAR(gulong ulMenuItemId);
+
 };
 
 #endif  /* NOMMENUITEM_IDL_INCLUDED */
