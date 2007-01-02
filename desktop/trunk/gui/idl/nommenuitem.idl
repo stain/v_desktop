@@ -32,29 +32,61 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef NOMFLDRWINDOW_IDL_INCLUDED
-#define NOMFLDRWINDOW_IDL_INCLUDED
+#ifndef NOMMENUITEM_IDL_INCLUDED
+#define NOMMENUITEM_IDL_INCLUDED
 
-#include "nomwindow.idl"
-#include "wpfolder.idl"
+#include "nomobj.idl"
+#include "nomfoundation.idl"
 
-interface NOMFolderWindow : NOMWindow
+NOMCLASSNAME(NOMMenuItem);
+
+#ifndef PGtkWidget_defined
+#define PGtkWidget_defined
+/* This should be moved in a header file */
+native PGtkWidget;
+#endif
+
+interface NOMMenuItem : NOMObject
 {
   NOMCLASSVERSION(1, 0);
 
-  PGtkWidget queryContainerHandle();
-  void setContainerHandle(in PGtkWidget pgWidget);   
-  void setWPFolderObject(in PWPFolder pWPFolderObject);
-  PWPFolder queryWPFolderObject();
+  PGtkWidget queryMenuItemHandle();
+  void setNameSpaceId(in nomId nameSpaceId);
+  nomId queryNameSpaceId();
+  void setMenuItemId(in unsigned long ulMenuItemId);
+  unsigned long queryMenuItemId();
+
+  PNOMMenuItem setupMenuItem(in string chrLabel, in nomId nameSpaceId, in unsigned long ulMenuItemId);
 
   NOMOVERRIDE(nomInit);
 
-  NOMINSTANCEVAR(PGtkWidget pgContainerHandle);
-  NOMINSTANCEVAR(PWPFolder pWPFolderObj);
+  NOMINSTANCEVAR(PGtkWidget pgMenuItemHandle);
+  NOMINSTANCEVAR(nomId nomIdNameSpace);
+  NOMINSTANCEVAR(gulong ulMenuItemId);
 
 };
 
-#endif  /* NOMFLDRWINDOW_IDL_INCLUDED */
+#endif  /* NOMMENUITEM_IDL_INCLUDED */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

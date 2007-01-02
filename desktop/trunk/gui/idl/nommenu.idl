@@ -32,29 +32,53 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef NOMFLDRWINDOW_IDL_INCLUDED
-#define NOMFLDRWINDOW_IDL_INCLUDED
+#ifndef NOMMENU_IDL_INCLUDED
+#define NOMMENU_IDL_INCLUDED
 
-#include "nomwindow.idl"
-#include "wpfolder.idl"
+#include "nomobj.idl"
+#include "nomfoundation.idl"
 
-interface NOMFolderWindow : NOMWindow
+NOMCLASSNAME(NOMMenu);
+
+#ifndef PGtkWidget_defined
+#define PGtkWidget_defined
+/* This should be moved in a header file */
+native PGtkWidget;
+#endif
+
+interface NOMMenu : NOMObject
 {
   NOMCLASSVERSION(1, 0);
 
-  PGtkWidget queryContainerHandle();
-  void setContainerHandle(in PGtkWidget pgWidget);   
-  void setWPFolderObject(in PWPFolder pWPFolderObject);
-  PWPFolder queryWPFolderObject();
+  PGtkWidget queryMenuHandle();
 
   NOMOVERRIDE(nomInit);
+  NOMOVERRIDE(nomUninit);
 
-  NOMINSTANCEVAR(PGtkWidget pgContainerHandle);
-  NOMINSTANCEVAR(PWPFolder pWPFolderObj);
-
+  NOMINSTANCEVAR(PGtkWidget _pgMenuHandle);
 };
 
-#endif  /* NOMFLDRWINDOW_IDL_INCLUDED */
+#endif  /* NOMMENU_IDL_INCLUDED */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -49,7 +49,7 @@
 #define nomIsObj(a) ((a)!= 0)
 
 
-NOM_Scope PGtkWidget NOMLINK impl_NOMFolderWindow_getContainerHandle(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
+NOM_Scope PGtkWidget NOMLINK impl_NOMFolderWindow_queryContainerHandle(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
 {
   NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
 
@@ -75,7 +75,7 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_setWPFolderObject(NOMFolderWindow* n
   _pWPFolderObj=pWPFolderObject;
 }
 
-NOM_Scope PWPFolder NOMLINK impl_NOMFolderWindow_getWPFolderObject(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
+NOM_Scope PWPFolder NOMLINK impl_NOMFolderWindow_queryWPFolderObject(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
 {
   NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
 
@@ -135,8 +135,9 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
         {
           /* Click on white space */
           WPFolder* wpFolder;
-          wpFolder=NOMFolderWindow_getWPFolderObject(pWindow, NULLHANDLE);
+          wpFolder=NOMFolderWindow_queryWPFolderObject(pWindow, NULLHANDLE);
           g_message("%s: %s", __FUNCTION__, wpFolder->mtab->nomClassName);
+          WPObject_wpDisplayMenu(wpFolder, pWindow, NULL, 0, 0, NULL);
         }
       else
         {
@@ -156,28 +157,22 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
                              0, &wpObject,
                              -1);
           g_message("%s: %s", __FUNCTION__, wpObject->mtab->nomClassName);
-
+          WPObject_wpDisplayMenu(wpObject, pWindow, NULL, 0, 0, NULL);
         }
-
-#if 0      
-      /* This is the folder object not the object on which a click occured */
-      WPObject *wpObject=(WPObject*)user_data;
-      if(nomIsObj(wpObject)){
-        nomPrintf("%s: %x->%s\n", __FUNCTION__, wpObject, wpObject->mtab->nomClassName);        
-      }
-
-      if(!somIsObj(wpObject))
-        return TRUE;
-
-      /* ptlPopupPt is NULLHANDLE because GTK automatically pick a useful position for the popup
-         menu. */
-      _wpDisplayMenu(wpObject, NULLHANDLE, (HWND) widget, NULLHANDLE, 0, (ULONG) 0);
-      return TRUE;
-#endif
     }
-
   return FALSE;
 }
+
+
+static gboolean
+handleEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
+  DosBeep(5000, 100);
+  
+  return FALSE;
+}
+
+extern gpointer *pGlobalMemInExe;
 
 NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
 {
@@ -187,6 +182,7 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
   GtkWidget *icon_view;
   GtkWidget *tool_bar;
   GtkToolItem *up_button;
+  //  GtkWidget *menuBar, *file;
 
   NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
 
@@ -203,11 +199,28 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
   /* FIXME: Set default size of folder frame. Will later use a stored value */
   gtk_window_set_default_size (GTK_WINDOW (window), 650, 400);
 
+  /* Make sure we have a reference to the class so the garbage collector
+     doesn't unload us */
+  g_object_set_data(G_OBJECT(window), NOMOBJECT_KEY_STRING, nomSelf);
+
+#if 0
+  menuBar=gtk_menu_bar_new();
+  file=gtk_menu_item_new_with_label("File");
+  //gtk_signal_connect(GTK_OBJECT(file), "destroy", GTK_SIGNAL_FUNC(tst), NULL);
+
+  gtk_container_add(GTK_CONTAINER(menuBar), file);
+  gtk_widget_show(menuBar);
+  gtk_widget_show(file);
+#endif
+
   vbox = gtk_vbox_new (FALSE, 0);
+
   gtk_container_add (GTK_CONTAINER (window), vbox);
 
   /* Create and pack the toolbar */
   tool_bar = gtk_toolbar_new ();
+  
+  //  gtk_box_pack_start (GTK_BOX (vbox), menuBar, FALSE, FALSE, 0); /* Don't expand the toolbar vertically if sized */
   gtk_box_pack_start (GTK_BOX (vbox), tool_bar, FALSE, FALSE, 0); /* Don't expand the toolbar vertically if sized */
   
   /* Parent button */
@@ -230,19 +243,22 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
   gtk_box_pack_start (GTK_BOX (vbox), sw, TRUE, TRUE, 0);
   /* Create an icon view without model */
   icon_view = gtk_icon_view_new ();
-  _pgContainerHandle=icon_view;
-
+  NOMFolderWindow_setContainerHandle(nomSelf, icon_view, NULLHANDLE);
+                                     
   /* Allow multiple selection in icon view */
   gtk_icon_view_set_selection_mode (GTK_ICON_VIEW (icon_view),
                                     GTK_SELECTION_MULTIPLE);
   /* Connect to the "item_activated" signal */
   g_signal_connect (icon_view, "item-activated",
                     G_CALLBACK (itemActivated), nomSelf);
+  //#endif
+
   /* This is for kb binding only */
 #if 0
   g_signal_connect (GTK_WIDGET(icon_view), "popup-menu",
                     G_CALLBACK (fldr_cbPopupMenu), nomSelf);
 #endif
+
   /* Handle mouse buttons */
   g_signal_connect (GTK_WIDGET(icon_view), "button-press-event",
                     G_CALLBACK (fldr_handleButtonEvent), nomSelf);
@@ -258,6 +274,10 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
   gtk_container_add (GTK_CONTAINER (sw), icon_view);
 
   gtk_widget_grab_focus (icon_view);
+
+  g_signal_connect (GTK_WIDGET(window), "size-request",
+                    G_CALLBACK (handleEvent), nomSelf);
+
   NOMFolderWindow_setWindowHandle(nomSelf, window, NULLHANDLE);
   /* Window is hidden here and must be shown by the caller */
 }

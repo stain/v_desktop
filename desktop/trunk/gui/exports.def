@@ -11,3 +11,11 @@ EXPORTS
 	_NOMFolderWindowClassData  
 	_NOMFolderWindowCClassData 
 	NOMFolderWindowNewClass    
+
+	_NOMMenuClassData  
+	_NOMMenuCClassData 
+	NOMMenuNewClass    
+
+	_NOMMenuItemClassData  
+	_NOMMenuItemCClassData 
+	NOMMenuItemNewClass    
