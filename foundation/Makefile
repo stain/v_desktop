@@ -29,9 +29,7 @@ ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
 
 
 CLASSOBJECTS	=	$(OBJDIR)/nomstring.o \
-			$(OBJDIR)/nomfilepath.o \
-			$(OBJDIR)/nommenu.o \
-			$(OBJDIR)/nommenuitem.o
+			$(OBJDIR)/nomfilepath.o 
 
 
 

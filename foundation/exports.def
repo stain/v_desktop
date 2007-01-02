@@ -12,10 +12,3 @@ EXPORTS
 	_NOMPathCClassData 
 	NOMPathNewClass    
 
-	_NOMMenuClassData  
-	_NOMMenuCClassData 
-	NOMMenuNewClass    
-
-	_NOMMenuItemClassData  
-	_NOMMenuItemCClassData 
-	NOMMenuItemNewClass    
