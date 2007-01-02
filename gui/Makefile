@@ -25,13 +25,16 @@ INC		= 	./include -I ./class_h \
 			-I $(DESKTOPPATH)/class_h -I $(DESKTOPPATH)/include \
 			-I $(FOUNDATIONPATH)/class_h -I $(FOUNDATIONPATH)/include
 
-ADDLIBS		=	 -l$(OBJDIR)/nobjtk
+ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
 
 # Define objects to build
 
 
 CLASSOBJECTS	=	$(OBJDIR)/nomwindow.o \
-			$(OBJDIR)/nomfolderwindow.o
+			$(OBJDIR)/nomfolderwindow.o \
+			$(OBJDIR)/nommenu.o \
+			$(OBJDIR)/nommenuitem.o
+
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c
 

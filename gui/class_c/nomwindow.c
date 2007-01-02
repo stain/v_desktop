@@ -48,7 +48,7 @@
 #include "nomguitk.h"
 #include "nomwindow.ih"
 
-NOM_Scope PGtkWidget NOMLINK impl_NOMWindow_getWindowHandle(NOMWindow* nomSelf, CORBA_Environment *ev)
+NOM_Scope PGtkWidget NOMLINK impl_NOMWindow_queryWindowHandle(NOMWindow* nomSelf, CORBA_Environment *ev)
 {
   NOMWindowData* nomThis=NOMWindowGetData(nomSelf);
 
@@ -66,12 +66,12 @@ NOM_Scope void NOMLINK impl_NOMWindow_show(NOMWindow* nomSelf, CORBA_Environment
 {
   /* NOMWindowData* nomThis=NOMWindowGetData(nomSelf); */
 
-  gtk_widget_show_all(NOMWindow_getWindowHandle(nomSelf, NULLHANDLE));
+  gtk_widget_show_all(NOMWindow_queryWindowHandle(nomSelf, NULLHANDLE));
 }
 
 NOM_Scope void NOMLINK impl_NOMWindow_hide(NOMWindow* nomSelf, CORBA_Environment *ev)
 {
   /* NOMWindowData* nomThis=NOMWindowGetData(nomSelf); */
-  gtk_widget_hide(NOMWindow_getWindowHandle(nomSelf, NULLHANDLE));
+  gtk_widget_hide(NOMWindow_queryWindowHandle(nomSelf, NULLHANDLE));
 }
 

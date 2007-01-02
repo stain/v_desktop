@@ -37,12 +37,16 @@
 
 #include "nomobj.idl"
 
+#ifndef PGtkWidget_defined
+#define PGtkWidget_defined
+/* This should be moved in a header file */
 native PGtkWidget;
+#endif
 interface NOMWindow : NOMObject
 {
   NOMCLASSVERSION(1, 0);
 
-  PGtkWidget getWindowHandle();   
+  PGtkWidget queryWindowHandle();   
   void setWindowHandle(in PGtkWidget pgWidget);   
   void show();
   void hide();

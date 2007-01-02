@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2006
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -31,33 +31,57 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
+/*
+ * And remember, phase 3 is near...
+ */
 
-#ifndef NOMFLDRWINDOW_IDL_INCLUDED
-#define NOMFLDRWINDOW_IDL_INCLUDED
+#define INCL_DOS
+#include <os2.h>
 
-#include "nomwindow.idl"
-#include "wpfolder.idl"
+#include <nom.h>
+#include <nomtk.h>
 
-interface NOMFolderWindow : NOMWindow
+#include <string.h>
+#include <glib.h>
+
+#include <gtk/gtk.h>
+
+#include "nomguitk.h"
+#include "nommenu.ih"
+
+
+NOM_Scope PGtkWidget NOMLINK impl_NOMMenu_queryMenuHandle(NOMMenu* nomSelf, CORBA_Environment *ev)
 {
-  NOMCLASSVERSION(1, 0);
+  NOMMenuData* nomThis=NOMMenuGetData(nomSelf);
 
-  PGtkWidget queryContainerHandle();
-  void setContainerHandle(in PGtkWidget pgWidget);   
-  void setWPFolderObject(in PWPFolder pWPFolderObject);
-  PWPFolder queryWPFolderObject();
+  return _pgMenuHandle;
+}
 
-  NOMOVERRIDE(nomInit);
+/* orbit-idl-c-stubs.c, cs_output_stub line 347 */
+NOM_Scope void NOMLINK impl_NOMMenu_nomInit(NOMMenu* nomSelf, CORBA_Environment *ev)
+{
+  NOMMenuData* nomThis=NOMMenuGetData(nomSelf);
+  GtkWidget* menuItem;
 
-  NOMINSTANCEVAR(PGtkWidget pgContainerHandle);
-  NOMINSTANCEVAR(PWPFolder pWPFolderObj);
+  NOMMenu_nomInit_parent((NOMObject*)nomSelf,  ev);
+  _pgMenuHandle=gtk_menu_new();
 
-};
+  /* Make sure we have a reference to the class so the garbage collector
+     doesn't unload us */
+  g_object_set_data(G_OBJECT(_pgMenuHandle), NOMOBJECT_KEY_STRING, nomSelf);
+}
 
-#endif  /* NOMFLDRWINDOW_IDL_INCLUDED */
 
+/* orbit-idl-c-stubs.c, cs_output_stub line 347 */
+NOM_Scope void NOMLINK impl_NOMMenu_nomUninit(NOMMenu* nomSelf, CORBA_Environment *ev)
+{
+/* NOMMenuData* nomThis=NOMMenuGetData(nomSelf); */
 
-
+#if 0
+  /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 119 */
+  NOMMenu_nomUninit_parent(nomSelf,  ev);
+#endif
+}
 
 
 
