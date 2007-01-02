@@ -50,7 +50,8 @@ interface NOMMenu : NOMObject
 {
   NOMCLASSVERSION(1, 0);
 
-  PGtkWidget getMenuHandle();
+  PGtkWidget queryMenuHandle();
+
   NOMOVERRIDE(nomInit);
   NOMOVERRIDE(nomUninit);
 

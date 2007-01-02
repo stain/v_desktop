@@ -50,13 +50,12 @@
 #include "nommenu.ih"
 
 
-NOM_Scope PGtkWidget NOMLINK impl_NOMMenu_getMenuHandle(NOMMenu* nomSelf, CORBA_Environment *ev)
+NOM_Scope PGtkWidget NOMLINK impl_NOMMenu_queryMenuHandle(NOMMenu* nomSelf, CORBA_Environment *ev)
 {
   NOMMenuData* nomThis=NOMMenuGetData(nomSelf);
 
   return _pgMenuHandle;
 }
-
 
 /* orbit-idl-c-stubs.c, cs_output_stub line 347 */
 NOM_Scope void NOMLINK impl_NOMMenu_nomInit(NOMMenu* nomSelf, CORBA_Environment *ev)
@@ -64,13 +63,12 @@ NOM_Scope void NOMLINK impl_NOMMenu_nomInit(NOMMenu* nomSelf, CORBA_Environment 
   NOMMenuData* nomThis=NOMMenuGetData(nomSelf);
   GtkWidget* menuItem;
 
-  NOMMenu_nomInit_parent(nomSelf,  ev);
+  NOMMenu_nomInit_parent((NOMObject*)nomSelf,  ev);
   _pgMenuHandle=gtk_menu_new();
 
-  /* This is only for testing... */
-  menuItem=gtk_menu_item_new_with_label("Blabbla");
-  gtk_widget_show(menuItem);
-  gtk_menu_shell_append(GTK_MENU_SHELL(_pgMenuHandle), menuItem);
+  /* Make sure we have a reference to the class so the garbage collector
+     doesn't unload us */
+  g_object_set_data(G_OBJECT(_pgMenuHandle), NOMOBJECT_KEY_STRING, nomSelf);
 }
 
 
