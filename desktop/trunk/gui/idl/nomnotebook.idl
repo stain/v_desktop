@@ -43,6 +43,7 @@ interface NOMNoteBook : NOMWindow
 {
   NOMCLASSVERSION(1, 0);
 
+  long prependPage(in PGtkWidget pWidget, in PGtkWidget pLabel);
 
   NOMOVERRIDE(nomInit);
 };
