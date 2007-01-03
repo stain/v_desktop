@@ -39,7 +39,10 @@
 #include "nomfilepath.idl"
 /*#include "nomfolderwindow.idl"*/
 
+#ifndef NOMFolderWindow_defined
+#define NOMFolderWindow_defined
 native PNOMFolderWindow;
+#endif
 
 NOMCLASSNAME(WPFolder);
 

@@ -49,10 +49,11 @@
 #include "wpclassmanager.ih"
 #include "desktop.h"
 
-NOM_Scope CORBA_boolean NOMLINK impl_WPClassMgr_wpRegisterMenuItems(WPClassMgr* nomSelf, const gpointer ptrMenuItemInfo, CORBA_Environment *ev)
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPClassMgr_wpRegisterMenuItems(WPClassMgr* nomSelf, CORBA_unsigned_long* ptrMenuItemInfo, CORBA_Environment *ev)
 {
 /* WPClassMgrData* nomThis=WPClassMgrGetData(nomSelf); */
-  CORBA_boolean nomRetval=FALSE;
+  CORBA_boolean nomRetval;
 
   return nomRetval;
 }

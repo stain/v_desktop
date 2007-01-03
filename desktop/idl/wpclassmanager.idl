@@ -37,11 +37,13 @@
 
 #include "nomclassmanager.idl"
 
+native wpMenuItemInfo;
+
 interface WPClassMgr : NOMClassMgr
 {
   NOMCLASSVERSION(1, 0);
 
-  boolean  wpRegisterMenuItems(in gpointer ptrMenuItemInfo);
+  boolean  wpRegisterMenuItems(inout unsigned long ptrMenuItemInfo);
 
 };
 

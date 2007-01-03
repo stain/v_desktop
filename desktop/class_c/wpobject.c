@@ -62,8 +62,13 @@ typedef NOMFolderWindow *PNOMFolderWindow;
 #endif
 
 #include "wpobject.ih"
-
 #include "nomfolderwindow.h"
+
+/*************** Local vars ************************************/
+
+static nomId WPObjectNomId;
+
+/***************************************************************/
 
 NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const CORBA_unsigned_long cbBytes,
                                                     CORBA_unsigned_long* prc, CORBA_Environment *ev)
@@ -144,6 +149,11 @@ NOM_Scope void NOMLINK impl_WPObject_nomUninit(WPObject* nomSelf, CORBA_Environm
 NOM_Scope void NOMLINK impl_WPObject_wpInitData(WPObject* nomSelf, CORBA_Environment *ev)
 {
   WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  /* Get our unique class ID. We need it for example when inserting menu items to
+     specify the namespace. We query it here because getting a GQuark from a string
+     is rather time consuming. The result is saved in a var for later use. */
+  WPObjectNomId=g_quark_from_string("WPObject");
 
   /* Make sure a title exists (even if it's an empty string */
   _pnomStringTitle=NOMStringNew();
@@ -263,37 +273,95 @@ NOM_Scope PNOMMenu NOMLINK impl_WPObject_wpDisplayMenu(WPObject* nomSelf, const 
   WPObject_wpFilterMenu(nomSelf, nomFolder, nomMenu, ulMenuType, 0, ev);
 
   /* And finally show it */
-  gtk_menu_popup(GTK_MENU(NOMMenu_getMenuHandle(nomMenu,ev)), NULL, NULL, NULL, NULL, 0,
+  gtk_menu_popup(GTK_MENU(NOMMenu_queryMenuHandle(nomMenu,ev)), NULL, NULL, NULL, NULL, 0,
                  gtk_get_current_event_time());
+
   return nomMenu;
 }
 
-NOM_Scope void NOMLINK impl_WPObject_wpModifyMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder, const PNOMMenu nomMenu, const CORBA_unsigned_long ulMenuType, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_WPObject_wpModifyMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder, 
+                                                  const PNOMMenu nomMenu, const CORBA_unsigned_long ulMenuType,
+                                                  CORBA_Environment *ev)
 {
-/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  NOMMenuItem* mItem;
+  /*  WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
+  mItem=NOMMenuItemNew();
+
+  NOMMenuItem_setup(mItem, __FUNCTION__, WPObjectNomId, 0, ev);
+  WPObject_wpInsertMenuItem(nomSelf, nomMenu, mItem, 0, ev);
+
+  mItem=NOMMenuItemNew();
+  NOMMenuItem_setup(mItem, "Settings...", WPObjectNomId, WPMENUID_PROPERTIES, ev);
+  WPObject_wpInsertMenuItem(nomSelf, nomMenu, mItem, 0, ev);
 }
 
-NOM_Scope void NOMLINK impl_WPObject_wpFilterMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder, const PNOMMenu nomMenu, const CORBA_unsigned_long ulMenuType, const CORBA_unsigned_long ulFlags, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_WPObject_wpFilterMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
+                                                  const PNOMMenu nomMenu, const CORBA_unsigned_long ulMenuType,
+                                                  const CORBA_unsigned_long ulFlags, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
 }
 
 NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMenuItemSelected(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
-                                                                 const PNOMMenu nomMenu,
-                                                                 const CORBA_unsigned_long ulMenuType,
+                                                                 const PNOMMenuItem nomMenuItem,
                                                                  CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
-  CORBA_boolean nomRetval;
+  CORBA_boolean nomRetval=FALSE;
 
+  /* We only handle items with in own name space */
+  if(WPObjectNomId==NOMMenuItem_queryNameSpaceId(nomMenuItem, ev))
+    {
+      switch(NOMMenuItem_queryId(nomMenuItem, ev))
+        {
+        default:
+          break;
+        }
+    }
   return nomRetval;
 }
 
+/*
+  Callback for desktop menu items. This callback takes the object pointer and call wpMenuItemSelected()
+  of the object.
+ */
+static void menuItemActivateCallBack(GtkMenuItem* gtkMenuItem, gpointer wpObject)
+{
+  PNOMMenuItem pItem;
+
+#if 0
+  if(!nomIsObj((WPObject*)wpObject))
+    return;
+#endif
+
+  pItem=(PNOMMenuItem) g_object_get_data(G_OBJECT(gtkMenuItem), NOMOBJECT_KEY_STRING);
+
+  WPObject_wpMenuItemSelected((WPObject*) wpObject, NULLHANDLE,
+                              pItem, NULLHANDLE);
+}
+
+/*
+  This method adds the correct callback function to the menuitem and inserts it into the given menu.
+
+  FIXME: position information for the menu item isn't used yet. The Item is always appended.
+  
+ */
 NOM_Scope void NOMLINK impl_WPObject_wpInsertMenuItem(WPObject* nomSelf, const PNOMMenu nomMenu,
-                                                      const CORBA_unsigned_long ulId, CORBA_Environment *ev)
+                                                      const PNOMMenuItem nomMenuItem, 
+                                                      const CORBA_unsigned_long ulPosition, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
+  g_signal_connect(NOMMenuItem_queryMenuItemHandle(nomMenuItem, ev), "activate",
+                   (GCallback) menuItemActivateCallBack, (gpointer) nomSelf);
+
+  gtk_menu_shell_append(GTK_MENU_SHELL(NOMMenu_queryMenuHandle(nomMenu,ev)), 
+                        NOMMenuItem_queryMenuItemHandle(nomMenuItem, ev));
+
 }
+
+
+
+
