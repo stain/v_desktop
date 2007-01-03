@@ -70,13 +70,13 @@ NOM_Scope nomId NOMLINK impl_NOMMenuItem_queryNameSpaceId(NOMMenuItem* nomSelf, 
   return _nomIdNameSpace;
 }
 
-NOM_Scope void NOMLINK impl_NOMMenuItem_setMenuItemId(NOMMenuItem* nomSelf, const CORBA_unsigned_long ulMenuItemId, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_NOMMenuItem_setId(NOMMenuItem* nomSelf, const CORBA_unsigned_long ulMenuItemId, CORBA_Environment *ev)
 {
   NOMMenuItemData* nomThis=NOMMenuItemGetData(nomSelf); 
   _ulMenuItemId=ulMenuItemId;
 }
 
-NOM_Scope CORBA_unsigned_long NOMLINK impl_NOMMenuItem_queryMenuItemId(NOMMenuItem* nomSelf, CORBA_Environment *ev)
+NOM_Scope CORBA_unsigned_long NOMLINK impl_NOMMenuItem_queryId(NOMMenuItem* nomSelf, CORBA_Environment *ev)
 {
   NOMMenuItemData* nomThis=NOMMenuItemGetData(nomSelf);
 
@@ -84,7 +84,7 @@ NOM_Scope CORBA_unsigned_long NOMLINK impl_NOMMenuItem_queryMenuItemId(NOMMenuIt
 }
 
 
-NOM_Scope PNOMMenuItem NOMLINK impl_NOMMenuItem_setupMenuItem(NOMMenuItem* nomSelf, const CORBA_char * chrLabel, 
+NOM_Scope PNOMMenuItem NOMLINK impl_NOMMenuItem_setup(NOMMenuItem* nomSelf, const CORBA_char * chrLabel, 
                                                               const nomId nameSpaceId, const CORBA_unsigned_long ulMenuItemId,
                                                               CORBA_Environment *ev)
 {
@@ -93,7 +93,7 @@ NOM_Scope PNOMMenuItem NOMLINK impl_NOMMenuItem_setupMenuItem(NOMMenuItem* nomSe
   NOMMenuItemData* nomThis=NOMMenuItemGetData(nomSelf); 
 
   NOMMenuItem_setNameSpaceId(nomSelf, nameSpaceId, ev);
-  NOMMenuItem_setMenuItemId(nomSelf, ulMenuItemId, ev);
+  NOMMenuItem_setId(nomSelf, ulMenuItemId, ev);
 
   /* Create the label with mnemonic if any */
   accWidget=g_object_new(GTK_TYPE_ACCEL_LABEL, NULL);

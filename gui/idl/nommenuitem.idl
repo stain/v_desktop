@@ -53,10 +53,10 @@ interface NOMMenuItem : NOMObject
   PGtkWidget queryMenuItemHandle();
   void setNameSpaceId(in nomId nameSpaceId);
   nomId queryNameSpaceId();
-  void setMenuItemId(in unsigned long ulMenuItemId);
-  unsigned long queryMenuItemId();
+  void setId(in unsigned long ulMenuItemId);
+  unsigned long queryId();
 
-  PNOMMenuItem setupMenuItem(in string chrLabel, in nomId nameSpaceId, in unsigned long ulMenuItemId);
+  PNOMMenuItem setup(in string chrLabel, in nomId nameSpaceId, in unsigned long ulMenuItemId);
 
   NOMOVERRIDE(nomInit);
 
