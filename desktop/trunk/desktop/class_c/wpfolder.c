@@ -241,7 +241,7 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const gpointe
     case OPEN_CONTENTS:
     case OPEN_DEFAULT:
       {
-        NOMFolderWindow * nomFldrWindow;
+        static NOMFolderWindow * nomFldrWindow;
 
 #warning !!!!! Folder window must be inserted into inuse list !!!!!
         nomFldrWindow=WPFolder_wpCreateFolderWindow(nomSelf, ev);
@@ -319,7 +319,7 @@ NOM_Scope PNOMFolderWindow NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* 
   nomFldrWindow=NOMFolderWindowNew();
 
 #warning !!!!! This is only for testing !!!!!
-  priv->gtkIconView=NOMFolderWindow_getContainerHandle(nomFldrWindow, ev);
+  priv->gtkIconView=NOMFolderWindow_queryContainerHandle(nomFldrWindow, ev);
 
   /* Show the new window */
   NOMFolderWindow_show(nomFldrWindow, ev);

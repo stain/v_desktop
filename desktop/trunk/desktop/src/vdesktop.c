@@ -32,106 +32,149 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
+#define INCL_DOSPROCESS
 #define INCL_DOS
+#define INCL_DOSPROFILE
+#define INCL_DOSERRORS
 #define INCL_PM
 #include <os2.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <gtk/gtk.h> 
 #include "debug_window.h"
 #include <gc.h>
 
 #include "nom.h"
 #include "nomtk.h"
+#include "nomgc.h"
+#include "nomguitk.h"
+#include "nomfolderwindow.h"
 #include "wpobject.h"
 #include "wpfolder.h"
 #include "desktoptypes.h"
 
 int createQuitWindow(void);
 
-PNOM_ENV pEnv;
-NOMClassMgr *NOMClassMgrObject;
+static gboolean
+handleEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+{
 
+  DosBeep(5000, 100);
+  //g_malloc(1250000);
+  //g_message("%s: allocated...", __FUNCTION__);
+  //WPObject_wpDisplayMenu(wpFolder, pWindow, NULL, 0, 0, NULL);
+  
+  return FALSE;
+}
 
-/* Desktop folder */
-WPFolder *wpDesktop;
 /*
   Main entry point. This function is called from the EMX wrapper. Be aware that gtk_init()
   is already called in the wrapper.
  */
 int _System  main_loop()
 {
- char desktopDir[CCHMAXPATH]={0};
+  char desktopDir[CCHMAXPATH]={0};
+  PNOM_ENV pEnv;
+  NOMClassMgr *NOMClassMgrObject;
+  GtkWidget* window;
+  int a;
+  ULONG pMem;
+  HREGDLL hReg=NULLHANDLE;
+  
+  /* Desktop folder */
+  WPFolder *wpDesktop;
+  
+  hReg=nomBeginRegisterDLLWithGC();
+  if(NULLHANDLE==hReg)
+    return 1;
+  
+  /* Register DLLs with the garbage collector */
+  g_assert(nomRegisterDLLByName(hReg, "GLIB2.DLL" ));
+  g_assert(nomRegisterDLLByName(hReg, "GOBJECT2.DLL"));
+  g_assert(nomRegisterDLLByName(hReg, "GMODULE2.DLL"));
+  g_assert(nomRegisterDLLByName(hReg, "GDK2.DLL"));
+  g_assert(nomRegisterDLLByName(hReg, "GDKPIX2.DLL"));
+  g_assert(nomRegisterDLLByName(hReg, "GTK2.DLL" ));
+  g_assert(nomRegisterDLLByName(hReg, "ATK.DLL" ));
+  g_assert(nomRegisterDLLByName(hReg, "NOBJTK.DLL"));
+  g_assert(nomRegisterDLLByName(hReg, "VDESKTOP.DLL"));
+  /* Add Pango here? */
 
- g_message("We started...\n");
+  nomEndRegisterDLLWithGC(hReg);
 
+  g_message("We started...\n");
 
 #if 0
- /* Initialize thread subsystem */
- if(!g_thread_supported())
-   g_thread_init(NULL);
+  /* Initialize thread subsystem */
+  if(!g_thread_supported())
+    g_thread_init(NULL);
 #endif
-
+  
   /* Create a window with a 'quit' button to terminate us */
- createQuitWindow();
-
-
+  createQuitWindow();
+    
   /* Query current dir */
   g_strlcpy(desktopDir, g_get_current_dir(), sizeof(desktopDir));
   dbgPrintf("Desktop: %s", desktopDir);
 
-    /*
-      Bootstrap our objects...
-     */
-    pEnv=nomTkInit();
-    //dbgPrintf( "nomTKinit returned: %x", pEnv);
+  /*
+    Bootstrap our objects...
+  */
+  pEnv=nomTkInit();
 
-    if(!pEnv) {
-      nomPrintf("Can't initialize NOM environment. Exit...\n");
-      return(1); 
-    }
-
-    /* Init SOM */
-    NOMClassMgrObject=nomEnvironmentNew();
-    //dbgPrintf( "NOMClassMgrObject: %x", NOMClassMgrObject);
+  if(!pEnv) {
+    nomPrintf("Can't initialize NOM environment. Exit...\n");
+    return(1); 
+  }
 
 
+  /* Init SOM */
+  NOMClassMgrObject=nomEnvironmentNew();
+  //dbgPrintf( "NOMClassMgrObject: %x", NOMClassMgrObject);
+  
+  /* Create desktop folder */
+  wpDesktop=WPFolderNew();
 
-    WPObject* wpObject;
-    wpObject=WPObjectNew();
-    //dbgPrintf( "wpObject: %x", wpObject);
+  dbgPrintf( "Created desktop object: %x", wpDesktop);
+  WPFolder_tstSetFullPath(wpDesktop, desktopDir, NULLHANDLE);
+  
+  WPFolder_wpOpen(wpDesktop, NULL, OPEN_DEFAULT,  NULL, NULL);
+  /*    WPFolder_wpPopulate(wpObject, 0,"blabla 2", 0,  NULL);  */
+    
+#if 0
+  /* Folder toplevel window. */
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
-    /* Create desktop folder */
-    wpDesktop=WPFolderNew();
-    dbgPrintf( "Created desktop object: %x", wpDesktop);
-    WPFolder_tstSetFullPath(wpDesktop, desktopDir, NULLHANDLE);
+  /* FIXME: Set default size of folder frame. Will later use a stored value */
+  gtk_window_set_default_size (GTK_WINDOW (window), 650, 400);
 
-    WPFolder_wpOpen(wpDesktop, NULL, OPEN_DEFAULT,  NULL, NULL);
-    /*    WPFolder_wpPopulate(wpObject, 0,"blabla 2", 0,  NULL);  */
+  g_signal_connect (GTK_WIDGET(window), "size-request",
+                    G_CALLBACK (handleEvent), NULL/*nomSelf*/);
+
+  gtk_widget_show(window);
+  g_message("Window handle: %x", window);
+#endif
+
+  /* All GTK applications must have a gtk_main(). Control ends here
+   * and waits for an event to occur (like a key press or
+   * mouse event). */
+  gtk_main ();
 
     
 #if 0
-    /* Base classes */
-    wpObject=WPDataFileNew();
-
-    somPrintf("\nNew wpObject: %x\n", wpObject);
-    somPrintf("  -> Classname is: %s\n", _somGetClassName(wpObject));
-
-
-    /* Test only!!! */
-    _tstSetFullPath(wpDesktop, desktopDir);
-
-    _wpSetFolder(wpDesktop, NULLHANDLE); /* FIXME: Instance var is zero anyway but this way I don't forget it ;-) */
-    _wpOpen(wpDesktop, NULLHANDLE, OPEN_DEFAULT, 0); /* remove parameter later!!! */
-    /*  _dbgPrintRegisteredClasses(SOMClassMgrObject);*/
-
+    mem=g_malloc(1250000);
+    memset(mem, 0xaa, 10000);
+    //  *pGlobalMemInExe=mem;
+    for(a=0;a<50;a++){
+      g_malloc(1250000);
+      printf("%x %x %x %x %d\n", *mem, *(mem+1), *(mem+2), *(mem+3), 0);
+      //printf("%x\n", *((ULONG*)pGlobalMemInExe));
+    }
 #endif
-    /* All GTK applications must have a gtk_main(). Control ends here
-     * and waits for an event to occur (like a key press or
-     * mouse event). */
-    gtk_main ();
 
-    printf("And now we quit...\n");    
+    printf("And now we quit...\n");
+
   return 0;
 }
 

@@ -68,6 +68,7 @@ static void destroy( GtkWidget *widget,
     gtk_main_quit ();
 }
 
+static  GtkWidget *window;
 /*
   Main entry point. This function is called from the EMX wrapper. Be aware that gtk_init()
   is already called in the wrapper.
@@ -75,7 +76,7 @@ static void destroy( GtkWidget *widget,
 int createQuitWindow(void)
 {
  /* GtkWidget is the storage type for widgets */
-    GtkWidget *window;
+
     GtkWidget *button;
     
     /* create a new window */

@@ -120,6 +120,8 @@ void dbgPrintf(const gchar* gchrFormat, ...)
   gchar *gchrTemp;
   va_list arg_ptr;
 
+  return;
+
   if(store==NULL)
     {
       /* Create a list store and model holding the messages which will be
