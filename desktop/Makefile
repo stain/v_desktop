@@ -38,6 +38,7 @@ CLASSOBJECTS	=	$(OBJDIR)/wpobject.o \
 			$(OBJDIR)/wpfilesystem.o \
 			$(OBJDIR)/wpdatafile.o \
 			$(OBJDIR)/wpfolder.o \
+			$(OBJDIR)/wpnotebook.o \
 			$(OBJDIR)/wpclassmanager.o \
 			$(OBJDIR)/helper.o
 
@@ -74,7 +75,7 @@ BASE_NOMCOMPILEC	=	$(IDLCOMP) $(IDLINC) --showcpperrors --c-template --output-di
 
 
 # Rules for desktop classes
-$(OBJDIR)/%.o:	$(CLASSCDIR)/%.c $(CLASSINC)/%.ih
+$(OBJDIR)/%.o:	$(CLASSCDIR)/%.c
 	$(CC) -I $(INC) $(GCCFLAGS)  -o$@ $<
 
 $(OBJDIR)/helper.o:	$(CLASSCDIR)/helper.c
@@ -90,6 +91,11 @@ $(CLASSINC)/%.h:	$(IDLDIR)/%.idl
 
 $(OBJDIR)/%.o:	$(CDIR)/%.c
 	$(CC) -I $(INC) $(GCCFLAGSDLL)  -o$@ $<
+
+$(CLASSCDIR)/%.c:	$(IDLDIR)/%.idl
+	$(BASE_NOMCOMPILEIH)
+	$(BASE_NOMCOMPILEH)
+	$(BASE_NOMCOMPILEC)
 
 # Create the directories for temp files
 $(OBJDIR)/o.dep:

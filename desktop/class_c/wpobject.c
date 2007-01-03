@@ -63,6 +63,7 @@ typedef NOMFolderWindow *PNOMFolderWindow;
 
 #include "wpobject.ih"
 #include "nomfolderwindow.h"
+#include "wpnotebook.h"
 
 /*************** Local vars ************************************/
 
@@ -259,6 +260,84 @@ NOM_Scope PNOMString NOMLINK impl_WPObject_wpQueryTitle(WPObject* nomSelf, CORBA
   return NOMString_copyString(tmpPtr, ev);
 }
 
+NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpAddObjectGeneralPage(WPObject* nomSelf,
+                                                                           const PWPNoteBook wpNoteBook,
+                                                                           CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  GtkWidget *frame;
+  GtkWidget *label;
+  GtkWidget *vbox;
+  GtkWidget *hbox;
+  GtkWidget *button;
+  GtkWidget *entry;
+
+  /* A vbox to layout the settings page */
+  vbox=gtk_vbox_new(FALSE, 0);
+
+  hbox=gtk_hbutton_box_new ();
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_SPREAD);
+  gtk_box_set_spacing (GTK_BOX (hbox), 2);
+
+  /* Create buttons */
+  button = gtk_button_new_from_stock (GTK_STOCK_OK);
+  gtk_container_add (GTK_CONTAINER (hbox), button);
+  button = gtk_button_new_from_stock (GTK_STOCK_CANCEL);
+  gtk_container_add (GTK_CONTAINER (hbox), button);
+  /* Put the buttons at the very bottom */
+  gtk_box_pack_end (GTK_BOX (vbox), hbox, FALSE, FALSE, 1);  
+
+  /* The icon part */
+  frame = gtk_frame_new ("Current Icon");
+  gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+  gtk_widget_set_size_request(frame, 200, 100);
+  gtk_box_pack_end (GTK_BOX (vbox), frame, FALSE, FALSE, 1);
+
+  /* The Title part */
+  frame = gtk_frame_new ("Title");
+  gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+  entry=gtk_entry_new();
+  gtk_entry_set_max_length(GTK_ENTRY(entry), CCHMAXPATH);
+  gtk_container_add (GTK_CONTAINER (frame), entry);
+  gtk_box_pack_end (GTK_BOX (vbox), frame, FALSE, FALSE, 1);
+
+  /* The label for the tab */
+  label = gtk_label_new ("Icon");
+
+  gtk_widget_show_all (vbox);
+  //  GUIProperties *tst=GUIPropertiesNew();
+
+  /*  _addNotebookPage(tst, vbox, "Icon");
+      _show(tst);*/
+  
+  gtk_notebook_prepend_page (GTK_NOTEBOOK (
+                                           NOMNoteBook_queryWindowHandle(
+                                           WPNoteBook_wpQueryNoteBookObject(wpNoteBook, ev), ev)), vbox, label);
+
+  return 1234;
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpAddSettingsPages(WPObject* nomSelf, const PWPNoteBook wpNoteBook,
+                                                                 CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  _wpAddObjectGeneralPage(nomSelf, wpNoteBook, ev);
+  return TRUE;
+}
+
+NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpInsertSettingsPage(WPObject* nomSelf, 
+                                                                         const PWPNoteBook wpNoteBook,
+                                                                         const gpointer ppageinfo, 
+                                                                         CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  CORBA_unsigned_long nomRetval;
+
+  return nomRetval;
+}
+
+
 NOM_Scope PNOMMenu NOMLINK impl_WPObject_wpDisplayMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
                                                        const gpointer gReserved, const CORBA_unsigned_long ulMenuType,
                                                        const CORBA_unsigned_long ulReserved, CORBA_Environment *ev)
@@ -316,6 +395,14 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMenuItemSelected(WPObject* nomSe
     {
       switch(NOMMenuItem_queryId(nomMenuItem, ev))
         {
+        case WPMENUID_PROPERTIES:
+          {
+            WPNoteBook* wpNoteBook;
+            wpNoteBook=WPNoteBookNew();
+            _wpAddSettingsPages(nomSelf, wpNoteBook, ev);
+            WPNoteBook_show(wpNoteBook, ev);
+            break;
+          }
         default:
           break;
         }
