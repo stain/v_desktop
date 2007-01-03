@@ -33,7 +33,8 @@ ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
 CLASSOBJECTS	=	$(OBJDIR)/nomwindow.o \
 			$(OBJDIR)/nomfolderwindow.o \
 			$(OBJDIR)/nommenu.o \
-			$(OBJDIR)/nommenuitem.o
+			$(OBJDIR)/nommenuitem.o \
+			$(OBJDIR)/nomnotebook.o
 
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c

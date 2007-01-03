@@ -19,3 +19,7 @@ EXPORTS
 	_NOMMenuItemClassData  
 	_NOMMenuItemCClassData 
 	NOMMenuItemNewClass    
+
+	_NOMNoteBookClassData  
+	_NOMNoteBookCClassData 
+	NOMNoteBookNewClass    
