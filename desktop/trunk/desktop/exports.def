@@ -32,4 +32,8 @@ EXPORTS
 ;	_M_WPDataFileCClassData
 ;	M_WPDataFileNewClass
 
+	_WPNoteBookClassData
+	_WPNoteBookCClassData
+	WPNoteBookNewClass
+
 ;IMPORTS

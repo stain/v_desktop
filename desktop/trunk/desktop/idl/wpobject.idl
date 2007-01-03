@@ -41,6 +41,7 @@
 #include "nomstring.idl"
 #include "nommenu.idl"
 #include "nommenuitem.idl"
+#include "wpnotebook.idl"
 
 #ifndef NOMFolderWindow_defined
 #define NOMFolderWindow_defined
@@ -52,15 +53,6 @@ NOMCLASSNAME(WPObject);
 interface WPObject : NOMObject
 {
   NOMCLASSVERSION(1, 0);
-#if 0
-  /* Settings pages */
-  BOOL wpAddSettingsPages(in HWND hwndNotebook);
-
-  ULONG wpInsertSettingsPage(in HWND hwndNotebook,
-                             in PPAGEINFO ppageinfo);
-
-  ULONG wpAddObjectGeneralPage(in HWND hwndNotebook);
-#endif
 
   /* Memory allocation */
   gpointer wpAllocMem(in unsigned long cbBytes,
@@ -87,6 +79,12 @@ interface WPObject : NOMObject
                     in unsigned long ulFlags);
   boolean wpMenuItemSelected(in PNOMFolderWindow nomFolder, in PNOMMenuItem nomMenuItem);
   void wpInsertMenuItem( in PNOMMenu nomMenu, in PNOMMenuItem nomMenuItem, in unsigned long ulPosition);
+
+  /* Settings pages */
+  boolean wpAddSettingsPages(in PWPNoteBook wpNoteBook);
+  unsigned long wpInsertSettingsPage(in PWPNoteBook wpNoteBook, in gpointer ppageinfo);
+  unsigned long wpAddObjectGeneralPage(in PWPNoteBook wpNoteBook);
+
 
   /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);
