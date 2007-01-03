@@ -48,6 +48,14 @@
 #include "nomnotebook.ih"
 
 
+NOM_Scope CORBA_long NOMLINK impl_NOMNoteBook_prependPage(NOMNoteBook* nomSelf, 
+                                                    const PGtkWidget pWidget, const PGtkWidget pLabel,
+                                                    CORBA_Environment *ev)
+{
+/* NOMNoteBookData* nomThis=NOMNoteBookGetData(nomSelf); */
+  return gtk_notebook_prepend_page (GTK_NOTEBOOK (NOMNoteBook_queryWindowHandle(nomSelf, ev)), pWidget, pLabel);
+}
+
 /* orbit-idl-c-stubs.c, cs_output_stub line 347 */
 NOM_Scope void NOMLINK impl_NOMNoteBook_nomInit(NOMNoteBook* nomSelf, CORBA_Environment *ev)
 {
