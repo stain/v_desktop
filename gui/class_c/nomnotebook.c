@@ -49,11 +49,53 @@
 
 
 NOM_Scope CORBA_long NOMLINK impl_NOMNoteBook_prependPage(NOMNoteBook* nomSelf, 
-                                                    const PGtkWidget pWidget, const PGtkWidget pLabel,
-                                                    CORBA_Environment *ev)
+                                                          const PGtkWidget pWidget, const PGtkWidget pLabel,
+                                                          CORBA_Environment *ev)
 {
 /* NOMNoteBookData* nomThis=NOMNoteBookGetData(nomSelf); */
-  return gtk_notebook_prepend_page (GTK_NOTEBOOK (NOMNoteBook_queryWindowHandle(nomSelf, ev)), pWidget, pLabel);
+  return gtk_notebook_prepend_page_menu (GTK_NOTEBOOK (NOMNoteBook_queryWindowHandle(nomSelf, ev)), pWidget, pLabel,
+                                         NULL);
+}
+
+NOM_Scope CORBA_long NOMLINK impl_NOMNoteBook_appendPage(NOMNoteBook* nomSelf, 
+                                                         const PGtkWidget pWidget, const PGtkWidget pLabel,
+                                                         CORBA_Environment *ev)
+{
+/* NOMNoteBookData* nomThis=NOMNoteBookGetData(nomSelf); */
+  return gtk_notebook_append_page_menu (GTK_NOTEBOOK (NOMNoteBook_queryWindowHandle(nomSelf, ev)), pWidget, pLabel,
+                                         NULL);
+}
+
+NOM_Scope void NOMLINK impl_NOMNoteBook_enablePopupMenu(NOMNoteBook* nomSelf, CORBA_Environment *ev)
+{
+/* NOMNoteBookData* nomThis=NOMNoteBookGetData(nomSelf); */
+
+  gtk_notebook_popup_enable(GTK_NOTEBOOK(NOMNoteBook_queryWindowHandle(nomSelf, ev)));
+}
+
+NOM_Scope void NOMLINK impl_NOMNoteBook_disablePopupMenu(NOMNoteBook* nomSelf, CORBA_Environment *ev)
+{
+/* NOMNoteBookData* nomThis=NOMNoteBookGetData(nomSelf); */
+
+  gtk_notebook_popup_disable(GTK_NOTEBOOK(NOMNoteBook_queryWindowHandle(nomSelf, ev)));
+}
+
+NOM_Scope void NOMLINK impl_NOMNoteBook_switchToNextPage(NOMNoteBook* nomSelf, CORBA_Environment *ev)
+{
+/* NOMNoteBookData* nomThis=NOMNoteBookGetData(nomSelf); */
+  gtk_notebook_next_page(GTK_NOTEBOOK(NOMNoteBook_queryWindowHandle(nomSelf, ev)));
+}
+
+NOM_Scope void NOMLINK impl_NOMNoteBook_switchToPrevPage(NOMNoteBook* nomSelf, CORBA_Environment *ev)
+{
+/* NOMNoteBookData* nomThis=NOMNoteBookGetData(nomSelf); */
+  gtk_notebook_prev_page(GTK_NOTEBOOK(NOMNoteBook_queryWindowHandle(nomSelf, ev)));
+}
+
+NOM_Scope void NOMLINK impl_NOMNoteBook_switchToPage(NOMNoteBook* nomSelf, const gint iPageNum, CORBA_Environment *ev)
+{
+/* NOMNoteBookData* nomThis=NOMNoteBookGetData(nomSelf); */
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(NOMNoteBook_queryWindowHandle(nomSelf, ev)), iPageNum);
 }
 
 /* orbit-idl-c-stubs.c, cs_output_stub line 347 */
@@ -69,10 +111,10 @@ NOM_Scope void NOMLINK impl_NOMNoteBook_nomInit(NOMNoteBook* nomSelf, CORBA_Envi
   /* Make sure we have a reference to the class so the garbage collector
      doesn't unload us */
   g_object_set_data(G_OBJECT(gtkNoteBook), NOMOBJECT_KEY_STRING, nomSelf);
+  NOMNoteBook_setWindowHandle(nomSelf, gtkNoteBook, NULLHANDLE);
 
   gtk_notebook_set_tab_pos(GTK_NOTEBOOK(gtkNoteBook), GTK_POS_TOP);
+  _enablePopupMenu(nomSelf, ev);
   gtk_widget_show(gtkNoteBook);
-
-  NOMNoteBook_setWindowHandle(nomSelf, gtkNoteBook, NULLHANDLE);
 }
 

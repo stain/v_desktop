@@ -44,6 +44,12 @@ interface NOMNoteBook : NOMWindow
   NOMCLASSVERSION(1, 0);
 
   long prependPage(in PGtkWidget pWidget, in PGtkWidget pLabel);
+  long appendPage(in PGtkWidget pWidget, in PGtkWidget pLabel);
+  void enablePopupMenu();
+  void disablePopupMenu();
+  void switchToNextPage();
+  void switchToPrevPage();
+  void switchToPage(in gint iPageNum);
 
   NOMOVERRIDE(nomInit);
 };
