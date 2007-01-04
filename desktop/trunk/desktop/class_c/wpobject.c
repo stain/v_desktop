@@ -166,12 +166,49 @@ NOM_Scope void NOMLINK impl_WPObject_wpUnInitData(WPObject* nomSelf, CORBA_Envir
 
 }
 
-NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const gpointer ptrReserved, const CORBA_unsigned_long ulView, const gpointer ptrParams, CORBA_Environment *ev)
+
+NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
+                                                const gulong ulView, const gpointer pParam, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  switch(ulView)
+    {
+    case OPEN_SETTINGS:
+      {
+        WPNoteBook* wpNoteBook;
+        wpNoteBook=WPNoteBookNew();
+        _wpAddSettingsPages(nomSelf, wpNoteBook, ev);
+        WPNoteBook_show(wpNoteBook, ev);
+        return (gpointer) wpNoteBook;
+      }
+    default:
+      /* We are the very last in the chain of classes being called */
+      g_return_val_if_reached(NULLHANDLE);
+      break;
+    }
+  return NULLHANDLE;
+}
+
+NOM_Scope gpointer NOMLINK impl_WPObject_wpViewObject(WPObject* nomSelf, const PNOMFolderWindow nomFolder, const gulong ulView, const gpointer pParam, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
   gpointer nomRetval=NULLHANDLE;
 
-  return nomRetval;
+
+  if((nomRetval=WPObject_wpSwitchTo(nomSelf, ulView, ev))!=NULLHANDLE)
+    return nomRetval;
+
+  return WPObject_wpOpen(nomSelf, nomFolder, ulView, pParam, ev);
+}
+
+NOM_Scope gpointer NOMLINK impl_WPObject_wpSwitchTo(WPObject* nomSelf, const gulong ulView, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  g_message("Method wpSwitchTo() not implemented.");
+
+  return NULLHANDLE;
 }
 
 
@@ -305,14 +342,8 @@ NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpAddObjectGeneralPage(WPObj
   label = gtk_label_new ("Icon");
 
   gtk_widget_show_all (vbox);
-  //  GUIProperties *tst=GUIPropertiesNew();
 
-  /*  _addNotebookPage(tst, vbox, "Icon");
-      _show(tst);*/
-  
-  gtk_notebook_prepend_page (GTK_NOTEBOOK (
-                                           NOMNoteBook_queryWindowHandle(
-                                           WPNoteBook_wpQueryNoteBookObject(wpNoteBook, ev), ev)), vbox, label);
+  NOMNoteBook_prependPage(WPNoteBook_wpQueryNoteBookObject(wpNoteBook, ev), vbox, label, ev);
 
   return 1234;
 }
@@ -388,7 +419,6 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMenuItemSelected(WPObject* nomSe
                                                                  CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
-  CORBA_boolean nomRetval=FALSE;
 
   /* We only handle items with in own name space */
   if(WPObjectNomId==NOMMenuItem_queryNameSpaceId(nomMenuItem, ev))
@@ -397,17 +427,16 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMenuItemSelected(WPObject* nomSe
         {
         case WPMENUID_PROPERTIES:
           {
-            WPNoteBook* wpNoteBook;
-            wpNoteBook=WPNoteBookNew();
-            _wpAddSettingsPages(nomSelf, wpNoteBook, ev);
-            WPNoteBook_show(wpNoteBook, ev);
-            break;
+            WPObject_wpViewObject(nomSelf, nomFolder,
+                            OPEN_SETTINGS, NULLHANDLE, ev);
+            return TRUE; /* We always return TRUE to show, we handled the menu item. It doesn't
+                          matter if we actually succeeded with creating the settings notebook. */
           }
         default:
           break;
         }
     }
-  return nomRetval;
+  return FALSE;
 }
 
 /*

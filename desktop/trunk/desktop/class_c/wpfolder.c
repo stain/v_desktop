@@ -230,8 +230,8 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
   return FALSE;
 }
 
-NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const gpointer ptrReserved,
-                                                const CORBA_unsigned_long ulView, const gpointer ptrParams,
+NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PNOMFolderWindow nomFolder,
+                                                const gulong ulView, const gpointer pParam,
                                                 CORBA_Environment *ev)
 {
 /* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
@@ -276,10 +276,10 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const gpointe
 #endif
       }/* default */
     default:
-      g_return_val_if_reached(NULLHANDLE);
       break;
     }/* switch */
-  return NULLHANDLE;
+
+  return WPFolder_wpOpen_parent(nomSelf, nomFolder, ulView, pParam, ev);
 }
 
 NOM_Scope gpointer NOMLINK impl_WPFolder_wpQueryIcon(WPFolder* nomSelf, CORBA_Environment *ev)
