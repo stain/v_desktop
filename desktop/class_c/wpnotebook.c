@@ -71,7 +71,7 @@ NOM_Scope void NOMLINK impl_WPNoteBook_nomInit(WPNoteBook* nomSelf, CORBA_Enviro
 
   /* Create the toplevel window */
   gtkWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_container_set_border_width(GTK_CONTAINER(gtkWindow), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(gtkWindow), 1);
   /* Make sure we have a reference to the class so the garbage collector
      doesn't unload us */
   g_object_set_data(G_OBJECT(gtkWindow), NOMOBJECT_KEY_STRING, nomSelf);

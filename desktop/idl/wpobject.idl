@@ -60,7 +60,7 @@ interface WPObject : NOMObject
   boolean  wpFreeMem(in gpointer pByte);
   void     wpInitData();
   void     wpUnInitData();
-  gpointer wpOpen(in gpointer ptrReserved, in unsigned long ulView, in gpointer ptrParams);
+  gpointer wpOpen(in PNOMFolderWindow nomFolder, in gulong ulView, in gpointer pParam);
   void     wpLockObject();
   boolean  wpUnlockObject();
   boolean  wpObjectIsLocked();
@@ -84,7 +84,8 @@ interface WPObject : NOMObject
   boolean wpAddSettingsPages(in PWPNoteBook wpNoteBook);
   unsigned long wpInsertSettingsPage(in PWPNoteBook wpNoteBook, in gpointer ppageinfo);
   unsigned long wpAddObjectGeneralPage(in PWPNoteBook wpNoteBook);
-
+  gpointer wpViewObject(in PNOMFolderWindow nomFolder, in gulong ulView, in gpointer pParam);
+  gpointer wpSwitchTo(in gulong ulView);
 
   /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);
