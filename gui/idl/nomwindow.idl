@@ -42,6 +42,9 @@
 /* This should be moved in a header file */
 native PGtkWidget;
 #endif
+
+NOMCLASSNAME(NOMWindow);
+
 interface NOMWindow : NOMObject
 {
   NOMCLASSVERSION(1, 0);
