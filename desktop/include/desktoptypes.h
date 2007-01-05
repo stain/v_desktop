@@ -15,8 +15,8 @@ typedef struct _wpMenuItemInfo
 /* Inuse lists */
 typedef struct _USEITEM
 {
-   gulong  type;              /* Item type */
-   struct  _USEITEM *pNext;   /* Next item */
+   gulong    type;       /* Item type */
+   PWPObject wpObject;   /* Remark: this is different to OS/2  */
 } USEITEM, *PUSEITEM;
 
 /* USAGE_MEMORY */
@@ -25,11 +25,30 @@ typedef struct _MEMORYITEM
    gulong   cbBuffer;           /* Number of bytes in memory block */
 } MEMORYITEM, *PMEMORYITEM;
 
+/* USAGE_OPENVIEW */
+typedef struct _VIEWITEM {
+  gulong          ulView;
+  NOMWindow*      nomWindow;
+  gulong          ulViewState;  /*   */
+  gpointer        pReserved;
+ } VIEWITEM, *PVIEWITEM;
+
+
 #define USAGE_MEMORY          1
+#define USAGE_OPENVIEW        5
 
 #define OPEN_DEFAULT          0
 #define OPEN_CONTENTS         1
 #define OPEN_SETTINGS         2
+
+/* Views for wpFindViewItem() */
+#define VIEW_CONTENTS         0x00000001
+#define VIEW_SETTINGS         0x00000002
+#define VIEW_HELP             0x00000004
+#define VIEW_RUNNING          0x00000008
+#define VIEW_DETAILS          0x00000010
+#define VIEW_TREE             0x00000020
+#define VIEW_ANY              0xFFFFFFFF
 
 /* Flags for menu methods */
 #define MENU_OBJECTPOPUP           0x00000001

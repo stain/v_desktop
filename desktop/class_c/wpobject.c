@@ -48,7 +48,6 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include <nomguitk.h>
-#include "desktoptypes.h"
 
 /* We have to declare this here to make PNOMFolderWindow known
    to wpDisplayMenu(). */
@@ -61,9 +60,23 @@ typedef struct NOMFolderWindow_struct {
 typedef NOMFolderWindow *PNOMFolderWindow;
 #endif
 
+#ifndef WPObject
+typedef struct WPObject_struct {
+  struct nomMethodTabStruct  *mtab;
+  gulong body[1];
+} WPObjectObj;
+#define WPObject WPObjectObj
+typedef WPObject *PWPObject;
+#endif
+
+#include "nomwindow.h"
+#include "desktoptypes.h"
+
 #include "wpobject.ih"
 #include "nomfolderwindow.h"
 #include "wpnotebook.h"
+
+
 
 /*************** Local vars ************************************/
 
@@ -71,8 +84,8 @@ static nomId WPObjectNomId;
 
 /***************************************************************/
 
-NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const CORBA_unsigned_long cbBytes,
-                                                    CORBA_unsigned_long* prc, CORBA_Environment *ev)
+NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const gulong cbBytes,
+                                                    gulong* prc, CORBA_Environment *ev)
 {
 
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
@@ -91,28 +104,29 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const COR
   /* Fill the structures */
   pui=(PUSEITEM)ptrMem;
   pui->type=(ULONG)USAGE_MEMORY;
+  pui->wpObject=nomSelf;
   pui++;
   ((MEMORYITEM*)pui)->cbBuffer=cbBytes;
   
-#warning !!!!! Memory is not in inuse list !!!!!
   /* Add memory to in use list */
-  //_wpAddToObjUseList(somSelf, (PUSEITEM)pMem);
+  WPObject_wpAddToObjUseList(nomSelf, (PUSEITEM)ptrMem, ev);
   
-  return ptrMem+sizeof(USEITEM)+sizeof(MEMORYITEM);    
+  return (gpointer)((PBYTE)ptrMem+sizeof(USEITEM)+sizeof(MEMORYITEM));    
 }
 
 NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpFreeMem(WPObject* nomSelf, const gpointer pByte, CORBA_Environment *ev)
 {
-/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  gpointer ptrMem=NULLHANDLE;
 
   if(!pByte)
     return FALSE;
 
-  /* remove from inuse list */
-#warning !!!!! Memory not removed from inuse list !!!!!
-  //_wpDeleteFromObjUseList(somSelf, (PUSEITEM)(pByte-sizeof(USEITEM)-sizeof(MEMORYITEM)) );
+  ptrMem=(gpointer)((PBYTE)pByte-sizeof(USEITEM)-sizeof(MEMORYITEM));
 
-  NOMFree(pByte-sizeof(USEITEM)-sizeof(MEMORYITEM));
+  /* remove from inuse list */
+  WPObject_wpDeleteFromObjUseList(nomSelf, (PUSEITEM)ptrMem, ev );
+
+  NOMFree(ptrMem);
   return TRUE; /* free can't fail */;
 }
 
@@ -176,9 +190,26 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PNOMFol
     {
     case OPEN_SETTINGS:
       {
+        PUSEITEM pui;
+        gulong ulError;
+
         WPNoteBook* wpNoteBook;
         wpNoteBook=WPNoteBookNew();
         _wpAddSettingsPages(nomSelf, wpNoteBook, ev);
+
+        /* Add a view item to inuse list */
+        pui=(PUSEITEM)WPObject_wpAllocMem(nomSelf, sizeof(USEITEM)+sizeof(VIEWITEM), &ulError, ev);
+        /* Fill the structures */
+
+        pui->type=(gulong)USAGE_OPENVIEW;
+        pui->wpObject=nomSelf;
+        pui++;
+        ((VIEWITEM*)pui)->ulView=VIEW_SETTINGS;
+        ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)wpNoteBook;
+        g_message("   in %s viewItem: %x wpNoteBook 0x%04X", __FUNCTION__, pui, wpNoteBook);
+        pui--;
+
+        WPObject_wpAddToObjUseList(nomSelf, pui, ev);
         WPNoteBook_show(wpNoteBook, ev);
         return (gpointer) wpNoteBook;
       }
@@ -196,19 +227,158 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpViewObject(WPObject* nomSelf, const P
   gpointer nomRetval=NULLHANDLE;
 
 
-  if((nomRetval=WPObject_wpSwitchTo(nomSelf, ulView, ev))!=NULLHANDLE)
+  if((nomRetval=WPObject_wpSwitchTo(nomSelf, ulView, ev))!=NULLHANDLE){
+    /* Bring the window to the foreground */
+    //  NOMWindow_show((NOMWindow*)nomRetval , ev);
     return nomRetval;
+  }
 
+  g_message("   in %s with ulViev 0x%04X", __FUNCTION__, ulView);
   return WPObject_wpOpen(nomSelf, nomFolder, ulView, pParam, ev);
 }
 
 NOM_Scope gpointer NOMLINK impl_WPObject_wpSwitchTo(WPObject* nomSelf, const gulong ulView, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  PVIEWITEM pViewItem;
 
-  g_message("Method wpSwitchTo() not implemented.");
+  g_message("   in %s with ulViev 0x%04X", __FUNCTION__, ulView);
+
+  switch(ulView)
+    {
+    case OPEN_SETTINGS:
+      {
+        g_message("   in %s : OPEN_SETTINGS", __FUNCTION__);
+        pViewItem=WPObject_wpFindViewItem(nomSelf, VIEW_SETTINGS, NULLHANDLE, ev);
+        if(pViewItem){
+          g_message("   in %s : OPEN_SETTINGS returning %x %x ...", __FUNCTION__, pViewItem, pViewItem->nomWindow);
+          NOMWindow_show(pViewItem->nomWindow, ev);
+        return (gpointer)pViewItem->nomWindow;
+        }
+        break;
+      }
+    default:
+      break;
+    }
 
   return NULLHANDLE;
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpRegisterView(WPObject* nomSelf, const PNOMWindow pWindow,
+                                                             const PNOMString nomStrViewTitle, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  g_message("Method %s not implemented.", __FUNCTION__);
+  return FALSE;
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpAddToObjUseList(WPObject* nomSelf, const PUSEITEM pUseItem,
+                                                                CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  if(!pUseItem)
+    return FALSE;
+
+  g_message("   in %s : %x", __FUNCTION__, pUseItem);
+
+  WPObject_wpRequestObjectMutexSem(nomSelf, 0,ev);
+
+  _glstObjectInUse=g_slist_append( _glstObjectInUse, (gpointer)pUseItem);
+
+  WPObject_wpReleaseObjectMutexSem(nomSelf,ev);
+
+  return TRUE;
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpDeleteFromObjUseList(WPObject* nomSelf, const PUSEITEM pUseItem,
+                                                                     CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  if(!pUseItem)
+    return FALSE;
+
+  WPObject_wpRequestObjectMutexSem(nomSelf, 0,ev);
+
+  _glstObjectInUse=g_slist_remove( _glstObjectInUse, (gpointer)pUseItem);
+
+  WPObject_wpReleaseObjectMutexSem(nomSelf,ev);
+
+  return TRUE;
+}
+
+
+NOM_Scope PUSEITEM NOMLINK impl_WPObject_wpFindUseItem(WPObject* nomSelf, const gulong ulType,
+                                                       const PUSEITEM pCurrentUseItem, CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+  PUSEITEM pUseItem=NULLHANDLE;
+  GSList* tmpList;
+
+  if(NULLHANDLE==_glstObjectInUse)
+    return NULLHANDLE;
+
+  WPObject_wpRequestObjectMutexSem(nomSelf, 0,ev);
+  g_message("   in %s %d", __FUNCTION__, ulType);
+  if(NULLHANDLE==pCurrentUseItem)
+    tmpList=_glstObjectInUse;
+  else{
+    tmpList=g_slist_find(_glstObjectInUse, pCurrentUseItem);
+    tmpList=g_slist_next(tmpList);
+  }
+
+  while(tmpList)
+    {
+      pUseItem=(PUSEITEM)tmpList->data;
+
+      g_message("     a in %s  type: %d", __FUNCTION__, pUseItem->type);
+
+      if(pUseItem && ulType==pUseItem->type)
+        break;
+      g_message("     b in %s  type: %d", __FUNCTION__, pUseItem->type);
+      tmpList=g_slist_next(tmpList);
+      pUseItem=NULLHANDLE;
+    };
+
+  WPObject_wpReleaseObjectMutexSem(nomSelf,ev);
+
+  return pUseItem;
+}
+
+
+NOM_Scope PVIEWITEM NOMLINK impl_WPObject_wpFindViewItem(WPObject* nomSelf, const gulong flViews,
+                                                         const PVIEWITEM pCurrentItem, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  PUSEITEM pUseItem;
+  PVIEWITEM pViewItem=NULLHANDLE;
+
+  if(!flViews)
+    return NULLHANDLE;
+  g_message("   in %s %d", __FUNCTION__, flViews);
+  if(NULLHANDLE==pCurrentItem)
+    pUseItem=WPObject_wpFindUseItem(nomSelf, USAGE_OPENVIEW,  NULLHANDLE, ev);
+  else{
+    pUseItem=(PUSEITEM)pCurrentItem;
+    pUseItem--;
+    pUseItem=WPObject_wpFindUseItem(nomSelf, USAGE_OPENVIEW,  pUseItem, ev);
+  }
+  while(pUseItem)
+    {
+      ++pUseItem;
+      pViewItem=(PVIEWITEM)pUseItem;
+      pUseItem--;
+      g_message("        a in %s %d", __FUNCTION__, flViews);
+      if(pViewItem->ulView & flViews)
+        break;
+      g_message("        b in %s %d", __FUNCTION__, flViews);
+      pUseItem=WPObject_wpFindUseItem(nomSelf, USAGE_OPENVIEW,  pUseItem, ev);
+      pViewItem=NULLHANDLE;
+    }
+
+  return pViewItem;
 }
 
 
@@ -247,7 +417,8 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpQueryIcon(WPObject* nomSelf, CORBA_En
 }
 
 NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpRequestObjectMutexSem(WPObject* nomSelf,
-                                                                            const CORBA_unsigned_long ulReserved, CORBA_Environment *ev)
+                                                                            const CORBA_unsigned_long ulReserved,
+                                                                            CORBA_Environment *ev)
 {
   WPObjectData* nomThis=WPObjectGetData(nomSelf);
 
