@@ -12,6 +12,15 @@ typedef struct _wpMenuItemInfo
   gpointer ptrUserinfo; /* Pointer to more menu item info for the user */
 }wpMenuItemInfo;
 
+#ifndef WPObject
+typedef struct WPObject_struct {
+  struct nomMethodTabStruct  *mtab;
+  gulong body[1];
+} WPObjectObj;
+#define WPObject WPObjectObj
+typedef WPObject *PWPObject;
+#endif
+
 /* Inuse lists */
 typedef struct _USEITEM
 {
@@ -67,3 +76,4 @@ typedef GMutex *PGMutex;
 #define NOMERROR_NOT_ENOUGH_MEMORY 8
   
 #endif /* DESKTOPTYPES_H_INCLUDED */
+

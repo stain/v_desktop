@@ -35,9 +35,20 @@
 #ifndef WPNOTEBOOK_IDL_INCLUDED
 #define WPNOTEBOOK_IDL_INCLUDED
 
-#include "nomnotebook.idl"
+#if 0
+#ifndef WPObject_defined
+#define WPObject_defined
+native PWPObject;
+#endif
+#endif
+
+#include <nomobj.idl>
 
 NOMCLASSNAME(WPNoteBook);
+
+#include "wpobject.idl"
+#include "nomnotebook.idl"
+
 
 interface WPNoteBook : NOMWindow
 {
@@ -45,10 +56,14 @@ interface WPNoteBook : NOMWindow
 
   PNOMNoteBook wpQueryNoteBookObject();
   void wpSetNoteBookObject(in PNOMNoteBook nomNBook);
+  void wpSetWPObject(in PWPObject wpObject);
+  PWPObject wpQueryWPObject();
 
   NOMOVERRIDE(nomInit);
 
   NOMINSTANCEVAR(PNOMNoteBook nomNoteBook);
+  NOMINSTANCEVAR(PWPObject wpObject);
+
 };
 
 #endif /* WPNoteBook_IDL_INCLUDED */

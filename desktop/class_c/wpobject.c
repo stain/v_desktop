@@ -60,15 +60,6 @@ typedef struct NOMFolderWindow_struct {
 typedef NOMFolderWindow *PNOMFolderWindow;
 #endif
 
-#ifndef WPObject
-typedef struct WPObject_struct {
-  struct nomMethodTabStruct  *mtab;
-  gulong body[1];
-} WPObjectObj;
-#define WPObject WPObjectObj
-typedef WPObject *PWPObject;
-#endif
-
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
@@ -137,8 +128,8 @@ NOM_Scope void NOMLINK impl_WPObject_nomInit(WPObject* nomSelf, CORBA_Environmen
   /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
   WPObject_nomInit_parent((NOMObject*) nomSelf,  ev);
 
-  nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
-            __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
+  //nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
+  //        __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
 
   /* Initialize important data before letting subclasses do their stuff */
   //_gObjectMutex=g_mutex_new();
@@ -180,6 +171,25 @@ NOM_Scope void NOMLINK impl_WPObject_wpUnInitData(WPObject* nomSelf, CORBA_Envir
 
 }
 
+static
+gboolean defaultWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, gpointer pData)
+{
+  WPObject* wpObject;
+  WPNoteBook* wpNoteBook;
+  PUSEITEM pUseItem=(PUSEITEM) pData;
+
+  wpNoteBook=(WPNoteBook*)g_object_get_data(G_OBJECT(gtkWidget), NOMOBJECT_KEY_STRING);
+
+  g_return_val_if_fail(NULLHANDLE!=wpNoteBook, FALSE);
+
+  wpObject=WPNoteBook_wpQueryWPObject(wpNoteBook, NULLHANDLE);
+
+  g_return_val_if_fail(NULLHANDLE!=wpObject, FALSE);
+
+  WPObject_wpDeleteFromObjUseList(wpObject, pUseItem, NULLHANDLE);
+
+  return FALSE; /* Let other handlers run */
+}
 
 NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
                                                 const gulong ulView, const gpointer pParam, CORBA_Environment *ev)
@@ -195,6 +205,8 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PNOMFol
 
         WPNoteBook* wpNoteBook;
         wpNoteBook=WPNoteBookNew();
+        WPNoteBook_wpSetWPObject(wpNoteBook, nomSelf, NULLHANDLE);
+
         _wpAddSettingsPages(nomSelf, wpNoteBook, ev);
 
         /* Add a view item to inuse list */
@@ -206,9 +218,10 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PNOMFol
         pui++;
         ((VIEWITEM*)pui)->ulView=VIEW_SETTINGS;
         ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)wpNoteBook;
-        g_message("   in %s viewItem: %x wpNoteBook 0x%04X", __FUNCTION__, pui, wpNoteBook);
         pui--;
-
+        //g_message("   in %s wpNoteBook: %lx pui %lx", __FUNCTION__, wpNoteBook, pui);
+        g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)wpNoteBook, NULLHANDLE)),"delete-event", 
+                         G_CALLBACK(defaultWPWindowDeleteHandler), (gpointer) pui);
         WPObject_wpAddToObjUseList(nomSelf, pui, ev);
         WPNoteBook_show(wpNoteBook, ev);
         return (gpointer) wpNoteBook;
@@ -227,13 +240,9 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpViewObject(WPObject* nomSelf, const P
   gpointer nomRetval=NULLHANDLE;
 
 
-  if((nomRetval=WPObject_wpSwitchTo(nomSelf, ulView, ev))!=NULLHANDLE){
-    /* Bring the window to the foreground */
-    //  NOMWindow_show((NOMWindow*)nomRetval , ev);
+  if((nomRetval=WPObject_wpSwitchTo(nomSelf, ulView, ev))!=NULLHANDLE)
     return nomRetval;
-  }
 
-  g_message("   in %s with ulViev 0x%04X", __FUNCTION__, ulView);
   return WPObject_wpOpen(nomSelf, nomFolder, ulView, pParam, ev);
 }
 
@@ -242,18 +251,16 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpSwitchTo(WPObject* nomSelf, const gul
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
   PVIEWITEM pViewItem;
 
-  g_message("   in %s with ulViev 0x%04X", __FUNCTION__, ulView);
-
   switch(ulView)
     {
     case OPEN_SETTINGS:
       {
-        g_message("   in %s : OPEN_SETTINGS", __FUNCTION__);
         pViewItem=WPObject_wpFindViewItem(nomSelf, VIEW_SETTINGS, NULLHANDLE, ev);
         if(pViewItem){
-          g_message("   in %s : OPEN_SETTINGS returning %x %x ...", __FUNCTION__, pViewItem, pViewItem->nomWindow);
-          NOMWindow_show(pViewItem->nomWindow, ev);
-        return (gpointer)pViewItem->nomWindow;
+          //g_message("   in %s : OPEN_SETTINGS returning %x %x ...", __FUNCTION__, pViewItem, pViewItem->nomWindow);
+          /* Bring the window to the foreground */
+          NOMWindow_present(pViewItem->nomWindow, ev);
+          return (gpointer)pViewItem->nomWindow;
         }
         break;
       }
@@ -281,7 +288,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpAddToObjUseList(WPObject* nomSel
   if(!pUseItem)
     return FALSE;
 
-  g_message("   in %s : %x", __FUNCTION__, pUseItem);
+  //g_message("   in %s : %x", __FUNCTION__, pUseItem);
 
   WPObject_wpRequestObjectMutexSem(nomSelf, 0,ev);
 
@@ -301,7 +308,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpDeleteFromObjUseList(WPObject* n
     return FALSE;
 
   WPObject_wpRequestObjectMutexSem(nomSelf, 0,ev);
-
+  //g_message("   in %s %lx", __FUNCTION__, pUseItem);
   _glstObjectInUse=g_slist_remove( _glstObjectInUse, (gpointer)pUseItem);
 
   WPObject_wpReleaseObjectMutexSem(nomSelf,ev);
@@ -321,7 +328,7 @@ NOM_Scope PUSEITEM NOMLINK impl_WPObject_wpFindUseItem(WPObject* nomSelf, const 
     return NULLHANDLE;
 
   WPObject_wpRequestObjectMutexSem(nomSelf, 0,ev);
-  g_message("   in %s %d", __FUNCTION__, ulType);
+
   if(NULLHANDLE==pCurrentUseItem)
     tmpList=_glstObjectInUse;
   else{
@@ -333,11 +340,10 @@ NOM_Scope PUSEITEM NOMLINK impl_WPObject_wpFindUseItem(WPObject* nomSelf, const 
     {
       pUseItem=(PUSEITEM)tmpList->data;
 
-      g_message("     a in %s  type: %d", __FUNCTION__, pUseItem->type);
-
+      //g_message("     a in %s  type: %d", __FUNCTION__, pUseItem->type);
       if(pUseItem && ulType==pUseItem->type)
         break;
-      g_message("     b in %s  type: %d", __FUNCTION__, pUseItem->type);
+
       tmpList=g_slist_next(tmpList);
       pUseItem=NULLHANDLE;
     };
@@ -357,7 +363,7 @@ NOM_Scope PVIEWITEM NOMLINK impl_WPObject_wpFindViewItem(WPObject* nomSelf, cons
 
   if(!flViews)
     return NULLHANDLE;
-  g_message("   in %s %d", __FUNCTION__, flViews);
+
   if(NULLHANDLE==pCurrentItem)
     pUseItem=WPObject_wpFindUseItem(nomSelf, USAGE_OPENVIEW,  NULLHANDLE, ev);
   else{
@@ -370,10 +376,10 @@ NOM_Scope PVIEWITEM NOMLINK impl_WPObject_wpFindViewItem(WPObject* nomSelf, cons
       ++pUseItem;
       pViewItem=(PVIEWITEM)pUseItem;
       pUseItem--;
-      g_message("        a in %s %d", __FUNCTION__, flViews);
+      //g_message("        a in %s %d", __FUNCTION__, flViews);
       if(pViewItem->ulView & flViews)
         break;
-      g_message("        b in %s %d", __FUNCTION__, flViews);
+
       pUseItem=WPObject_wpFindUseItem(nomSelf, USAGE_OPENVIEW,  pUseItem, ev);
       pViewItem=NULLHANDLE;
     }
