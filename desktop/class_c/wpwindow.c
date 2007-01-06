@@ -31,44 +31,33 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
+/*
+ * And remember, phase 3 is near...
+ */
+#include <os2.h>
 
-#ifndef WPNOTEBOOK_IDL_INCLUDED
-#define WPNOTEBOOK_IDL_INCLUDED
+#include <nom.h>
+#include <nomtk.h>
+#include <gtk/gtk.h>
+#include <nomguitk.h>
+#include "nomwindow.h"
+#include "desktoptypes.h"
 
-#if 0
-#ifndef WPObject_defined
-#define WPObject_defined
-native PWPObject;
-#endif
-#endif
+#include <string.h>
 
-#include <nomobj.idl>
+#include "nomfolderwindow.h"
+#include "wpwindow.ih"
 
-NOMCLASSNAME(WPNoteBook);
-
-//#include "wpobject.idl"
-#include "wpwindow.idl"
-#include "nomnotebook.idl"
-
-
-interface WPNoteBook : WPWindow
+NOM_Scope void NOMLINK impl_WPWindow_wpSetWPObject(WPWindow* nomSelf, const PWPObject wpObject, CORBA_Environment *ev)
 {
-  NOMCLASSVERSION(1, 0);
+  WPWindowData* nomThis=WPWindowGetData(nomSelf);
+  _wpObject=wpObject;
+}
 
-  PNOMNoteBook wpQueryNoteBookObject();
-  void wpSetNoteBookObject(in PNOMNoteBook nomNBook);
-  //void wpSetWPObject(in PWPObject wpObject);
-  //PWPObject wpQueryWPObject();
+NOM_Scope PWPObject NOMLINK impl_WPWindow_wpQueryWPObject(WPWindow* nomSelf, CORBA_Environment *ev)
+{
+  WPWindowData* nomThis=WPWindowGetData(nomSelf);
 
-  NOMOVERRIDE(nomInit);
-
-  NOMINSTANCEVAR(PNOMNoteBook nomNoteBook);
-  NOMINSTANCEVAR(PWPObject wpObject);
-
-};
-
-#endif /* WPNoteBook_IDL_INCLUDED */
-
-
-
+  return _wpObject;
+}
 

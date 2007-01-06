@@ -36,4 +36,8 @@ EXPORTS
 	_WPNoteBookCClassData
 	WPNoteBookNewClass
 
+	_WPWindowClassData
+	_WPWindowCClassData
+	WPWindowNewClass
+
 ;IMPORTS
