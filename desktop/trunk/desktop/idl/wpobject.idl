@@ -41,7 +41,6 @@
 #include "nomstring.idl"
 #include "nommenu.idl"
 #include "nommenuitem.idl"
-#include "wpnotebook.idl"
 #include "nomwindow.idl"
 
 #ifndef NOMFolderWindow_defined
@@ -50,6 +49,8 @@ native PNOMFolderWindow;
 #endif
 
 NOMCLASSNAME(WPObject);
+
+#include "wpnotebook.idl"
 
 interface WPObject : NOMObject
 {

@@ -42,7 +42,10 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include <nomguitk.h>
+#include "nomwindow.h"
+#include "desktoptypes.h"
 
+#include "nomfolderwindow.h"
 #include "wpnotebook.ih"
 
 NOM_Scope PNOMNoteBook NOMLINK impl_WPNoteBook_wpQueryNoteBookObject(WPNoteBook* nomSelf, CORBA_Environment *ev)
@@ -60,12 +63,31 @@ NOM_Scope void NOMLINK impl_WPNoteBook_wpSetNoteBookObject(WPNoteBook* nomSelf, 
   _nomNoteBook=nomNBook;
 }
 
+
+NOM_Scope void NOMLINK impl_WPNoteBook_wpSetWPObject(WPNoteBook* nomSelf, const PWPObject wpObject,
+                                                     CORBA_Environment *ev)
+{
+  WPNoteBookData* nomThis=WPNoteBookGetData(nomSelf);
+  _wpObject=wpObject;
+
+}
+
+
+NOM_Scope PWPObject NOMLINK impl_WPNoteBook_wpQueryWPObject(WPNoteBook* nomSelf, CORBA_Environment *ev)
+{
+  WPNoteBookData* nomThis=WPNoteBookGetData(nomSelf);
+
+  return _wpObject;
+}
+
+
+
+
 NOM_Scope void NOMLINK impl_WPNoteBook_nomInit(WPNoteBook* nomSelf, CORBA_Environment *ev)
 {
+  /* WPNoteBookData* nomThis=WPNoteBookGetData(nomSelf);  */
   GtkWidget* gtkWindow;
   NOMNoteBook* nomNoteBook;
-
-  WPNoteBookData* nomThis=WPNoteBookGetData(nomSelf); 
 
   WPNoteBook_nomInit_parent((NOMObject*)nomSelf,  ev);
 

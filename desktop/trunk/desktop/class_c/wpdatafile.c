@@ -46,9 +46,18 @@
 #include "nom.h"
 #include "nomtk.h"
 
-#include "wpdatafile.ih"
+#include <gtk/gtk.h>
+#include "nomguitk.h"
 #include "helper.h"
 #include "desktop.h"
+#include "nomwindow.h"
+#include "desktoptypes.h"
+
+/* wpdatafile.ih includes some WPObject stuff and that needs these
+   includes. */
+#include "nomfolderwindow.h"
+
+#include "wpdatafile.ih"
 
 NOM_Scope CORBA_long NOMLINK impl_WPDataFile_wpQueryFileSize(WPDataFile* nomSelf, CORBA_Environment *ev)
 {

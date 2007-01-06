@@ -40,6 +40,8 @@
 #include <os2.h>
 #include <stdio.h>
 
+void * pMemInExe;
+
 int main( int   argc,
           char *argv[] )
 {
@@ -50,6 +52,8 @@ int main( int   argc,
   HMODULE hModuleGC;
   PFN proc;
 
+
+  fprintf(stderr, "%s: Memaddress for GC: %x\n", __FUNCTION__, (UINT)&pMemInExe);
   /*
     Initialize the garbage collector.
    */
@@ -68,7 +72,7 @@ int main( int   argc,
       return 1;
     }
   fprintf(stderr, "   Proc address for nomInitGarbageCollection() is: 0x%x\n", (int)proc);
-  proc();
+  proc(&pMemInExe);
 
   /*
     Init GTK

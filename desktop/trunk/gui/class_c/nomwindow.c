@@ -72,6 +72,13 @@ NOM_Scope void NOMLINK impl_NOMWindow_show(NOMWindow* nomSelf, CORBA_Environment
 NOM_Scope void NOMLINK impl_NOMWindow_hide(NOMWindow* nomSelf, CORBA_Environment *ev)
 {
   /* NOMWindowData* nomThis=NOMWindowGetData(nomSelf); */
-  gtk_widget_hide(NOMWindow_queryWindowHandle(nomSelf, NULLHANDLE));
+  gtk_widget_hide(NOMWindow_queryWindowHandle(nomSelf, ev));
+}
+
+NOM_Scope void NOMLINK impl_NOMWindow_present(NOMWindow* nomSelf, CORBA_Environment *ev)
+{
+/* NOMWindowData* nomThis=NOMWindowGetData(nomSelf); */
+
+  gtk_window_present(GTK_WINDOW(NOMWindow_queryWindowHandle(nomSelf, ev)));
 }
 

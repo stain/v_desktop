@@ -53,6 +53,8 @@ interface NOMWindow : NOMObject
   void setWindowHandle(in PGtkWidget pgWidget);   
   void show();
   void hide();
+  void present();
+
   NOMINSTANCEVAR(PGtkWidget _pgWindowHandle);
 };
 
