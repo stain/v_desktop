@@ -64,25 +64,6 @@ NOM_Scope void NOMLINK impl_WPNoteBook_wpSetNoteBookObject(WPNoteBook* nomSelf, 
 }
 
 
-NOM_Scope void NOMLINK impl_WPNoteBook_wpSetWPObject(WPNoteBook* nomSelf, const PWPObject wpObject,
-                                                     CORBA_Environment *ev)
-{
-  WPNoteBookData* nomThis=WPNoteBookGetData(nomSelf);
-  _wpObject=wpObject;
-
-}
-
-
-NOM_Scope PWPObject NOMLINK impl_WPNoteBook_wpQueryWPObject(WPNoteBook* nomSelf, CORBA_Environment *ev)
-{
-  WPNoteBookData* nomThis=WPNoteBookGetData(nomSelf);
-
-  return _wpObject;
-}
-
-
-
-
 NOM_Scope void NOMLINK impl_WPNoteBook_nomInit(WPNoteBook* nomSelf, CORBA_Environment *ev)
 {
   /* WPNoteBookData* nomThis=WPNoteBookGetData(nomSelf);  */

@@ -32,8 +32,8 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef WPNOTEBOOK_IDL_INCLUDED
-#define WPNOTEBOOK_IDL_INCLUDED
+#ifndef WPWINDOW_IDL_INCLUDED
+#define WPWINDOW_IDL_INCLUDED
 
 #if 0
 #ifndef WPObject_defined
@@ -44,30 +44,21 @@ native PWPObject;
 
 #include <nomobj.idl>
 
-NOMCLASSNAME(WPNoteBook);
+NOMCLASSNAME(WPWindow);
 
-//#include "wpobject.idl"
-#include "wpwindow.idl"
-#include "nomnotebook.idl"
+#include "wpobject.idl"
 
-
-interface WPNoteBook : WPWindow
+interface WPWindow : NOMWindow
 {
   NOMCLASSVERSION(1, 0);
 
-  PNOMNoteBook wpQueryNoteBookObject();
-  void wpSetNoteBookObject(in PNOMNoteBook nomNBook);
-  //void wpSetWPObject(in PWPObject wpObject);
-  //PWPObject wpQueryWPObject();
+  void wpSetWPObject(in PWPObject wpObject);
+  PWPObject wpQueryWPObject();
 
-  NOMOVERRIDE(nomInit);
-
-  NOMINSTANCEVAR(PNOMNoteBook nomNoteBook);
   NOMINSTANCEVAR(PWPObject wpObject);
-
 };
 
-#endif /* WPNoteBook_IDL_INCLUDED */
+#endif /* WPWINDOW_IDL_INCLUDED */
 
 
 
