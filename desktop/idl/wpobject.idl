@@ -37,6 +37,8 @@
 
 #include <nomobj.idl>
 
+NOMCLASSNAME(WPObject);
+
 #include "wpnativetypes.idl"
 #include "nomstring.idl"
 #include "nommenu.idl"
@@ -48,7 +50,18 @@
 native PNOMFolderWindow;
 #endif
 
-NOMCLASSNAME(WPObject);
+#if 0
+#ifndef WPFolder_defined
+#define WPFolder_defined
+native PWPFolder;
+#endif
+#endif
+
+#ifndef WPFOLDER_IDL_INCLUDED
+native PWPFolder;
+#endif
+
+//NOMCLASSNAME(WPObject);
 
 #include "wpnotebook.idl"
 
@@ -69,7 +82,6 @@ interface WPObject : NOMObject
   gpointer wpQueryIcon();
   unsigned long  wpRequestObjectMutexSem(in unsigned long ulReserved);
   unsigned long  wpReleaseObjectMutexSem();
-  /*  boolean wpSetFolder(in WPFolder wpParentFolder); */
 
   PNOMString wpSetTitle(in PNOMString pnomStrNewTitle);
   PNOMString wpQueryTitle();
@@ -97,6 +109,12 @@ interface WPObject : NOMObject
   PUSEITEM  wpFindUseItem( in gulong ulType, in PUSEITEM pCurrentUseItem);
   PVIEWITEM wpFindViewItem(in gulong flViews,in PVIEWITEM pCurrentItem);
 
+  boolean wpSaveDeferred();
+  boolean wpSaveImmediate();
+
+  void wpSetFolder(in PWPFolder wpParentFolder);
+  PWPFolder wpQueryFolder();
+
   /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);
   NOMOVERRIDE(nomUninit);
@@ -107,7 +125,7 @@ interface WPObject : NOMObject
   NOMINSTANCEVAR(HMUX gObjectMutex);
   NOMINSTANCEVAR(PGSList glstObjectInUse);
   NOMINSTANCEVAR(PNOMString pnomStringTitle);
-
+  NOMINSTANCEVAR(PWPFolder wpParentFldr);
 };
 
 #endif

@@ -37,10 +37,12 @@
 #define INCL_DOSPROFILE
 #define INCL_DOSERRORS
 #define INCL_PM
+
 #include <os2.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <gtk/gtk.h> 
 #include "debug_window.h"
 #include <gc.h>
@@ -49,10 +51,14 @@
 #include "nomtk.h"
 #include "nomgc.h"
 #include "nomguitk.h"
+#include "nomwindow.h"
+#include "desktoptypes.h"
+
 #include "nomfolderwindow.h"
 #include "wpobject.h"
 #include "wpfolder.h"
-#include "desktoptypes.h"
+#include "nomfilepath.h"
+
 
 int createQuitWindow(void);
 
@@ -67,6 +73,8 @@ handleEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
   
   return FALSE;
 }
+
+WPFolder* wpRootFolder;
 
 /*
   Main entry point. This function is called from the EMX wrapper. Be aware that gtk_init()
@@ -84,7 +92,10 @@ int _System  main_loop()
   
   /* Desktop folder */
   WPFolder *wpDesktop;
-  
+  WPFolder *wpTempFolder;
+  PNOMPath nomPath;  
+  PNOMPath np;
+
   hReg=nomBeginRegisterDLLWithGC();
   if(NULLHANDLE==hReg)
     return 1;
@@ -116,7 +127,7 @@ int _System  main_loop()
     
   /* Query current dir */
   g_strlcpy(desktopDir, g_get_current_dir(), sizeof(desktopDir));
-  dbgPrintf("Desktop: %s", desktopDir);
+  g_message("Desktop: %s", desktopDir);
 
   /*
     Bootstrap our objects...
@@ -132,13 +143,46 @@ int _System  main_loop()
   /* Init SOM */
   NOMClassMgrObject=nomEnvironmentNew();
   //dbgPrintf( "NOMClassMgrObject: %x", NOMClassMgrObject);
-  
-  /* Create desktop folder */
-  wpDesktop=WPFolderNew();
 
-  dbgPrintf( "Created desktop object: %x", wpDesktop);
-  WPFolder_tstSetFullPath(wpDesktop, desktopDir, NULLHANDLE);
-  
+  nomPath=NOMPathNew();
+  NOMPath_assignCString(nomPath, desktopDir, NULLHANDLE);
+  /* Make sure there's no '/' at the end */
+  nomPath=NOMPath_stripSeparator(nomPath, NULLHANDLE);
+
+  /* Create root folder */
+  wpRootFolder=WPFolderNew();
+  WPFolder_tstSetFullPath(wpRootFolder, NOMPath_queryCString(NOMPath_queryRoot(nomPath, NULLHANDLE),NULLHANDLE),
+                          NULLHANDLE);
+  wpTempFolder=wpRootFolder;
+
+  nomPath=NOMPath_erasePathBegin(nomPath, NULLHANDLE);
+
+  /* Now create all folders up the chain */
+  while(NOMPath_length(nomPath, NULLHANDLE)>0)
+    {
+      NOMPath* np;
+      WPFolder* wpFolder;
+      np=NOMPath_queryPathBegin(nomPath, NULLHANDLE);
+
+      wpFolder=WPFolderNew();
+      WPFolder_tstSetFullPath(wpFolder, NOMPath_queryCString(np,NULLHANDLE),
+                              NULLHANDLE);
+      WPFolder_wpSetFolder(wpFolder, wpTempFolder, NULLHANDLE);
+      wpTempFolder=wpFolder;
+      nomPath=NOMPath_erasePathBegin(nomPath, NULLHANDLE);
+      WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE);
+      //g_message("   path: %s", NOMPath_queryCString(WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE),
+      //                                            NULLHANDLE));
+    };
+
+  g_message("   --> Desktop dir: %s", NOMPath_queryCString(WPFolder_wpQueryFileName(wpTempFolder, TRUE, NULLHANDLE),
+                                                            NULLHANDLE));
+
+  /* Create desktop folder */
+  wpDesktop=wpTempFolder;//WPFolderNew();
+
+  //WPFolder_tstSetFullPath(wpDesktop, desktopDir, NULLHANDLE);
+  //WPFolder_tstSetFullPath(wpDesktop, "r:", NULLHANDLE);
   WPFolder_wpOpen(wpDesktop, NULL, OPEN_DEFAULT,  NULL, NULL);
   /*    WPFolder_wpPopulate(wpObject, 0,"blabla 2", 0,  NULL);  */
     

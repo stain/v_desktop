@@ -35,6 +35,10 @@
 #ifndef wpfsys_idl
 #define wpfsys_idl
 
+#include "nombase.idl"
+
+NOMCLASSNAME(WPFileSystem);
+
 #include "wpobject.idl"
 #include "nomfilepath.idl"
 
@@ -44,7 +48,7 @@ interface WPFileSystem : WPObject
   NOMCLASSVERSION(1, 0);
 
   void tstSetFullPath(in string fullPath);   
-  PNOMPath wpQueryRealName(in boolean bFullPath);
+  PNOMPath wpQueryFileName(in boolean bFullPath);
 
 #if 0
   ULONG cbEASize;
