@@ -51,14 +51,14 @@
   Note that there's no check if the input string is an absolute path. So if an absolute path is given as
   input the resulting path may not be valid.
 
-  The method returns the NOMPath instance after appending.
+  The method returns a new NOMPath after appending.
  */
 NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendPath(NOMPath* nomSelf, const PNOMPath nomPath, CORBA_Environment *ev)
 {
   gchar*  chrTemp;
 
   if(!nomPath)
-    return nomSelf;
+    return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
 
   if(0==NOMPath_length((NOMString*)nomPath, ev))
     return NOMPath_appendSeparator(nomSelf, ev);
@@ -68,41 +68,139 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendPath(NOMPath* nomSelf, const PNOMP
   else
     NOMPath_appendSeparator(nomSelf, ev); /* Make sure current path has a separator */
 
-  return (NOMPath*) NOMPath_appendString((NOMString*) nomSelf, (NOMString*)nomPath, NULLHANDLE);
+  return (NOMPath*) NOMPath_append((NOMString*) nomSelf, (NOMString*)nomPath, NULLHANDLE);
 }
 
 /*
   Append a separator to the path. If the path already has a separator at the end this method does
-  nothing other than returning the path.
+  nothing other than returning a new path object. If the given path has zero length a path object
+  only holding a separator is returned.
+ 
+  This method always returns a new instance of a NOMPath owned by the caller.
 */
 NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendSeparator(NOMPath* nomSelf, CORBA_Environment *ev)
 {
   gchar*  chrTemp;
   gulong len;
-  
+
   if((len=NOMPath_length((NOMString*)nomSelf, ev))==0)
     return (NOMPath*)NOMPath_appendCString((NOMString*)nomSelf, G_DIR_SEPARATOR_S, ev);
 
   if(G_DIR_SEPARATOR!=chrTemp[len-1])
     return (NOMPath*)NOMPath_appendCString( (NOMString*)nomSelf, G_DIR_SEPARATOR_S, ev);
 
-  return nomSelf;
+  return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
 }
 
 /*
   Strips the path separator from the end of a path if there's one.
+
+  This method always returns a new instance of a NOMPath owned by the caller.
  */
 NOM_Scope PNOMPath NOMLINK impl_NOMPath_stripSeparator(NOMPath* nomSelf, CORBA_Environment *ev)
 {
   gchar*  chrTemp;
   gulong len;
 
-  if((len=NOMPath_length((NOMString*)nomSelf, ev))==0)
-    return nomSelf;
+  if((len=NOMPath_length((NOMString*)nomSelf, NULLHANDLE))==0)
+    return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
 
-  chrTemp=NOMPath_getCString((NOMString*)nomSelf, ev);
+  chrTemp=NOMPath_queryCString((NOMString*)nomSelf, NULLHANDLE);
+
   if(chrTemp[len-1]==G_DIR_SEPARATOR)
-    return (NOMPath*)NOMPath_truncateString( (NOMString*)nomSelf, len-1, ev);
+    return (NOMPath*)NOMPath_truncate( (NOMString*)nomSelf, len-1, NULLHANDLE);
 
-  return nomSelf;
+  return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
 }
+
+/*
+  Returns TRUE if the given path is absolute.
+  On OS/2 this means it starts with a letter followed by a colon.
+*/
+NOM_Scope CORBA_boolean NOMLINK impl_NOMPath_pathIsAbsolute(NOMPath* nomSelf, CORBA_Environment *ev)
+{
+  /* NOMPathData* nomThis=NOMPathGetData(nomSelf); */
+  gchar* chrString;
+
+#ifndef __OS2__
+#error !!!!! Only implemented for OS/2 !!!!!
+#endif
+
+  if(NOMPath_length(nomSelf, NULLHANDLE)<2)
+    return FALSE;
+
+  chrString=NOMPath_queryCString(nomSelf, NULLHANDLE);
+
+  if(!g_ascii_isalpha(chrString[0]) || chrString[1]!=':')
+    return FALSE;
+
+  return TRUE;
+}
+
+NOM_Scope PNOMPath NOMLINK impl_NOMPath_queryRoot(NOMPath* nomSelf, CORBA_Environment *ev)
+{
+/* NOMPathData* nomThis=NOMPathGetData(nomSelf); */
+  PNOMPath nomRetval=(PNOMPath)NOMPath_new(nomSelf, NULLHANDLE);
+  gchar os2Root[4]="a:"; /* includes padding */
+  gchar *chrTemp;
+
+#ifndef __OS2__
+#error !!!!! Only implemented for OS/2 !!!!!
+#endif
+
+  if(!NOMPath_pathIsAbsolute(nomSelf, NULLHANDLE))
+    return nomRetval; /* Return a zero length string */
+
+  chrTemp=NOMPath_queryCString(nomSelf, NULLHANDLE);
+
+  os2Root[0]=chrTemp[0];
+  return (PNOMPath) NOMPath_assignCString(nomRetval, os2Root, NULLHANDLE);
+}
+
+/*
+  This method strips all characters from the beginning of a path till the first
+  directory separator and also this first separator. If there's no separator in
+  the path a zero length path is returned.
+
+  This method always returns a new instance of a NOMPath owned by the caller.
+ */
+NOM_Scope PNOMPath NOMLINK impl_NOMPath_erasePathBegin(NOMPath* nomSelf, CORBA_Environment *ev)
+{
+  /* NOMPathData* nomThis=NOMPathGetData(nomSelf); */
+  PNOMPath nomRetval=(PNOMPath) NOMPath_new(nomSelf, NULLHANDLE);
+  gchar *chrTemp;
+
+  chrTemp=NOMPath_queryCString(nomSelf, NULLHANDLE); /* Not a copy */
+
+  while(*chrTemp!='\0' && *chrTemp!=G_DIR_SEPARATOR)
+    chrTemp++;
+
+  if(*chrTemp==G_DIR_SEPARATOR)
+    chrTemp++;
+
+  return (PNOMPath)NOMPath_assignCString(nomRetval, chrTemp, NULLHANDLE);
+}
+
+/*
+  Returns the part of the path up to the first directory separator ('\' on OS/2).
+  If there's no directory separator the whole path is returned. This method does
+  not remove the part from the given path. Use erasePathBegin() to do that.
+*/
+NOM_Scope PNOMPath NOMLINK impl_NOMPath_queryPathBegin(NOMPath* nomSelf, CORBA_Environment *ev)
+{
+/* NOMPathData* nomThis=NOMPathGetData(nomSelf); */
+  PNOMPath nomRetval=NOMPathNew();
+  gchar *chrTemp;
+
+  chrTemp=NOMPath_copyCString(nomSelf, NULLHANDLE); /* This is a copy */
+
+  while(*chrTemp!='\0' && *chrTemp!=G_DIR_SEPARATOR)
+    chrTemp++;
+  *chrTemp='\0';
+
+  nomRetval=(PNOMPath)NOMPath_assignCString(nomRetval, chrTemp, NULLHANDLE);
+
+  g_free(chrTemp);
+  return (PNOMPath) nomRetval;
+}
+

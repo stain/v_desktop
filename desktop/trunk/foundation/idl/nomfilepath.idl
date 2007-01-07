@@ -47,6 +47,10 @@ interface NOMPath : NOMString
   PNOMPath appendPath(in PNOMPath nomPath);   
   PNOMPath appendSeparator();
   PNOMPath stripSeparator();
+  boolean  pathIsAbsolute();
+  PNOMPath queryRoot();
+  PNOMPath erasePathBegin();
+  PNOMPath queryPathBegin();
 };
 
 #endif  /* NOMPATH_IDL_INCLUDED */

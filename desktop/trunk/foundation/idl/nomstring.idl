@@ -44,18 +44,19 @@ interface NOMString : NOMObject
 {
   NOMCLASSVERSION(1, 0);
 
-  PNOMString assignString(in PNOMString nomString);   
+  PNOMString assign(in PNOMString nomString);   
   /* Assign a C string to this NOMString */
   PNOMString assignCString(in string chrString);   
   /* Returns the C string held by this NOMString*/
-  string getCString();
-  PNOMString appendString(in PNOMString nomString);   
-  PNOMString prependString(in PNOMString nomString);
+  string queryCString();
+  PNOMString append(in PNOMString nomString);   
+  PNOMString prepend(in PNOMString nomString);
   PNOMString appendCString(in string chrString);   
   PNOMString prependCString(in string chrString);
   unsigned long length();
-  PNOMString truncateString(in unsigned long ulNewLen);
-  PNOMString copyString();
+  PNOMString truncate(in unsigned long ulNewLen);
+  PNOMString copy();
+  string copyCString();
 
   /* Init and uninit the GString */
   NOMOVERRIDE(nomInit);
