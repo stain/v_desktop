@@ -44,63 +44,84 @@
 #include "nomstring.ih"
 
 
-NOM_Scope PNOMString NOMLINK impl_NOMString_assignString(NOMString* nomSelf, const PNOMString nomString, CORBA_Environment *ev)
+NOM_Scope PNOMString NOMLINK impl_NOMString_assign(NOMString* nomSelf, const PNOMString nomString,
+                                                         CORBA_Environment *ev)
 {
-/* NOMStringData* nomThis=NOMStringGetData(nomSelf); */
+  /* NOMStringData* nomThis=NOMStringGetData(nomSelf); */
 
-  NOMString_assignCString(nomSelf, NOMString_getCString(nomString, NULLHANDLE), NULLHANDLE);
+  NOMString_assignCString(nomSelf, NOMString_queryCString(nomString, NULLHANDLE), NULLHANDLE);
   return nomSelf;
 }
 
-/* Assign a C string to this NOMString */
-NOM_Scope PNOMString NOMLINK impl_NOMString_assignCString(NOMString* nomSelf, const CORBA_char * chrString, CORBA_Environment *ev)
+/* Assign a C string to this NOMString. An initially created NOMString object is empty. */
+NOM_Scope PNOMString NOMLINK impl_NOMString_assignCString(NOMString* nomSelf, const CORBA_char * chrString,
+                                                          CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
 
-  g_string_assign(_gString, chrString);
+  g_string_assign(_gString, chrString); /* This copies the input string */
   return nomSelf;
 }
 
-/* Returns the C string held by this NOMString */
-NOM_Scope CORBA_string NOMLINK impl_NOMString_getCString(NOMString* nomSelf, CORBA_Environment *ev)
+/* Returns the C string held by this NOMString. */
+NOM_Scope CORBA_string NOMLINK impl_NOMString_queryCString(NOMString* nomSelf, CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
 
   return _gString->str;
 }
 
-
-NOM_Scope PNOMString NOMLINK impl_NOMString_appendString(NOMString* nomSelf, const PNOMString nomString, CORBA_Environment *ev)
-{
-  /*  NOMStringData* nomThis=NOMStringGetData(nomSelf); */
-
-  NOMString_appendCString(nomSelf, NOMString_getCString(nomString, NULLHANDLE), NULLHANDLE);
-  return nomSelf;
-}
-
-NOM_Scope PNOMString NOMLINK impl_NOMString_prependString(NOMString* nomSelf, const PNOMString nomString, CORBA_Environment *ev)
-{
-/* NOMStringData* nomThis=NOMStringGetData(nomSelf); */
-
-  NOMString_prependCString(nomSelf, NOMString_getCString(nomString, NULLHANDLE), NULLHANDLE);
-  return nomSelf;
-}
-
-NOM_Scope PNOMString NOMLINK impl_NOMString_appendCString(NOMString* nomSelf, const CORBA_char * chrString, CORBA_Environment *ev)
+/* Returns a copy of the C string held by this NOMString. */
+NOM_Scope CORBA_string NOMLINK impl_NOMString_copyCString(NOMString* nomSelf, CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
 
-  g_string_append(_gString, chrString);
-  return nomSelf;
+  return g_strdup(_gString->str);
+}
+
+NOM_Scope PNOMString NOMLINK impl_NOMString_appendCString(NOMString* nomSelf, const CORBA_char * chrString,
+                                                          CORBA_Environment *ev)
+{
+  NOMStringData* nomThis=NOMStringGetData(nomSelf);
+  PNOMString nomRetval=(PNOMString) NOMString_new(nomSelf, NULLHANDLE);
+  GString* gStrTmp;
+
+  gStrTmp=g_string_new(_gString->str);
+  g_string_append(gStrTmp, chrString);
+  NOMString_assignCString(nomRetval, gStrTmp->str, NULLHANDLE);
+  g_string_free(gStrTmp, TRUE);
+
+  return nomRetval;
+}
+
+NOM_Scope PNOMString NOMLINK impl_NOMString_append(NOMString* nomSelf, const PNOMString nomString,
+                                                         CORBA_Environment *ev)
+{
+  /*  NOMStringData* nomThis=NOMStringGetData(nomSelf); */
+
+  return NOMString_appendCString(nomSelf, NOMString_queryCString(nomString, NULLHANDLE), NULLHANDLE);
+}
+
+NOM_Scope PNOMString NOMLINK impl_NOMString_prepend(NOMString* nomSelf, const PNOMString nomString,
+                                                          CORBA_Environment *ev)
+{
+/* NOMStringData* nomThis=NOMStringGetData(nomSelf); */
+
+  return NOMString_prependCString(nomSelf, NOMString_queryCString(nomString, NULLHANDLE), NULLHANDLE);
 }
 
 NOM_Scope PNOMString NOMLINK impl_NOMString_prependCString(NOMString* nomSelf, const CORBA_char * chrString, CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
+  PNOMString nomRetval=(PNOMString)NOMString_new(nomSelf, NULLHANDLE);
+  GString* gStrTmp;
 
-  g_string_prepend(_gString, chrString);
+  gStrTmp=g_string_new(_gString->str);
+  g_string_prepend(gStrTmp, chrString);
+  NOMString_assignCString(nomRetval, gStrTmp->str, NULLHANDLE);
+  g_string_free(gStrTmp, TRUE);
 
-  return nomSelf;
+  return nomRetval;
 }
 
 NOM_Scope CORBA_unsigned_long NOMLINK impl_NOMString_length(NOMString* nomSelf, CORBA_Environment *ev)
@@ -110,22 +131,34 @@ NOM_Scope CORBA_unsigned_long NOMLINK impl_NOMString_length(NOMString* nomSelf, 
   return _gString->len;
 }
 
-NOM_Scope PNOMString NOMLINK impl_NOMString_truncateString(NOMString* nomSelf, const CORBA_unsigned_long ulNewLen,
+NOM_Scope PNOMString NOMLINK impl_NOMString_truncate(NOMString* nomSelf, const CORBA_unsigned_long ulNewLen,
                                                            CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
+  PNOMString nomRetval=(PNOMString)NOMString_new(nomSelf, NULLHANDLE);
+  GString* gStrTmp;
 
-  g_string_truncate(_gString, ulNewLen);
+  gStrTmp=g_string_new(_gString->str);
+  g_string_truncate(gStrTmp, ulNewLen);
+  NOMString_assignCString(nomRetval, gStrTmp->str, NULLHANDLE);
+  g_string_free(gStrTmp, TRUE);
 
-  return nomSelf;
+  return nomRetval;
 }
 
-NOM_Scope PNOMString NOMLINK impl_NOMString_copyString(NOMString* nomSelf, CORBA_Environment *ev)
+NOM_Scope PNOMString NOMLINK impl_NOMString_copy(NOMString* nomSelf, CORBA_Environment *ev)
 {
   /*  NOMStringData* nomThis=NOMStringGetData(nomSelf); */
-  PNOMString nomRetval=NOMStringNew();
+  PNOMString nomRetval;
+  NOMClass* nomCls;
 
-  NOMString_assignString(nomRetval, nomSelf, ev);
+  /* We don't know which class we're actually. So we can't just create a new NOMString here.
+     It is possible that we are called by a subclass. So get the class object and let the
+     class object create the correct class. */
+  nomCls=NOMObject_nomGetClass((PNOMObject) nomSelf, NULLHANDLE);
+  nomRetval=(PNOMString)NOMString_new(nomSelf, NULLHANDLE);
+
+  NOMString_assign(nomRetval, nomSelf, ev);
 
   return nomRetval;
 }
