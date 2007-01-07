@@ -35,6 +35,10 @@
 #ifndef WPFOLDER_IDL_INCLUDED
 #define WPFOLDER_IDL_INCLUDED
 
+#include "nombase.idl"
+
+NOMCLASSNAME(WPFolder);
+
 #include "wpfilesystem.idl"
 #include "nomfilepath.idl"
 /*#include "nomfolderwindow.idl"*/
@@ -44,7 +48,7 @@
 native PNOMFolderWindow;
 #endif
 
-NOMCLASSNAME(WPFolder);
+//NOMCLASSNAME(WPFolder);
 
 interface WPFolder : WPFileSystem
 {

@@ -42,6 +42,15 @@
 #include "nomtk.h"
 
 #include <string.h>
+#include "gtk/gtk.h"
+/* Gui stuff */
+#include "nomguitk.h"
+#include "nomwindow.h"
+#include "desktoptypes.h"
+
+#include "nomfolderwindow.h"
+
+
 #include "wpfilesystem.ih"
 
 NOM_Scope void NOMLINK impl_WPFileSystem_tstSetFullPath(WPFileSystem* nomSelf, const CORBA_char * fullPath,
@@ -53,14 +62,36 @@ NOM_Scope void NOMLINK impl_WPFileSystem_tstSetFullPath(WPFileSystem* nomSelf, c
   _pszFullPath=fullPath;
 }
 
-NOM_Scope PNOMPath NOMLINK impl_WPFileSystem_wpQueryRealName(WPFileSystem* nomSelf, const CORBA_boolean bFullPath,
+NOM_Scope PNOMPath NOMLINK impl_WPFileSystem_wpQueryFileName(WPFileSystem* nomSelf, const CORBA_boolean bFullPath,
                                                              CORBA_Environment *ev)
 {
   WPFileSystemData* nomThis=WPFileSystemGetData(nomSelf);
-  PNOMPath nomRetval=NOMPathNew();
-  
-  NOMPath_assignCString(nomRetval, _pszFullPath, ev);
+  PNOMPath nomRetval;
+  PNOMPath nomPath;
+  PWPFolder wpParent;
 
-  return nomRetval;
+  if(!bFullPath){
+    nomRetval=NOMPathNew();
+    return (PNOMPath) NOMPath_assignCString(nomRetval, _pszFullPath, ev);
+  }
+
+  /* we are interested in the full path */
+
+  /* Get parent folder */
+  wpParent=WPFileSystem_wpQueryFolder(nomSelf, NULLHANDLE);
+
+  if(NULLHANDLE==wpParent)
+    {
+      /* We are root folder */
+      nomRetval=NOMPathNew();
+      return (PNOMPath) NOMPath_assignCString(nomRetval, _pszFullPath, ev);
+    }
+
+  /* We area folder somwhere in the chain */
+  nomRetval=WPFileSystem_wpQueryFileName((WPFileSystem*)wpParent, bFullPath, NULLHANDLE);
+  nomPath=NOMPathNew();
+  nomPath= (PNOMPath) NOMPath_assignCString(nomPath, _pszFullPath, ev);
+
+  return (PNOMPath)NOMPath_appendPath(nomRetval, nomPath, NULLHANDLE);
 }
 

@@ -60,6 +60,15 @@ typedef struct NOMFolderWindow_struct {
 typedef NOMFolderWindow *PNOMFolderWindow;
 #endif
 
+#ifndef WPFolder
+typedef struct WPFolder_struct {
+  struct nomMethodTabStruct  *mtab;
+  gulong body[1];
+} WPFolderObj;
+#define WPFolder WPFolderObj
+typedef WPFolder *PWPFolder;
+#endif
+
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
@@ -185,6 +194,8 @@ gboolean defaultWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, 
   wpObject=WPNoteBook_wpQueryWPObject(wpNoteBook, NULLHANDLE);
 
   g_return_val_if_fail(NULLHANDLE!=wpObject, FALSE);
+
+  WPObject_wpSaveDeferred(wpObject, NULLHANDLE);
 
   WPObject_wpDeleteFromObjUseList(wpObject, pUseItem, NULLHANDLE);
 
@@ -444,7 +455,7 @@ NOM_Scope PNOMString NOMLINK impl_WPObject_wpSetTitle(WPObject* nomSelf, const P
   gpointer tmpPtr;
 
   /* Create a new title */
-  NOMString_assignString(tmpString, pnomStrNewTitle, ev);
+  NOMString_assign(tmpString, pnomStrNewTitle, ev);
 
   /* It may happen that someone changed the title from another thread. We may either
      bail out then or just use our string as the mother of all strings. Since we are the last one
@@ -471,7 +482,7 @@ NOM_Scope PNOMString NOMLINK impl_WPObject_wpQueryTitle(WPObject* nomSelf, CORBA
     changing the title is working on a copy so no problem here. */
   tmpPtr=g_atomic_pointer_get(&_pnomStringTitle);
 
-  return NOMString_copyString(tmpPtr, ev);
+  return NOMString_copy(tmpPtr, ev);
 }
 
 NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpAddObjectGeneralPage(WPObject* nomSelf,
@@ -655,6 +666,36 @@ NOM_Scope void NOMLINK impl_WPObject_wpInsertMenuItem(WPObject* nomSelf, const P
 
 }
 
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpSaveDeferred(WPObject* nomSelf, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
+  g_message("%s not implemented", __FUNCTION__);
 
+  return TRUE;
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpSaveImmediate(WPObject* nomSelf, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  g_message("%s not implemented", __FUNCTION__);
+
+  return TRUE;
+}
+
+NOM_Scope void NOMLINK impl_WPObject_wpSetFolder(WPObject* nomSelf, const PWPFolder wpParentFolder,
+                                                 CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  _wpParentFldr=wpParentFolder;
+}
+
+NOM_Scope PWPFolder NOMLINK impl_WPObject_wpQueryFolder(WPObject* nomSelf, CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+
+  return _wpParentFldr;
+}
 

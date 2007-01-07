@@ -58,13 +58,16 @@ typedef struct _PRIVFOLDERDATA
 
 /* Gui stuff */
 #include "nomguitk.h"
+#include "nomwindow.h"
+#include "desktoptypes.h"
+
 #include "nomfolderwindow.h"
 
 #include "wpfolder.ih"
 #include "wpdatafile.h"
 #include "desktop.h"
 #include "helper.h"
-#include "desktoptypes.h"
+
 
 
 /* Enum for the folder store */
@@ -248,7 +251,7 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PNOMFol
         NOMFolderWindow_setWPFolderObject(nomFldrWindow, nomSelf, ev);
 
 #warning !!!!! Path taken from a test location !!!!!
-        WPFolder_wpPopulate(nomSelf, 0L, NOMPath_getCString(WPFolder_wpQueryRealName(nomSelf, TRUE, ev) , ev), FALSE,  ev);
+        WPFolder_wpPopulate(nomSelf, 0L, NOMPath_queryCString(WPFolder_wpQueryFileName(nomSelf, TRUE, ev) , ev), FALSE,  ev);
         break;
 
 #if 0

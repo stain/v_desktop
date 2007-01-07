@@ -24,7 +24,7 @@ INC		= 	./include -I ./class_h -I $(NOMPATH)/class_h -I $(NOMPATH)/include\
 			-I $(GUITKPATH)/class_h -I $(GUITKPATH)/include -I $(FOUNDATIONPATH)/class_h \
 			-I $(FOUNDATIONPATH)/include
 
-ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
+ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voyfcls -l$(OBJDIR)/voywp
 CLASSDLLLIBS	=	-l$(OBJDIR)/nobjtk -l$(OBJDIR)/voyguitk -l$(OBJDIR)/voyfcls
 GCLIB		=	-l$(OBJDIR)/gc
 
