@@ -191,14 +191,15 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_queryPathBegin(NOMPath* nomSelf, CORBA_E
 /* NOMPathData* nomThis=NOMPathGetData(nomSelf); */
   PNOMPath nomRetval=NOMPathNew();
   gchar *chrTemp;
+  gchar *chrTemp2;
 
-  chrTemp=NOMPath_copyCString(nomSelf, NULLHANDLE); /* This is a copy */
+  chrTemp2 = chrTemp = NOMPath_copyCString(nomSelf, NULLHANDLE); /* This is a copy */
 
   while(*chrTemp!='\0' && *chrTemp!=G_DIR_SEPARATOR)
     chrTemp++;
   *chrTemp='\0';
 
-  nomRetval=(PNOMPath)NOMPath_assignCString(nomRetval, chrTemp, NULLHANDLE);
+  nomRetval=(PNOMPath)NOMPath_assignCString(nomRetval, chrTemp2, NULLHANDLE);
 
   g_free(chrTemp);
   return (PNOMPath) nomRetval;
