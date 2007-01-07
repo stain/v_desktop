@@ -56,19 +56,22 @@
 NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendPath(NOMPath* nomSelf, const PNOMPath nomPath, CORBA_Environment *ev)
 {
   gchar*  chrTemp;
+  PNOMPath np;
 
   if(!nomPath)
-    return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
+    return (PNOMPath)NOMPath_appendSeparator(nomSelf, NULLHANDLE);
 
   if(0==NOMPath_length((NOMString*)nomPath, ev))
     return NOMPath_appendSeparator(nomSelf, ev);
 
+  chrTemp=NOMPath_queryCString(nomPath, NULLHANDLE);
   if(G_DIR_SEPARATOR==chrTemp[0])
-    NOMPath_stripSeparator(nomSelf, ev);
-  else
-    NOMPath_appendSeparator(nomSelf, ev); /* Make sure current path has a separator */
+    np=NOMPath_stripSeparator(nomSelf, ev);
+  else{
+    np=NOMPath_appendSeparator(nomSelf, ev); /* Make sure current path has a separator */
+  }
 
-  return (NOMPath*) NOMPath_append((NOMString*) nomSelf, (NOMString*)nomPath, NULLHANDLE);
+  return (NOMPath*) NOMPath_append((NOMString*) np, (NOMString*)nomPath, NULLHANDLE);
 }
 
 /*
