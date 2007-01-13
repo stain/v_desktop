@@ -64,7 +64,16 @@ typedef struct _FLDRGTREEKEY
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
-#include "nomfolderwindow.h"
+#ifndef WPFolder
+typedef struct WPFolder_struct {
+  struct nomMethodTabStruct  *mtab;
+  gulong body[1];
+} WPFolderObj;
+#define WPFolder WPFolderObj
+typedef WPFolder *PWPFolder;
+#endif
+
+#include "wpfolderwindow.h"
 
 #include "wpfolder.ih"
 #include "wpdatafile.h"
@@ -241,13 +250,6 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
 
   return FALSE;
 }
-/* Insert an object into the folders object list */
-void tst_insertObject(WPFolder* nomSelf, WPObject* wpObject, gchar* chrName)
-{
-  WPFolderData* nomThis=WPFolderGetData(nomSelf); 
-
-  g_tree_insert(_fldrObjects, chrName, wpObject);
-}
 #endif
 
 static
@@ -269,7 +271,7 @@ gboolean fillStoreTraverseFunc(gpointer pKey, gpointer pTraverseValue, gpointer 
 
     wpDataFile=(WPDataFile*)pValue->wpObject;
 
-    if(nomIsObj((PNOMObject)wpDataFile))
+    if(nomIsObj(wpDataFile))
       {
         gtk_list_store_append (store, &iter);
         
@@ -442,12 +444,12 @@ static
 gboolean tempWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, gpointer pData)
 {
   WPObject* wpObject;
-  NOMFolderWindow* wpWindow;
+  WPFolderWindow* wpWindow;
 
   PUSEITEM pUseItem=(PUSEITEM) pData;
 
   /* This is also in the use item */
-  wpWindow=(NOMFolderWindow*)g_object_get_data(G_OBJECT(gtkWidget), NOMOBJECT_KEY_STRING);
+  wpWindow=(WPFolderWindow*)g_object_get_data(G_OBJECT(gtkWidget), NOMOBJECT_KEY_STRING);
 
   g_return_val_if_fail(NULLHANDLE!=wpWindow, FALSE);
 
@@ -464,7 +466,7 @@ gboolean tempWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, gpo
 }
 
 
-NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PNOMFolderWindow nomFolder,
+NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PWPFolderWindow nomFolder,
                                                 const gulong ulView, const gpointer pParam,
                                                 CORBA_Environment *ev)
 {
@@ -477,7 +479,7 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PNOMFol
       {
         PUSEITEM pui;
         ULONG ulError;
-        NOMFolderWindow * nomFldrWindow;
+        WPFolderWindow * wpFldrWindow;
         gchar* pszPath;
         PPRIVFOLDERDATA priv;
         GtkListStore* gStore;
@@ -487,9 +489,8 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PNOMFol
         WPFolder_wpPopulate(nomSelf, 0L, pszPath, FALSE,  NULLHANDLE);
 
 
-        nomFldrWindow=WPFolder_wpCreateFolderWindow(nomSelf, ev);
-#warning !!!!! There is WPWindow now. Use that for any WPS windows, Then this call must be changed
-        NOMFolderWindow_setWPFolderObject(nomFldrWindow, nomSelf, NULLHANDLE);
+        wpFldrWindow=WPFolder_wpCreateFolderWindow(nomSelf, NULLHANDLE);
+        WPFolderWindow_wpSetWPObject(wpFldrWindow, (WPObject*)nomSelf, NULLHANDLE);
 
         /* Insert it into inuse list */
         pui=(PUSEITEM)WPFolder_wpAllocMem(nomSelf, sizeof(USEITEM)+sizeof(VIEWITEM), &ulError, ev);
@@ -498,11 +499,11 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PNOMFol
         pui->wpObject=(PWPObject)nomSelf;
         pui++;
         ((VIEWITEM*)pui)->ulView=VIEW_CONTENTS;
-        ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)nomFldrWindow;
+        ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)wpFldrWindow;
         pui--;
 #warning !!!!! Folder window must be inserted into inuse list !!!!!
         /* Make sure the view item is removed when the window is closed */
-        g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)nomFldrWindow, NULLHANDLE)),"delete-event", 
+        g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)wpFldrWindow, NULLHANDLE)),"delete-event", 
                          G_CALLBACK(tempWPWindowDeleteHandler), (gpointer) pui);
         WPFolder_wpAddToObjUseList(nomSelf, pui, NULLHANDLE);
 
@@ -535,7 +536,7 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PNOMFol
         
         g_object_unref (gStore);
         
-        return nomFldrWindow;
+        return wpFldrWindow;
       }/* default */
     default:
       break;
@@ -571,9 +572,9 @@ itemActivated (GtkIconView *widget,
 		GtkTreePath *treePath,
 		gpointer     user_data)
 {
-  PNOMFolderWindow pWindow;
+  PWPFolderWindow pWindow;
 
-  pWindow=(NOMFolderWindow*)user_data;
+  pWindow=(WPFolderWindow*)user_data;
 
   if(NULL!=treePath)
     {
@@ -597,29 +598,29 @@ itemActivated (GtkIconView *widget,
   This method creates the folder window it doesn't query any files or creates
   models and stuff.
 */
-NOM_Scope PNOMFolderWindow NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* nomSelf, CORBA_Environment *ev)
+NOM_Scope PWPFolderWindow NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* nomSelf, CORBA_Environment *ev)
 {
-  NOMFolderWindow * nomFldrWindow;
+  WPFolderWindow * wpFldrWindow;
   PPRIVFOLDERDATA priv;
   WPFolderData *nomThis = WPFolderGetData(nomSelf);
 
   priv=(PPRIVFOLDERDATA)_privFolderData;
 
-  nomFldrWindow=NOMFolderWindowNew();
+  wpFldrWindow=WPFolderWindowNew();
 
 #warning !!!!! This is only for testing !!!!!
-  priv->gtkIconView=NOMFolderWindow_queryContainerHandle(nomFldrWindow, ev);
+  priv->gtkIconView=WPFolderWindow_wpQueryContainerHandle(wpFldrWindow, ev);
 
   /* Connect to the "item_activated" signal */
   g_signal_connect (priv->gtkIconView, "item-activated",
                     G_CALLBACK (itemActivated), nomSelf);
 
-  gtk_window_set_title (GTK_WINDOW (NOMFolderWindow_queryWindowHandle(nomFldrWindow, NULLHANDLE)),
+  gtk_window_set_title (GTK_WINDOW (WPFolderWindow_queryWindowHandle(wpFldrWindow, NULLHANDLE)),
                         NOMString_queryCString(WPFolder_wpQueryTitle(nomSelf, NULLHANDLE), NULLHANDLE));
   /* Show the new window */
-  NOMFolderWindow_show(nomFldrWindow, ev);
+  WPFolderWindow_show(wpFldrWindow, ev);
 
-  return nomFldrWindow;
+  return wpFldrWindow;
 }
 
 NOM_Scope gulong NOMLINK impl_WPFolder_wpQueryFldrFlags(WPFolder* nomSelf, CORBA_Environment *ev)

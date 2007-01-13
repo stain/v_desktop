@@ -51,13 +51,13 @@
 
 /* We have to declare this here to make PNOMFolderWindow known
    to wpDisplayMenu(). */
-#ifndef NOMFolderWindow
-typedef struct NOMFolderWindow_struct {
+#ifndef WPFolderWindow
+typedef struct WPFolderWindow_struct {
   struct nomMethodTabStruct  *mtab;
   gulong body[1];
-} NOMFolderWindowObj;
-#define NOMFolderWindow NOMFolderWindowObj
-typedef NOMFolderWindow *PNOMFolderWindow;
+} WPFolderWindowObj;
+#define WPFolderWindow WPFolderWindowObj
+typedef WPFolderWindow *PWPFolderWindow;
 #endif
 
 #ifndef WPFolder
@@ -73,7 +73,7 @@ typedef WPFolder *PWPFolder;
 #include "desktoptypes.h"
 
 #include "wpobject.ih"
-#include "nomfolderwindow.h"
+#include "wpfolderwindow.h"
 #include "wpnotebook.h"
 
 
@@ -204,7 +204,7 @@ gboolean defaultWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, 
   return FALSE; /* Let other handlers run */
 }
 
-NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
+NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PWPFolderWindow nomFolder,
                                                 const gulong ulView, const gpointer pParam, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
@@ -248,7 +248,9 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PNOMFol
   return NULLHANDLE;
 }
 
-NOM_Scope gpointer NOMLINK impl_WPObject_wpViewObject(WPObject* nomSelf, const PNOMFolderWindow nomFolder, const gulong ulView, const gpointer pParam, CORBA_Environment *ev)
+NOM_Scope gpointer NOMLINK impl_WPObject_wpViewObject(WPObject* nomSelf, const PWPFolderWindow nomFolder,
+                                                      const gulong ulView, const gpointer pParam,
+                                                      CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
   gpointer nomRetval=NULLHANDLE;
@@ -589,7 +591,7 @@ NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpInsertSettingsPage(WPObjec
 }
 
 
-NOM_Scope PNOMMenu NOMLINK impl_WPObject_wpDisplayMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
+NOM_Scope PNOMMenu NOMLINK impl_WPObject_wpDisplayMenu(WPObject* nomSelf, const PWPFolderWindow nomFolder,
                                                        const gpointer gReserved, const CORBA_unsigned_long ulMenuType,
                                                        const CORBA_unsigned_long ulReserved, CORBA_Environment *ev)
 {
@@ -609,7 +611,7 @@ NOM_Scope PNOMMenu NOMLINK impl_WPObject_wpDisplayMenu(WPObject* nomSelf, const 
   return nomMenu;
 }
 
-NOM_Scope void NOMLINK impl_WPObject_wpModifyMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder, 
+NOM_Scope void NOMLINK impl_WPObject_wpModifyMenu(WPObject* nomSelf, const PWPFolderWindow nomFolder, 
                                                   const PNOMMenu nomMenu, const CORBA_unsigned_long ulMenuType,
                                                   CORBA_Environment *ev)
 {
@@ -626,7 +628,7 @@ NOM_Scope void NOMLINK impl_WPObject_wpModifyMenu(WPObject* nomSelf, const PNOMF
   WPObject_wpInsertMenuItem(nomSelf, nomMenu, mItem, 0, ev);
 }
 
-NOM_Scope void NOMLINK impl_WPObject_wpFilterMenu(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
+NOM_Scope void NOMLINK impl_WPObject_wpFilterMenu(WPObject* nomSelf, const PWPFolderWindow nomFolder,
                                                   const PNOMMenu nomMenu, const CORBA_unsigned_long ulMenuType,
                                                   const CORBA_unsigned_long ulFlags, CORBA_Environment *ev)
 {
@@ -634,7 +636,7 @@ NOM_Scope void NOMLINK impl_WPObject_wpFilterMenu(WPObject* nomSelf, const PNOMF
 
 }
 
-NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMenuItemSelected(WPObject* nomSelf, const PNOMFolderWindow nomFolder,
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMenuItemSelected(WPObject* nomSelf, const PWPFolderWindow nomFolder,
                                                                  const PNOMMenuItem nomMenuItem,
                                                                  CORBA_Environment *ev)
 {

@@ -45,9 +45,15 @@ NOMCLASSNAME(WPObject);
 #include "nommenuitem.idl"
 #include "nomwindow.idl"
 
-#ifndef NOMFolderWindow_defined
-#define NOMFolderWindow_defined
-native PNOMFolderWindow;
+#if 0
+#ifndef WPFolderWindow_defined
+#define WPFolderWindow_defined
+native PWPFolderWindow;
+#endif
+#endif
+
+#ifndef WPFLDRWINDOW_IDL_INCLUDED
+native PWPFolderWindow;
 #endif
 
 #if 0
@@ -61,6 +67,11 @@ native PWPFolder;
 native PWPFolder;
 #endif
 
+#if 0
+#ifndef WPNOTEBOOK_IDL_INCLUDED
+native PWPNoteBook;
+#endif
+#endif
 //NOMCLASSNAME(WPObject);
 
 #include "wpnotebook.idl"
@@ -75,7 +86,7 @@ interface WPObject : NOMObject
   boolean  wpFreeMem(in gpointer pByte);
   void     wpInitData();
   void     wpUnInitData();
-  gpointer wpOpen(in PNOMFolderWindow nomFolder, in gulong ulView, in gpointer pParam);
+  gpointer wpOpen(in PWPFolderWindow nomFolder, in gulong ulView, in gpointer pParam);
   void     wpLockObject();
   boolean  wpUnlockObject();
   boolean  wpObjectIsLocked();
@@ -86,12 +97,12 @@ interface WPObject : NOMObject
   void wpSetTitle(in PNOMString pnomStrNewTitle);
   PNOMString wpQueryTitle();
 
-  PNOMMenu wpDisplayMenu(in PNOMFolderWindow nomFolder, in gpointer gReserved, in unsigned long ulMenuType,
+  PNOMMenu wpDisplayMenu(in PWPFolderWindow nomFolder, in gpointer gReserved, in unsigned long ulMenuType,
                          in unsigned long ulReserved);
-  void wpModifyMenu(in PNOMFolderWindow nomFolder, in PNOMMenu nomMenu, in unsigned long ulMenuType);
-  void wpFilterMenu(in PNOMFolderWindow nomFolder, in PNOMMenu nomMenu, in unsigned long ulMenuType,
+  void wpModifyMenu(in PWPFolderWindow nomFolder, in PNOMMenu nomMenu, in unsigned long ulMenuType);
+  void wpFilterMenu(in PWPFolderWindow nomFolder, in PNOMMenu nomMenu, in unsigned long ulMenuType,
                     in unsigned long ulFlags);
-  boolean wpMenuItemSelected(in PNOMFolderWindow nomFolder, in PNOMMenuItem nomMenuItem);
+  boolean wpMenuItemSelected(in PWPFolderWindow nomFolder, in PNOMMenuItem nomMenuItem);
   void wpInsertMenuItem( in PNOMMenu nomMenu, in PNOMMenuItem nomMenuItem, in unsigned long ulPosition);
 
   /* Settings pages */
@@ -99,7 +110,7 @@ interface WPObject : NOMObject
   unsigned long wpInsertSettingsPage(in PWPNoteBook wpNoteBook, in gpointer ppageinfo);
   unsigned long wpAddObjectGeneralPage(in PWPNoteBook wpNoteBook);
 
-  gpointer wpViewObject(in PNOMFolderWindow nomFolder, in gulong ulView, in gpointer pParam);
+  gpointer wpViewObject(in PWPFolderWindow nomFolder, in gulong ulView, in gpointer pParam);
   gpointer wpSwitchTo(in gulong ulView);
   boolean wpRegisterView(in PNOMWindow pWindow, in PNOMString nomStrViewTitle);
 

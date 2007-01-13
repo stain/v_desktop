@@ -50,7 +50,6 @@ NOMCLASSNAME(WPNoteBook);
 #include "wpwindow.idl"
 #include "nomnotebook.idl"
 
-
 interface WPNoteBook : WPWindow
 {
   NOMCLASSVERSION(1, 0);
