@@ -46,50 +46,31 @@
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
-#include "nomfolderwindow.ih"
+#ifndef WPFolder
+typedef struct WPFolder_struct {
+  struct nomMethodTabStruct  *mtab;
+  gulong body[1];
+} WPFolderObj;
+#define WPFolder WPFolderObj
+typedef WPFolder *PWPFolder;
+#endif
 
-NOM_Scope PGtkWidget NOMLINK impl_NOMFolderWindow_queryContainerHandle(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
+#include "wpfolderwindow.ih"
+
+NOM_Scope PGtkWidget NOMLINK impl_WPFolderWindow_wpQueryContainerHandle(WPFolderWindow* nomSelf, CORBA_Environment *ev)
 {
-  NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
+  WPFolderWindowData* nomThis=WPFolderWindowGetData(nomSelf);
 
   return (PGtkWidget) g_atomic_pointer_get(&_pgContainerHandle);
 }
 
-NOM_Scope void NOMLINK impl_NOMFolderWindow_setContainerHandle(NOMFolderWindow* nomSelf, const PGtkWidget pgWidget,
-                                                               CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_WPFolderWindow_wpSetContainerHandle(WPFolderWindow* nomSelf, const PGtkWidget pgWidget,
+                                                              CORBA_Environment *ev)
 {
-  NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
+  WPFolderWindowData* nomThis=WPFolderWindowGetData(nomSelf);
 
   _pgContainerHandle=pgWidget;
 }
-
-NOM_Scope void NOMLINK impl_NOMFolderWindow_setWPFolderObject(NOMFolderWindow* nomSelf, const PWPFolder pWPFolderObject,
-                                                              CORBA_Environment *ev)
-{
-  NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
-
-  if(!nomIsObj((NOMObject*)pWPFolderObject))
-    return;
-
-  _pWPFolderObj=pWPFolderObject;
-}
-
-NOM_Scope PWPFolder NOMLINK impl_NOMFolderWindow_queryWPFolderObject(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
-{
-  NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
-
-  return _pWPFolderObj;
-}
-
-#if 0
-static void
-itemActivated (GtkIconView *icon_view,
-		GtkTreePath *tree_path,
-		gpointer     user_data)
-{
-  DosBeep(1500, 100);
-}
-#endif
 
 /*
   Check if the right button click was within a certain time. That means
@@ -125,20 +106,20 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
 {
   if(fldr_checkContextButton(event))
     {
-      PNOMFolderWindow pWindow;
+      PWPFolderWindow pWindow;
       GtkTreePath* treePath;
 
       DosBeep(5000, 100);
-      pWindow=(NOMFolderWindow*)user_data;
+      pWindow=(WPFolderWindow*)user_data;
 
       treePath=gtk_icon_view_get_path_at_pos(GTK_ICON_VIEW(widget), event->x, event->y );
       if(NULL==treePath)
         {
           /* Click on white space */
           WPFolder* wpFolder;
-          wpFolder=NOMFolderWindow_queryWPFolderObject(pWindow, NULLHANDLE);
+          wpFolder=(WPFolder*)WPFolderWindow_wpQueryWPObject(pWindow, NULLHANDLE);
           g_message("%s: %s", __FUNCTION__, wpFolder->mtab->nomClassName);
-          WPObject_wpDisplayMenu(wpFolder, pWindow, NULL, 0, 0, NULL);
+          WPObject_wpDisplayMenu((WPObject*)wpFolder, pWindow, NULL, 0, 0, NULL);
         }
       else
         {
@@ -150,7 +131,7 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
           g_message("%s: %s", __FUNCTION__, gtk_tree_path_to_string(treePath));
 
           model=gtk_icon_view_get_model(GTK_ICON_VIEW(widget));
-          g_message("%s: model: %x", __FUNCTION__, model);
+          g_message("%s: model: %x", __FUNCTION__, (UINT)model);
 
           gtk_tree_model_get_iter(model , &iter, treePath);
 
@@ -158,39 +139,14 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
                              0, &wpObject,
                              -1);
           g_message("%s: %s", __FUNCTION__, wpObject->mtab->nomClassName);
-          WPObject_wpDisplayMenu(wpObject, pWindow, NULL, 0, 0, NULL);
+          WPObject_wpDisplayMenu((WPObject*)wpObject, pWindow, NULL, 0, 0, NULL);
         }
     }
   return FALSE;
 }
 
-#if 0
-static gboolean
-handleEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
-{
-  DosBeep(500, 100);
-  
-  return FALSE;
-}
-
-static void
-itemActivated (GtkIconView *widget,
-		GtkTreePath *treePath,
-		gpointer     user_data)
-{
-  PNOMFolderWindow pWindow;
-  //  GtkTreePath* treePath;
-
-  pWindow=(NOMFolderWindow*)user_data;
-
-  g_message("%s: %x %s", __FUNCTION__, treePath , gtk_tree_path_to_string(treePath));
-
-  return;
-}
-#endif
-
-
-NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
+/* orbit-idl-c-stubs.c, cs_output_stub line 347 */
+NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORBA_Environment *ev)
 {
   GtkWidget* window;
   GtkWidget *vbox;
@@ -199,11 +155,10 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
   GtkWidget *tool_bar;
   GtkToolItem *up_button;
   //  GtkWidget *menuBar, *file;
-
-  NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
+  //  WPFolderWindowData* nomThis=WPFolderWindowGetData(nomSelf);
 
   /* Let parents initialize */
-  NOMFolderWindow_nomInit_parent((NOMObject*) nomSelf,  ev);
+  WPFolderWindow_nomInit_parent((NOMObject*)nomSelf, NULLHANDLE);
 
   /* Create a default (hidden) folder window */
 
@@ -259,7 +214,7 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
   gtk_box_pack_start (GTK_BOX (vbox), sw, TRUE, TRUE, 0);
   /* Create an icon view without model */
   icon_view = gtk_icon_view_new ();
-  NOMFolderWindow_setContainerHandle(nomSelf, icon_view, NULLHANDLE);
+  WPFolderWindow_wpSetContainerHandle(nomSelf, icon_view, NULLHANDLE);
                                      
   /* Allow multiple selection in icon view */
   gtk_icon_view_set_selection_mode (GTK_ICON_VIEW (icon_view),
@@ -296,16 +251,7 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
   //  g_signal_connect (GTK_WIDGET(window), "size-request",
   //                G_CALLBACK (handleEvent), nomSelf);
 
-  NOMFolderWindow_setWindowHandle(nomSelf, window, NULLHANDLE);
+  WPFolderWindow_setWindowHandle(nomSelf, window, NULLHANDLE);
   /* Window is hidden here and must be shown by the caller */
 }
-
-
-
-
-
-
-
-
-
 

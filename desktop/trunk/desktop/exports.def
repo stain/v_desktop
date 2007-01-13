@@ -40,4 +40,8 @@ EXPORTS
 	_WPWindowCClassData
 	WPWindowNewClass
 
+	_WPFolderWindowClassData
+	_WPFolderWindowCClassData
+	WPFolderWindowNewClass
+
 ;IMPORTS

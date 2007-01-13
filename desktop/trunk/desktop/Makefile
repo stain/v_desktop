@@ -40,6 +40,7 @@ CLASSOBJECTS	=	$(OBJDIR)/wpobject.o \
 			$(OBJDIR)/wpfolder.o \
 			$(OBJDIR)/wpwindow.o \
 			$(OBJDIR)/wpnotebook.o \
+			$(OBJDIR)/wpfolderwindow.o \
 			$(OBJDIR)/wpclassmanager.o \
 			$(OBJDIR)/helper.o
 

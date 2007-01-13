@@ -32,29 +32,38 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef NOMFLDRWINDOW_IDL_INCLUDED
-#define NOMFLDRWINDOW_IDL_INCLUDED
+#ifndef WPFLDRWINDOW_IDL_INCLUDED
+#define WPFLDRWINDOW_IDL_INCLUDED
 
-#include "nomwindow.idl"
-#include "wpfolder.idl"
+/* FIXME: this is an ugly hack to prevent inclusion of the
+   wpnotebook.idl file in wpobject.idl which is included
+   from wpwindow.idl. wpnotebook doesn't find the WPWindow
+   class because it's defined later. This inclusion mess must be
+   cleaned up.*/
+#ifndef WPNOTEBOOK_IDL_INCLUDED
+#define WPNOTEBOOK_IDL_INCLUDED
+native PWPNoteBook;
+#endif
 
-interface NOMFolderWindow : NOMWindow
+#include <nomobj.idl>
+
+NOMCLASSNAME(WPFolderWindow);
+
+#include "wpwindow.idl"
+
+interface WPFolderWindow : WPWindow
 {
   NOMCLASSVERSION(1, 0);
 
-  PGtkWidget queryContainerHandle();
-  void setContainerHandle(in PGtkWidget pgWidget);   
-  void setWPFolderObject(in PWPFolder pWPFolderObject);
-  PWPFolder queryWPFolderObject();
+  PGtkWidget wpQueryContainerHandle();
+  void wpSetContainerHandle(in PGtkWidget pgWidget);   
 
   NOMOVERRIDE(nomInit);
 
   NOMINSTANCEVAR(PGtkWidget pgContainerHandle);
-  NOMINSTANCEVAR(PWPFolder pWPFolderObj);
-
 };
 
-#endif  /* NOMFLDRWINDOW_IDL_INCLUDED */
+#endif  /* WPFLDRWINDOW_IDL_INCLUDED */
 
 
 
