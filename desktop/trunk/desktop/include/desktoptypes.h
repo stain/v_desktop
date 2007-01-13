@@ -68,6 +68,10 @@ typedef struct _VIEWITEM {
 #define WPMENUID_OPEN              1
 #define WPMENUID_PROPERTIES        112
 
+/* Folder flags */
+#define FOI_POPULATEDWITHALL       0x0001
+#define FOI_POPULATEDWITHFOLDERS   0x0002
+
 /* Misc types used with objects */
 typedef GSList *PGSList;
 typedef GMutex *PGMutex;

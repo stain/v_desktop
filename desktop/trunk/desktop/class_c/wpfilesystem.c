@@ -59,7 +59,7 @@ NOM_Scope void NOMLINK impl_WPFileSystem_tstSetFullPath(WPFileSystem* nomSelf, c
   WPFileSystemData* nomThis=WPFileSystemGetData(nomSelf);
 
   nomPrintf("thePath: ---> %s \n", fullPath);
-  _pszFullPath=fullPath;
+  _pszFullPath=g_strdup(fullPath);
 }
 
 NOM_Scope PNOMPath NOMLINK impl_WPFileSystem_wpQueryFileName(WPFileSystem* nomSelf, const CORBA_boolean bFullPath,

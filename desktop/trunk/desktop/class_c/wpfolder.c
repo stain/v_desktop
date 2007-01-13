@@ -47,14 +47,17 @@
 #include <string.h>
 #include "gtk/gtk.h"
 
-#warning !!!!! nomIsObj() must be globaly defined !!!!!
-#define nomIsObj(a) ((a)!= 0)
-
 typedef struct _PRIVFOLDERDATA
 {
   GtkListStore *gstoreFldContents;
   GtkWidget    *gtkIconView;
 }PRIVFOLDERDATA, *PPRIVFOLDERDATA;
+
+typedef struct _FLDRGTREEKEY
+{
+  PGTree pGTree;
+  gchar* chrKey;
+}FLDRGTREEKEY, *PFLDRGTREEKEY;
 
 /* Gui stuff */
 #include "nomguitk.h"
@@ -68,6 +71,12 @@ typedef struct _PRIVFOLDERDATA
 #include "desktop.h"
 #include "helper.h"
 
+typedef struct _FLDRGTREEVALUE
+{
+  PGTree pGTree;
+  WPObject* wpObject;
+  const gchar* chrKey;
+}FLDRGTREEVALUE, *PFLDRGTREEVALUE;
 
 
 /* Enum for the folder store */
@@ -91,10 +100,11 @@ static GtkListStore * fldr_CreateStore (void)
                               G_TYPE_STRING, 
                               GDK_TYPE_PIXBUF,
                               G_TYPE_BOOLEAN);
-  g_message("%s: store: %x", __FUNCTION__, store);
+  g_message("%s: store: %x", __FUNCTION__, (UINT) store);
   return store;
 }
 
+#if 0
 static BOOL
 fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
 {
@@ -131,7 +141,7 @@ fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
               WPFolder* wpFolder;
 
               wpFolder=WPFolderNew();
-              if(nomIsObj(wpFolder))
+              if(nomIsObj((PNOMObject)wpFolder))
                 {
                   gtk_list_store_append (store, &iter);
 
@@ -152,7 +162,7 @@ fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
 
               wpDataFile=WPDataFileNew();
 
-              if(nomIsObj(wpDataFile))
+              if(nomIsObj((PNOMObject)wpDataFile))
                 {
                   gtk_list_store_append (store, &iter);
 
@@ -176,7 +186,6 @@ fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
 
   return TRUE;
 }
-
 /* pszPath contains the fully qualified path (checked with WPS) */
 NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, const CORBA_unsigned_long ulReserved,
                                                          const CORBA_char * pszPath, const CORBA_boolean fFoldersOnly,
@@ -196,9 +205,9 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
 #if 0
   /* Already populated? */
   if(fFoldersOnly && 
-     (_wpQueryFldrFlags(somSelf) & (FOI_POPULATEDWITHFOLDERS | FOI_POPULATEDWITHALL)))
+     (_wpQueryFldrFlags(nomSelf) & (FOI_POPULATEDWITHFOLDERS | FOI_POPULATEDWITHALL)))
     return TRUE;
-  else if(_wpQueryFldrFlags(somSelf) & FOI_POPULATEDWITHALL)
+  else if(_wpQueryFldrFlags(nomSelf) & FOI_POPULATEDWITHALL)
     return TRUE;
 #endif
 
@@ -232,51 +241,301 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
 
   return FALSE;
 }
+/* Insert an object into the folders object list */
+void tst_insertObject(WPFolder* nomSelf, WPObject* wpObject, gchar* chrName)
+{
+  WPFolderData* nomThis=WPFolderGetData(nomSelf); 
+
+  g_tree_insert(_fldrObjects, chrName, wpObject);
+}
+#endif
+
+static
+gboolean fillStoreTraverseFunc(gpointer pKey, gpointer pTraverseValue, gpointer pData)
+{
+  GtkTreeIter iter;
+  PFLDRGTREEVALUE pValue=pTraverseValue;
+  gchar * display_name;
+  GtkListStore *store=(GtkListStore *)pData;
+
+  g_message("In %s with %s %x", __FUNCTION__, (char*)pKey, (UINT)pValue->wpObject);
+
+#warning !!!!! Use Title here !!!!!
+  display_name=pKey;  
+
+
+  if(!strcmp("WPDataFile", pValue->wpObject->mtab->nomClassName)){
+    WPDataFile* wpDataFile;
+
+    wpDataFile=(WPDataFile*)pValue->wpObject;
+
+    if(nomIsObj((PNOMObject)wpDataFile))
+      {
+        gtk_list_store_append (store, &iter);
+        
+#warning !!!! some problems with icon handling here !!!!
+        //nomPrintf("Icon ptr: %x\n", _wpQueryIcon((WPObject*)wpDataFile, NULLHANDLE));
+        gtk_list_store_set (store, &iter,
+                            COL_OBJECT_PTR, wpDataFile,
+                            COL_PATH, "",
+                            COL_DISPLAY_NAME, display_name,
+                            COL_IS_DIRECTORY, FALSE,
+                            COL_PIXBUF, _wpQueryIcon((WPObject*)wpDataFile, NULLHANDLE), //file_pixbuf,
+                            -1);
+      }
+  }
+  else{
+    WPFolder* wpFolder;
+
+    wpFolder=(WPFolder*)pValue->wpObject;
+
+    if(nomIsObj((NOMObject*)wpFolder)){
+
+      g_message("%d %s : %s, %s",
+                __LINE__, __FUNCTION__, (char*)pKey,
+                NOMPath_queryCString(WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE), NULLHANDLE));
+
+
+      gtk_list_store_append (store, &iter);
+      
+      gtk_list_store_set (store, &iter,
+                          COL_OBJECT_PTR, wpFolder,
+                          COL_PATH, "",
+                          COL_DISPLAY_NAME, display_name,
+                          COL_IS_DIRECTORY, TRUE,
+                          COL_PIXBUF, _wpQueryIcon((WPObject*)wpFolder, NULLHANDLE), //folder_pixbuf ,
+                          -1);
+    }
+  }
+
+  return FALSE; /* Traverse every item */
+}
+
+static gboolean
+fldr_fillStore (WPFolder* nomSelf, GtkListStore *store, const gchar* gchrPath)
+{
+  WPFolderData* nomThis=WPFolderGetData(nomSelf); 
+
+  nomPrintf("In %s:  %s\n", __FUNCTION__, gchrPath);          
+
+  /* First clear the store */
+  gtk_list_store_clear (store);
+
+  g_tree_foreach(_fldrObjects, (GTraverseFunc) fillStoreTraverseFunc, store);
+
+  return TRUE;
+}
+
+
+NOM_Scope gulong NOMLINK impl_WPFolder_wpAddToContent(WPFolder* nomSelf, const PWPObject wpObject, 
+                                                      const CORBA_char * chrFileName, CORBA_Environment *ev)
+{
+  WPFolderData* nomThis=WPFolderGetData(nomSelf);
+  PFLDRGTREEVALUE pValue;
+
+  pValue=(PFLDRGTREEVALUE)NOMMalloc(sizeof(FLDRGTREEVALUE));
+  pValue->pGTree=_fldrObjects;
+  pValue->wpObject=wpObject;
+  pValue->chrKey=chrFileName;
+  g_tree_insert(_fldrObjects, chrFileName, pValue);
+
+#if 0
+  PFLDRGTREEKEY pKey;
+  pKey=(PFLDRGTREEKEY)NOMMalloc(sizeof(FLDRGTREEKEY));
+  pKey->pGTree=_fldrObjects;
+  pKey->chrKey=chrFileName;
+  g_tree_insert(_fldrObjects, pKey, wpObject);
+#endif
+
+  return 0;
+}
+
+NOM_Scope PWPObject NOMLINK impl_WPFolder_wpQueryContent(WPFolder* nomSelf, CORBA_Environment *ev)
+{
+/* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
+  PWPObject nomRetval;
+
+  return nomRetval;
+}
+
+
+/* pszPath contains the fully qualified path (checked with WPS) */
+NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, const CORBA_unsigned_long ulReserved,
+                                                         const CORBA_char * pszPath, const CORBA_boolean fFoldersOnly,
+                                                         CORBA_Environment *ev)
+{
+  /*  WPFolderData* nomThis=WPFolderGetData(nomSelf); */
+  GDir *gDir;
+  const gchar *gchrCurrentEntry;
+  const gchar* gchrPath;
+  PNOMPath fldrPath;
+
+  g_log("WPFolder", G_LOG_LEVEL_DEBUG, "%s: Populating %s (0x%x)\n", __FUNCTION__, pszPath, (UINT)nomSelf);
+
+  /* Already populated? */
+  if(fFoldersOnly && 
+     (_wpQueryFldrFlags(nomSelf, NULLHANDLE) & (FOI_POPULATEDWITHFOLDERS | FOI_POPULATEDWITHALL)))
+    return TRUE;
+  else if(_wpQueryFldrFlags(nomSelf, NULLHANDLE) & FOI_POPULATEDWITHALL)
+    return TRUE;
+
+  /* Go through the directory and extract all the file
+   * information */
+  fldrPath=WPFolder_wpQueryFileName(nomSelf, TRUE, NULLHANDLE);
+  gchrPath=NOMPath_queryCString(fldrPath, NULLHANDLE);
+  gDir = g_dir_open(gchrPath, 0, NULL);
+  if (!gDir)
+    return FALSE;
+
+  while ((gchrCurrentEntry = g_dir_read_name (gDir))!= NULL)
+    {
+      gchar *path, *display_name;
+
+      if (gchrCurrentEntry[0] != '\0')
+        {
+          WPObject* wpObject;
+
+          path = g_build_filename (gchrPath, gchrCurrentEntry, NULL);
+
+          display_name = g_filename_to_utf8 (gchrCurrentEntry, -1, NULL, NULL, NULL);
+
+          if(g_file_test (path, G_FILE_TEST_IS_DIR))
+            wpObject=(WPObject*)WPFolderNew(); /* It's a folder */
+          else{
+            if(!fFoldersOnly)
+              wpObject=(WPObject*)WPDataFileNew(); /* It's a file */
+            else
+              wpObject=NULLHANDLE;
+          }
+          if(nomIsObj((PNOMObject)wpObject))
+            {
+              WPObject_wpSetTitleFromCString(wpObject, display_name, NULLHANDLE);
+              WPFileSystem_tstSetFullPath((WPFileSystem*)wpObject, gchrCurrentEntry, NULLHANDLE);
+              WPFileSystem_wpSetFolder(wpObject, nomSelf, NULLHANDLE);
+              g_message("%d %s : %s (%x) , %s",
+                        __LINE__, __FUNCTION__, gchrCurrentEntry, (UINT)wpObject,
+                        NOMPath_queryCString(WPFolder_wpQueryFileName(wpObject, TRUE, NULLHANDLE), NULLHANDLE));
+
+              /* insert into contents list */
+              WPFolder_wpAddToContent(nomSelf, wpObject, g_strdup(gchrCurrentEntry), NULLHANDLE);
+            }/* if(nomIsObj(wpObject)) */
+          g_free (path);
+          g_free (display_name);
+        }/* if (gchrCurrentEntry[0] != '\0') */
+    }/* while */
+  g_dir_close(gDir);
+
+  if(fFoldersOnly)
+    _wpSetFldrFlags(nomSelf, FOI_POPULATEDWITHFOLDERS, FOI_POPULATEDWITHFOLDERS, NULLHANDLE);
+  else
+    _wpSetFldrFlags(nomSelf, FOI_POPULATEDWITHFOLDERS| FOI_POPULATEDWITHALL,
+                    FOI_POPULATEDWITHFOLDERS| FOI_POPULATEDWITHALL, NULLHANDLE);
+
+  return TRUE;
+}
+
+
+/*
+  This will change when NOMFolderWindow is migrated to WPFolderWindow.
+ */
+static
+gboolean tempWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, gpointer pData)
+{
+  WPObject* wpObject;
+  NOMFolderWindow* wpWindow;
+
+  PUSEITEM pUseItem=(PUSEITEM) pData;
+
+  /* This is also in the use item */
+  wpWindow=(NOMFolderWindow*)g_object_get_data(G_OBJECT(gtkWidget), NOMOBJECT_KEY_STRING);
+
+  g_return_val_if_fail(NULLHANDLE!=wpWindow, FALSE);
+
+  /* This call will be different when using WPFolderWindow */
+  //wpObject=NOMFolderWindow_wpQueryWPFolderObject(wpWindow, NULLHANDLE);
+  wpObject=pUseItem->wpObject;
+  g_return_val_if_fail(NULLHANDLE!=wpObject, FALSE);
+
+  WPObject_wpSaveDeferred(wpObject, NULLHANDLE);
+
+  WPObject_wpDeleteFromObjUseList(wpObject, pUseItem, NULLHANDLE);
+
+  return FALSE; /* Let other handlers run */
+}
+
 
 NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PNOMFolderWindow nomFolder,
                                                 const gulong ulView, const gpointer pParam,
                                                 CORBA_Environment *ev)
 {
-/* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
-
+  WPFolderData* nomThis=WPFolderGetData(nomSelf);
+  g_message("%d %s", __LINE__, __FUNCTION__);
   switch(ulView)
     {
     case OPEN_CONTENTS:
     case OPEN_DEFAULT:
       {
-        static NOMFolderWindow * nomFldrWindow;
+        PUSEITEM pui;
+        ULONG ulError;
+        NOMFolderWindow * nomFldrWindow;
+        gchar* pszPath;
+        PPRIVFOLDERDATA priv;
+        GtkListStore* gStore;
+  
+        pszPath=NOMPath_queryCString(WPFolder_wpQueryFileName(nomSelf, TRUE, NULLHANDLE), NULLHANDLE);
+        g_message("%d %s, %s", __LINE__, __FUNCTION__, pszPath);
+        WPFolder_wpPopulate(nomSelf, 0L, pszPath, FALSE,  NULLHANDLE);
 
-#warning !!!!! Folder window must be inserted into inuse list !!!!!
+
         nomFldrWindow=WPFolder_wpCreateFolderWindow(nomSelf, ev);
-        NOMFolderWindow_setWPFolderObject(nomFldrWindow, nomSelf, ev);
+#warning !!!!! There is WPWindow now. Use that for any WPS windows, Then this call must be changed
+        NOMFolderWindow_setWPFolderObject(nomFldrWindow, nomSelf, NULLHANDLE);
 
-#warning !!!!! Path taken from a test location !!!!!
-        WPFolder_wpPopulate(nomSelf, 0L, NOMPath_queryCString(WPFolder_wpQueryFileName(nomSelf, TRUE, ev) , ev), FALSE,  ev);
-        break;
+        /* Insert it into inuse list */
+        pui=(PUSEITEM)WPFolder_wpAllocMem(nomSelf, sizeof(USEITEM)+sizeof(VIEWITEM), &ulError, ev);
+        /* Fill the structures */
+        pui->type=(gulong)USAGE_OPENVIEW;
+        pui->wpObject=(PWPObject)nomSelf;
+        pui++;
+        ((VIEWITEM*)pui)->ulView=VIEW_CONTENTS;
+        ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)nomFldrWindow;
+        pui--;
+#warning !!!!! Folder window must be inserted into inuse list !!!!!
+        /* Make sure the view item is removed when the window is closed */
+        g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)nomFldrWindow, NULLHANDLE)),"delete-event", 
+                         G_CALLBACK(tempWPWindowDeleteHandler), (gpointer) pui);
+        WPFolder_wpAddToObjUseList(nomSelf, pui, NULLHANDLE);
 
-#if 0
-        char path[CCHMAXPATH];
-        ULONG ulSize;
-        
-        /* Get full path of folder */
-        ulSize=sizeof(path);
-        
-        if(!_wpQueryRealName(somSelf, path, &ulSize, TRUE))
-          return NULLHANDLE; /* Error */
-        
-        nomPrintf("%s: opening %s\n", __FUNCTION__, path);
-        
-        /* Create folder window */
-        hwndFolder=fldr_createFolderWindow(somSelf, path);
-        
-        if(!hwndFolder)
-          return NULLHANDLE;
+        /* Now create a folder store and insert icons into the window */
+        priv=_privFolderData;
+        gStore=priv->gstoreFldContents;
 
-        /* populate the folder */
-        _wpPopulate(somSelf, 0, path, FALSE); /* Contents or details. Tree isn't supported yet */
+        if(!gStore)
+          {
+            /* Create a store holding the folder contents */
+            gStore=fldr_CreateStore();
+            g_return_val_if_fail(gStore!=NULLHANDLE, FALSE);
+            priv->gstoreFldContents=gStore;
+          }
 
-        break;
-#endif
+        /* Fill our store */
+        if(gStore)
+          fldr_fillStore(nomSelf, gStore, pszPath);
+        else
+          return FALSE;
+        
+        gtk_icon_view_set_model(GTK_ICON_VIEW (priv->gtkIconView), GTK_TREE_MODEL (priv->gstoreFldContents));
+        
+        /* We now set which model columns that correspond to the text
+         * and pixbuf of each item
+         */
+        gtk_icon_view_set_text_column (GTK_ICON_VIEW (priv->gtkIconView), COL_DISPLAY_NAME);
+        gtk_icon_view_set_pixbuf_column (GTK_ICON_VIEW (priv->gtkIconView), COL_PIXBUF);
+        gtk_icon_view_set_item_width (GTK_ICON_VIEW (priv->gtkIconView), 100);
+        
+        g_object_unref (gStore);
+        
+        return nomFldrWindow;
       }/* default */
     default:
       break;
@@ -307,6 +566,33 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpQueryIcon(WPFolder* nomSelf, CORBA_En
   /*  WPFolder_wpQueryIcon_parent(nomSelf,  ev); */
 }
 
+static void
+itemActivated (GtkIconView *widget,
+		GtkTreePath *treePath,
+		gpointer     user_data)
+{
+  PNOMFolderWindow pWindow;
+
+  pWindow=(NOMFolderWindow*)user_data;
+
+  if(NULL!=treePath)
+    {
+      GtkTreeIter iter;
+      GtkTreeModel* model;
+      WPObject *wpObject;
+
+      /* Click on an icon */            
+      model=gtk_icon_view_get_model(GTK_ICON_VIEW(widget));
+      gtk_tree_model_get_iter(model , &iter, treePath);
+      
+      gtk_tree_model_get(model, &iter,
+                         0, &wpObject,
+                         -1);
+      g_message("%s: %s", __FUNCTION__, wpObject->mtab->nomClassName);
+      WPObject_wpOpen(wpObject, pWindow, OPEN_CONTENTS, NULL, NULL);
+    }
+}
+
 /*
   This method creates the folder window it doesn't query any files or creates
   models and stuff.
@@ -324,10 +610,69 @@ NOM_Scope PNOMFolderWindow NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* 
 #warning !!!!! This is only for testing !!!!!
   priv->gtkIconView=NOMFolderWindow_queryContainerHandle(nomFldrWindow, ev);
 
+  /* Connect to the "item_activated" signal */
+  g_signal_connect (priv->gtkIconView, "item-activated",
+                    G_CALLBACK (itemActivated), nomSelf);
+
+  gtk_window_set_title (GTK_WINDOW (NOMFolderWindow_queryWindowHandle(nomFldrWindow, NULLHANDLE)),
+                        NOMString_queryCString(WPFolder_wpQueryTitle(nomSelf, NULLHANDLE), NULLHANDLE));
   /* Show the new window */
   NOMFolderWindow_show(nomFldrWindow, ev);
 
   return nomFldrWindow;
+}
+
+NOM_Scope gulong NOMLINK impl_WPFolder_wpQueryFldrFlags(WPFolder* nomSelf, CORBA_Environment *ev)
+{
+  WPFolderData* nomThis=WPFolderGetData(nomSelf);
+
+  return g_atomic_int_get(&_ulFldrFlags);
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpSetFldrFlags(WPFolder* nomSelf, const gulong ulFlags,
+                                                             const gulong ulMask, CORBA_Environment *ev)
+{
+  WPFolderData* nomThis=WPFolderGetData(nomSelf);
+
+  WPFolder_wpRequestObjectMutexSem(nomSelf, 0,ev);
+
+  _ulFldrFlags=(_ulFldrFlags & ~ulMask)| ulFlags;
+
+  WPFolder_wpReleaseObjectMutexSem(nomSelf,ev);
+
+  return TRUE;
+}
+
+#if 0
+static gint fldrCompareObjects(gconstpointer a, gconstpointer b, gpointer pUserData)
+{
+  return strcmp(((PFLDRGTREEKEY)a)->chrKey, ((PFLDRGTREEKEY)b)->chrKey);
+}
+#endif
+
+static void fldrCatchDuplicates(gpointer pOrgValue)
+{
+  PFLDRGTREEVALUE pValue;
+  PFLDRGTREEVALUE pValueRemove;
+
+  pValue=(PFLDRGTREEVALUE)pOrgValue;
+
+  g_message("%d %s: value (object): %x %s", __LINE__, __FUNCTION__, (UINT)pValue->wpObject, pValue->chrKey);
+
+#warning !!!!! Duplicate handling is still kind of broken !!!!!
+  /*
+    When we end here another object with the same key was inserted. This may be due to populating
+    all when we first just populated with folders. ATM we just remove the accidently inserted
+    second data and reinsert the original data (which may be already used by now). The wrong data
+    must be freed here later. 
+    We should check the lock counter if we really dealing with wrong insertion here before freeing.
+    This way we might use this func also for freeing when normally removing objects.  
+   */
+  /* Remove the wrong data */
+  pValueRemove=(PFLDRGTREEVALUE)g_tree_lookup(pValue->pGTree, pValue->chrKey);
+  g_tree_steal(pValue->pGTree, pValue->chrKey); /* This does not free the stuff in this func */
+  /* Reinsert the old one */
+  g_tree_insert(pValue->pGTree, pValue->chrKey, pValue);
 }
 
 NOM_Scope void NOMLINK impl_WPFolder_wpInitData(WPFolder* nomSelf, CORBA_Environment *ev)
@@ -339,7 +684,12 @@ NOM_Scope void NOMLINK impl_WPFolder_wpInitData(WPFolder* nomSelf, CORBA_Environ
 
   nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
             __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);
-  _privFolderData=_wpAllocMem((WPObject*)nomSelf, sizeof(PRIVFOLDERDATA), (CORBA_unsigned_long*)&ulErr, NULLHANDLE);
+  _privFolderData=_wpAllocMem((WPObject*)nomSelf, sizeof(PRIVFOLDERDATA),&ulErr, NULLHANDLE);
+
+  /* This balanced binary tree holds the objects in this folder. We create a tree
+     which may be searched using the name of the file/directory */
+  //_fldrObjects=g_tree_new((GCompareFunc)strcmp);
+  _fldrObjects=g_tree_new_full((GCompareFunc)strcmp, nomSelf, NULL, (GDestroyNotify) fldrCatchDuplicates);
 }
 
 

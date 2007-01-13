@@ -43,11 +43,10 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include "nomguitk.h"
+#include "nomwindow.h"
+#include "desktoptypes.h"
+
 #include "nomfolderwindow.ih"
-
-#warning !!!!! nomIsObj() must be globaly defined !!!!!
-#define nomIsObj(a) ((a)!= 0)
-
 
 NOM_Scope PGtkWidget NOMLINK impl_NOMFolderWindow_queryContainerHandle(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
 {
@@ -69,7 +68,7 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_setWPFolderObject(NOMFolderWindow* n
 {
   NOMFolderWindowData* nomThis=NOMFolderWindowGetData(nomSelf);
 
-  if(!nomIsObj(pWPFolderObject))
+  if(!nomIsObj((NOMObject*)pWPFolderObject))
     return;
 
   _pWPFolderObj=pWPFolderObject;
@@ -82,6 +81,7 @@ NOM_Scope PWPFolder NOMLINK impl_NOMFolderWindow_queryWPFolderObject(NOMFolderWi
   return _pWPFolderObj;
 }
 
+#if 0
 static void
 itemActivated (GtkIconView *icon_view,
 		GtkTreePath *tree_path,
@@ -89,6 +89,7 @@ itemActivated (GtkIconView *icon_view,
 {
   DosBeep(1500, 100);
 }
+#endif
 
 /*
   Check if the right button click was within a certain time. That means
@@ -163,16 +164,31 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
   return FALSE;
 }
 
-
+#if 0
 static gboolean
 handleEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
-  DosBeep(5000, 100);
+  DosBeep(500, 100);
   
   return FALSE;
 }
 
-extern gpointer *pGlobalMemInExe;
+static void
+itemActivated (GtkIconView *widget,
+		GtkTreePath *treePath,
+		gpointer     user_data)
+{
+  PNOMFolderWindow pWindow;
+  //  GtkTreePath* treePath;
+
+  pWindow=(NOMFolderWindow*)user_data;
+
+  g_message("%s: %x %s", __FUNCTION__, treePath , gtk_tree_path_to_string(treePath));
+
+  return;
+}
+#endif
+
 
 NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CORBA_Environment *ev)
 {
@@ -248,9 +264,11 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
   /* Allow multiple selection in icon view */
   gtk_icon_view_set_selection_mode (GTK_ICON_VIEW (icon_view),
                                     GTK_SELECTION_MULTIPLE);
+#if 0
   /* Connect to the "item_activated" signal */
   g_signal_connect (icon_view, "item-activated",
                     G_CALLBACK (itemActivated), nomSelf);
+#endif
   //#endif
 
   /* This is for kb binding only */
@@ -275,8 +293,8 @@ NOM_Scope void NOMLINK impl_NOMFolderWindow_nomInit(NOMFolderWindow* nomSelf, CO
 
   gtk_widget_grab_focus (icon_view);
 
-  g_signal_connect (GTK_WIDGET(window), "size-request",
-                    G_CALLBACK (handleEvent), nomSelf);
+  //  g_signal_connect (GTK_WIDGET(window), "size-request",
+  //                G_CALLBACK (handleEvent), nomSelf);
 
   NOMFolderWindow_setWindowHandle(nomSelf, window, NULLHANDLE);
   /* Window is hidden here and must be shown by the caller */
