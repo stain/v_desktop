@@ -184,14 +184,16 @@ static
 gboolean defaultWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, gpointer pData)
 {
   WPObject* wpObject;
-  WPNoteBook* wpNoteBook;
+  WPWindow* wpWindow;
+
   PUSEITEM pUseItem=(PUSEITEM) pData;
 
-  wpNoteBook=(WPNoteBook*)g_object_get_data(G_OBJECT(gtkWidget), NOMOBJECT_KEY_STRING);
+  wpWindow=(WPWindow*)g_object_get_data(G_OBJECT(gtkWidget), NOMOBJECT_KEY_STRING);
 
-  g_return_val_if_fail(NULLHANDLE!=wpNoteBook, FALSE);
+  g_return_val_if_fail(NULLHANDLE!=wpWindow, FALSE);
 
-  wpObject=WPNoteBook_wpQueryWPObject(wpNoteBook, NULLHANDLE);
+  /* This is also in the use item */
+  wpObject=WPNoteBook_wpQueryWPObject(wpWindow, NULLHANDLE);
 
   g_return_val_if_fail(NULLHANDLE!=wpObject, FALSE);
 
@@ -231,6 +233,7 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PNOMFol
         ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)wpNoteBook;
         pui--;
         //g_message("   in %s wpNoteBook: %lx pui %lx", __FUNCTION__, wpNoteBook, pui);
+        /* Make sure the view item is removed when the window is closed */
         g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)wpNoteBook, NULLHANDLE)),"delete-event", 
                          G_CALLBACK(defaultWPWindowDeleteHandler), (gpointer) pui);
         WPObject_wpAddToObjUseList(nomSelf, pui, ev);
@@ -267,6 +270,18 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpSwitchTo(WPObject* nomSelf, const gul
     case OPEN_SETTINGS:
       {
         pViewItem=WPObject_wpFindViewItem(nomSelf, VIEW_SETTINGS, NULLHANDLE, ev);
+        if(pViewItem){
+          //g_message("   in %s : OPEN_SETTINGS returning %x %x ...", __FUNCTION__, pViewItem, pViewItem->nomWindow);
+          /* Bring the window to the foreground */
+          NOMWindow_present(pViewItem->nomWindow, ev);
+          return (gpointer)pViewItem->nomWindow;
+        }
+        break;
+      }
+    case OPEN_CONTENTS:
+      {
+#warning !!!!! This belongs into WPFolder !!!!!
+        pViewItem=WPObject_wpFindViewItem(nomSelf, VIEW_CONTENTS, NULLHANDLE, ev);
         if(pViewItem){
           //g_message("   in %s : OPEN_SETTINGS returning %x %x ...", __FUNCTION__, pViewItem, pViewItem->nomWindow);
           /* Bring the window to the foreground */
@@ -448,14 +463,15 @@ NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpReleaseObjectMutexSem(WPOb
   return DosReleaseMutexSem(_gObjectMutex);
 }
 
-NOM_Scope PNOMString NOMLINK impl_WPObject_wpSetTitle(WPObject* nomSelf, const PNOMString pnomStrNewTitle, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_WPObject_wpSetTitle(WPObject* nomSelf, const PNOMString pnomStrNewTitle,
+                                                      CORBA_Environment *ev)
 {
   WPObjectData* nomThis=WPObjectGetData(nomSelf);
-  PNOMString tmpString=NOMStringNew();
+  PNOMString tmpString=(PNOMString)NOMString_new(pnomStrNewTitle, NULLHANDLE);
   gpointer tmpPtr;
 
   /* Create a new title */
-  NOMString_assign(tmpString, pnomStrNewTitle, ev);
+  NOMString_assign(tmpString, pnomStrNewTitle, NULLHANDLE);
 
   /* It may happen that someone changed the title from another thread. We may either
      bail out then or just use our string as the mother of all strings. Since we are the last one
@@ -467,8 +483,24 @@ NOM_Scope PNOMString NOMLINK impl_WPObject_wpSetTitle(WPObject* nomSelf, const P
     /* Get old NOMString containing old title */
     tmpPtr=g_atomic_pointer_get(&_pnomStringTitle);
   }while(!g_atomic_pointer_compare_and_exchange((gpointer*)&_pnomStringTitle, tmpPtr, (gpointer) tmpString));
+}
 
-  return pnomStrNewTitle;
+NOM_Scope void NOMLINK impl_WPObject_wpSetTitleFromCString(WPObject* nomSelf, const CORBA_char * chrNewTitle,
+                                                           CORBA_Environment *ev)
+{
+  WPObjectData* nomThis=WPObjectGetData(nomSelf);
+  PNOMString orgTitle;
+  PNOMString tmpString;
+
+  orgTitle=(PNOMString)g_atomic_pointer_get(&_pnomStringTitle);
+  tmpString=(PNOMString)NOMString_new(orgTitle, NULLHANDLE);
+
+  NOMString_assignCString(tmpString, chrNewTitle, NULLHANDLE);
+  do{
+    /* Get old NOMString containing old title */
+    orgTitle=(PNOMString)g_atomic_pointer_get(&_pnomStringTitle);
+  }while(!g_atomic_pointer_compare_and_exchange((gpointer*)&_pnomStringTitle,
+                                                (gpointer)orgTitle, (gpointer) tmpString));
 }
 
 NOM_Scope PNOMString NOMLINK impl_WPObject_wpQueryTitle(WPObject* nomSelf, CORBA_Environment *ev)

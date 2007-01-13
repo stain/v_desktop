@@ -66,12 +66,19 @@ interface WPFolder : WPFileSystem
   BOOL wpAddToContent(in WPObject Object);
 #endif
 
+  gulong wpQueryFldrFlags();
+  boolean wpSetFldrFlags(in gulong ulFlags, in gulong ulMask);
+
+  gulong wpAddToContent(in PWPObject wpObject, in string chrFileName);
+  PWPObject wpQueryContent();
+
   NOMOVERRIDE(wpInitData);
   NOMOVERRIDE(wpOpen);
   NOMOVERRIDE(wpQueryIcon);
 
-  NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData);
-  NOMINSTANCEVAR(PNOMPath pnomPath_);
+  NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData); /* This will go away... */
+  NOMINSTANCEVAR(PGTree fldrObjects);
+  NOMINSTANCEVAR(gulong ulFldrFlags);
 };
 
 #endif /* WPFOLDER_IDL_INCLUDED */

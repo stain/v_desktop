@@ -83,7 +83,7 @@ interface WPObject : NOMObject
   unsigned long  wpRequestObjectMutexSem(in unsigned long ulReserved);
   unsigned long  wpReleaseObjectMutexSem();
 
-  PNOMString wpSetTitle(in PNOMString pnomStrNewTitle);
+  void wpSetTitle(in PNOMString pnomStrNewTitle);
   PNOMString wpQueryTitle();
 
   PNOMMenu wpDisplayMenu(in PNOMFolderWindow nomFolder, in gpointer gReserved, in unsigned long ulMenuType,
@@ -114,6 +114,8 @@ interface WPObject : NOMObject
 
   void wpSetFolder(in PWPFolder wpParentFolder);
   PWPFolder wpQueryFolder();
+
+  void wpSetTitleFromCString(in string chrNewTitle);
 
   /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);

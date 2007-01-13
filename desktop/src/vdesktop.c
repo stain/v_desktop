@@ -95,6 +95,7 @@ int _System  main_loop()
   WPFolder *wpTempFolder;
   PNOMPath nomPath;  
   PNOMPath np;
+  gchar *chrDisplayName;
 
   hReg=nomBeginRegisterDLLWithGC();
   if(NULLHANDLE==hReg)
@@ -144,33 +145,44 @@ int _System  main_loop()
   NOMClassMgrObject=nomEnvironmentNew();
   //dbgPrintf( "NOMClassMgrObject: %x", NOMClassMgrObject);
 
+  /* Desktop directory oath */
   nomPath=NOMPathNew();
   NOMPath_assignCString(nomPath, desktopDir, NULLHANDLE);
   /* Make sure there's no '/' at the end */
   nomPath=NOMPath_stripSeparator(nomPath, NULLHANDLE);
 
   /* Create root folder */
+  np=NOMPath_queryPathBegin(nomPath, NULLHANDLE);
   wpRootFolder=WPFolderNew();
-  WPFolder_tstSetFullPath(wpRootFolder, NOMPath_queryCString(NOMPath_queryRoot(nomPath, NULLHANDLE),NULLHANDLE),
+  WPFolder_tstSetFullPath(wpRootFolder, NOMPath_queryCString(NOMPath_queryRoot(np, NULLHANDLE),NULLHANDLE),
                           NULLHANDLE);
-  wpTempFolder=wpRootFolder;
+  chrDisplayName = g_filename_to_utf8 (NOMPath_queryCString(np,NULLHANDLE), -1, NULL, NULL, NULL);
+  WPFolder_wpSetTitleFromCString((WPObject*)wpRootFolder, chrDisplayName, NULLHANDLE);
 
+  wpTempFolder=wpRootFolder;
   nomPath=NOMPath_erasePathBegin(nomPath, NULLHANDLE);
 
   /* Now create all folders up the chain */
   while(NOMPath_length(nomPath, NULLHANDLE)>0)
     {
-      NOMPath* np;
       WPFolder* wpFolder;
+
       np=NOMPath_queryPathBegin(nomPath, NULLHANDLE);
 
       wpFolder=WPFolderNew();
       WPFolder_tstSetFullPath(wpFolder, NOMPath_queryCString(np,NULLHANDLE),
                               NULLHANDLE);
+      chrDisplayName = g_filename_to_utf8 (NOMPath_queryCString(np,NULLHANDLE), -1, NULL, NULL, NULL);
+      WPFolder_wpSetTitleFromCString((WPObject*)wpFolder, chrDisplayName, NULLHANDLE);
       WPFolder_wpSetFolder(wpFolder, wpTempFolder, NULLHANDLE);
+      /* insert into contents list */
+      WPFolder_wpAddToContent(wpTempFolder, (WPObject*) wpFolder, 
+                              NOMPath_copyCString(wpFolder, NULLHANDLE), NULLHANDLE);
+      
       wpTempFolder=wpFolder;
+      /* Move to next path part */
       nomPath=NOMPath_erasePathBegin(nomPath, NULLHANDLE);
-      WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE);
+      //WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE);
       //g_message("   path: %s", NOMPath_queryCString(WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE),
       //                                            NULLHANDLE));
     };
@@ -183,22 +195,7 @@ int _System  main_loop()
 
   //WPFolder_tstSetFullPath(wpDesktop, desktopDir, NULLHANDLE);
   //WPFolder_tstSetFullPath(wpDesktop, "r:", NULLHANDLE);
-  WPFolder_wpOpen(wpDesktop, NULL, OPEN_DEFAULT,  NULL, NULL);
-  /*    WPFolder_wpPopulate(wpObject, 0,"blabla 2", 0,  NULL);  */
-    
-#if 0
-  /* Folder toplevel window. */
-  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-
-  /* FIXME: Set default size of folder frame. Will later use a stored value */
-  gtk_window_set_default_size (GTK_WINDOW (window), 650, 400);
-
-  g_signal_connect (GTK_WIDGET(window), "size-request",
-                    G_CALLBACK (handleEvent), NULL/*nomSelf*/);
-
-  gtk_widget_show(window);
-  g_message("Window handle: %x", window);
-#endif
+  WPFolder_wpOpen(wpDesktop, NULL, OPEN_CONTENTS,  NULL, NULL);
 
   /* All GTK applications must have a gtk_main(). Control ends here
    * and waits for an event to occur (like a key press or
