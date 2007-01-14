@@ -148,7 +148,7 @@ NOM_Scope void NOMLINK impl_WPObject_wpInitData(WPObject* nomSelf, CORBA_Environ
   /* Get our unique class ID. We need it for example when inserting menu items to
      specify the namespace. We query it here because getting a GQuark from a string
      is rather time consuming. The result is saved in a var for later use. */
-  WPObjectNomId=g_quark_from_string("WPObject");
+  WPObjectNomId=nomIdFromString("WPObject"); //g_quark_from_string("WPObject");
 
   /* Make sure a title exists (even if it's an empty string */
   _pnomStringTitle=NOMStringNew();
@@ -185,96 +185,101 @@ gboolean defaultWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, 
 }
 
 NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PWPFolderWindow nomFolder,
-                                                const gulong ulView, const gpointer pParam, CORBA_Environment *ev)
+                                                const gulong ulView, const nomId nameSpaceId,
+                                                const gpointer pParam, CORBA_Environment *ev)
 {
-/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  nomId nSpaceId=nameSpaceId;
+  gulong ulV=ulView;
 
-  switch(ulView)
+  /* Special parameter representing a double click or "I just don't know" ;-) */
+  if(OPEN_DEFAULT==ulView)
+    ulV=WPObject_wpQueryDefaultView(nomSelf, &nSpaceId, NULLHANDLE);
+
+  /* We only handle items with in own name space */
+  if(WPObjectNomId==nSpaceId)
     {
-    case OPEN_SETTINGS:
-      {
-        PUSEITEM pui;
-        gulong ulError;
+      switch(ulV)
+        {
+        case OPEN_SETTINGS:
+          {
+            PUSEITEM pui;
+            gulong ulError;
+            WPNoteBook* wpNoteBook;
 
-        WPNoteBook* wpNoteBook;
-        wpNoteBook=WPNoteBookNew();
-        WPNoteBook_wpSetWPObject(wpNoteBook, nomSelf, NULLHANDLE);
-
-        _wpAddSettingsPages(nomSelf, wpNoteBook, ev);
-
-        /* Add a view item to inuse list */
-        pui=(PUSEITEM)WPObject_wpAllocMem(nomSelf, sizeof(USEITEM)+sizeof(VIEWITEM), &ulError, ev);
-        /* Fill the structures */
-
-        pui->type=(gulong)USAGE_OPENVIEW;
-        pui->wpObject=nomSelf;
-        pui++;
-        ((VIEWITEM*)pui)->ulView=VIEW_SETTINGS;
-        ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)wpNoteBook;
-        pui--;
-        //g_message("   in %s wpNoteBook: %lx pui %lx", __FUNCTION__, wpNoteBook, pui);
-        /* Make sure the view item is removed when the window is closed */
-        g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)wpNoteBook, NULLHANDLE)),"delete-event", 
-                         G_CALLBACK(defaultWPWindowDeleteHandler), (gpointer) pui);
-        WPObject_wpAddToObjUseList(nomSelf, pui, ev);
-        WPNoteBook_show(wpNoteBook, ev);
-        return (gpointer) wpNoteBook;
-      }
-    default:
-      /* We are the very last in the chain of classes being called */
-      g_return_val_if_reached(NULLHANDLE);
-      break;
+            if(CCVIEW_ON==WPObject_wpQueryConcurrentView(nomSelf, NULLHANDLE)){
+              /* Concurrent view is ignored for the settings. */
+              if((wpNoteBook=WPObject_wpSwitchTo(nomSelf, ulV, nSpaceId, NULLHANDLE))!=NULLHANDLE)
+                return wpNoteBook;
+            }
+            wpNoteBook=WPNoteBookNew();
+            WPNoteBook_wpSetWPObject(wpNoteBook, nomSelf, NULLHANDLE);
+            
+            _wpAddSettingsPages(nomSelf, wpNoteBook, ev);
+            
+            /* Add a view item to inuse list */
+            pui=(PUSEITEM)WPObject_wpAllocMem(nomSelf, sizeof(USEITEM)+sizeof(VIEWITEM), &ulError, ev);
+            /* Fill the structures */
+            
+            pui->type=(gulong)USAGE_OPENVIEW;
+            pui->wpObject=nomSelf;
+            pui++;
+            ((VIEWITEM*)pui)->ulView=OPEN_SETTINGS;
+            ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)wpNoteBook;
+            ((VIEWITEM*)pui)->nameSpaceId=WPObjectNomId;
+            pui--;
+            //g_message("   in %s wpNoteBook: %lx pui %lx", __FUNCTION__, wpNoteBook, pui);
+            /* Make sure the view item is removed when the window is closed */
+            g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)wpNoteBook, NULLHANDLE)),"delete-event", 
+                             G_CALLBACK(defaultWPWindowDeleteHandler), (gpointer) pui);
+            WPObject_wpAddToObjUseList(nomSelf, pui, ev);
+            WPNoteBook_show(wpNoteBook, ev);
+            return (gpointer) wpNoteBook;
+          }
+        default:
+          /* We are the very last in the chain of classes being called */
+          g_return_val_if_reached(NULLHANDLE);
+          break;
+        }
     }
   return NULLHANDLE;
 }
 
 NOM_Scope gpointer NOMLINK impl_WPObject_wpViewObject(WPObject* nomSelf, const PWPFolderWindow nomFolder,
-                                                      const gulong ulView, const gpointer pParam,
-                                                      CORBA_Environment *ev)
+                                                      const gulong ulView, const nomId nameSpaceId,
+                                                      const gpointer pParam, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
   gpointer nomRetval=NULLHANDLE;
+  nomId nSpaceId=nameSpaceId;
+  gulong ulV=ulView;
 
+  /* Special parameter representing a double click or "I just don't know" ;-) */
+  if(OPEN_DEFAULT==ulView)
+    ulV=WPObject_wpQueryDefaultView(nomSelf, &nSpaceId, NULLHANDLE);
 
-  if((nomRetval=WPObject_wpSwitchTo(nomSelf, ulView, ev))!=NULLHANDLE)
+  if(CCVIEW_ON==WPObject_wpQueryConcurrentView(nomSelf, NULLHANDLE))
+    return WPObject_wpOpen(nomSelf, nomFolder, ulV, nSpaceId, pParam, NULLHANDLE);
+
+  if((nomRetval=WPObject_wpSwitchTo(nomSelf, ulV, nSpaceId, NULLHANDLE))!=NULLHANDLE)
     return nomRetval;
 
-  return WPObject_wpOpen(nomSelf, nomFolder, ulView, pParam, ev);
+  return WPObject_wpOpen(nomSelf, nomFolder, ulV, nSpaceId, pParam, NULLHANDLE);
 }
 
-NOM_Scope gpointer NOMLINK impl_WPObject_wpSwitchTo(WPObject* nomSelf, const gulong ulView, CORBA_Environment *ev)
+NOM_Scope gpointer NOMLINK impl_WPObject_wpSwitchTo(WPObject* nomSelf, const gulong ulView, const nomId nameSpaceId,
+                                                    CORBA_Environment *ev)
 {
-/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
   PVIEWITEM pViewItem;
 
-  switch(ulView)
-    {
-    case OPEN_SETTINGS:
-      {
-        pViewItem=WPObject_wpFindViewItem(nomSelf, VIEW_SETTINGS, NULLHANDLE, ev);
-        if(pViewItem){
-          //g_message("   in %s : OPEN_SETTINGS returning %x %x ...", __FUNCTION__, pViewItem, pViewItem->nomWindow);
-          /* Bring the window to the foreground */
-          NOMWindow_present(pViewItem->nomWindow, ev);
-          return (gpointer)pViewItem->nomWindow;
-        }
-        break;
-      }
-    case OPEN_CONTENTS:
-      {
-#warning !!!!! This belongs into WPFolder !!!!!
-        pViewItem=WPObject_wpFindViewItem(nomSelf, VIEW_CONTENTS, NULLHANDLE, ev);
-        if(pViewItem){
-          //g_message("   in %s : OPEN_SETTINGS returning %x %x ...", __FUNCTION__, pViewItem, pViewItem->nomWindow);
-          /* Bring the window to the foreground */
-          NOMWindow_present(pViewItem->nomWindow, ev);
-          return (gpointer)pViewItem->nomWindow;
-        }
-        break;
-      }
-    default:
-      break;
-    }
+  pViewItem=WPObject_wpFindViewItem(nomSelf, ulView, nameSpaceId, NULLHANDLE, NULLHANDLE);
+
+  if(pViewItem){
+    /* Bring the window to the foreground */
+    NOMWindow_present(pViewItem->nomWindow, ev);
+    return (gpointer)pViewItem->nomWindow;
+  }/* if() */
 
   return NULLHANDLE;
 }
@@ -362,14 +367,16 @@ NOM_Scope PUSEITEM NOMLINK impl_WPObject_wpFindUseItem(WPObject* nomSelf, const 
 }
 
 
-NOM_Scope PVIEWITEM NOMLINK impl_WPObject_wpFindViewItem(WPObject* nomSelf, const gulong flViews,
+NOM_Scope PVIEWITEM NOMLINK impl_WPObject_wpFindViewItem(WPObject* nomSelf, const gulong ulView,
+                                                         const nomId nameSpaceId,
                                                          const PVIEWITEM pCurrentItem, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
   PUSEITEM pUseItem;
   PVIEWITEM pViewItem=NULLHANDLE;
 
-  if(!flViews)
+
+  if(!ulView)
     return NULLHANDLE;
 
   if(NULLHANDLE==pCurrentItem)
@@ -379,13 +386,14 @@ NOM_Scope PVIEWITEM NOMLINK impl_WPObject_wpFindViewItem(WPObject* nomSelf, cons
     pUseItem--;
     pUseItem=WPObject_wpFindUseItem(nomSelf, USAGE_OPENVIEW,  pUseItem, ev);
   }
+
   while(pUseItem)
     {
       ++pUseItem;
       pViewItem=(PVIEWITEM)pUseItem;
       pUseItem--;
       //g_message("        a in %s %d", __FUNCTION__, flViews);
-      if(pViewItem->ulView & flViews)
+      if((pViewItem->ulView == ulView) && (pViewItem->nameSpaceId==nameSpaceId))
         break;
 
       pUseItem=WPObject_wpFindUseItem(nomSelf, USAGE_OPENVIEW,  pUseItem, ev);
@@ -395,6 +403,41 @@ NOM_Scope PVIEWITEM NOMLINK impl_WPObject_wpFindViewItem(WPObject* nomSelf, cons
   return pViewItem;
 }
 
+NOM_Scope gulong NOMLINK impl_WPObject_wpQueryDefaultView(WPObject* nomSelf, const pnomId pNameSpaceId,
+                                                          CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  *pNameSpaceId=WPObjectNomId;
+
+  return OPEN_SETTINGS;
+}
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpSetDefaultView(WPObject* nomSelf, const gulong ulView,
+                                                               const nomId nameSpaceId, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+  CORBA_boolean nomRetval=FALSE;
+
+  g_message("%d %s not implemented", __LINE__, __FUNCTION__);
+  return nomRetval;
+}
+
+NOM_Scope void NOMLINK impl_WPObject_wpSetConcurrentView(WPObject* nomSelf, const gulong ulCCView, 
+                                                         CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  g_message("%d %s not implemented", __LINE__, __FUNCTION__);
+
+}
+
+NOM_Scope gulong NOMLINK impl_WPObject_wpQueryConcurrentView(WPObject* nomSelf, CORBA_Environment *ev)
+{
+  /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  return CCVIEW_ON;
+}
 
 NOM_Scope void NOMLINK impl_WPObject_wpLockObject(WPObject* nomSelf, CORBA_Environment *ev)
 {
@@ -622,7 +665,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMenuItemSelected(WPObject* nomSe
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
-  /* We only handle items with in own name space */
+  /* We only handle items within own name space */
   if(WPObjectNomId==NOMMenuItem_queryNameSpaceId(nomMenuItem, ev))
     {
       switch(NOMMenuItem_queryId(nomMenuItem, ev))
@@ -630,7 +673,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMenuItemSelected(WPObject* nomSe
         case WPMENUID_PROPERTIES:
           {
             WPObject_wpViewObject(nomSelf, nomFolder,
-                            OPEN_SETTINGS, NULLHANDLE, ev);
+                            OPEN_SETTINGS, WPObjectNomId, NULLHANDLE, NULLHANDLE);
             return TRUE; /* We always return TRUE to show, we handled the menu item. It doesn't
                           matter if we actually succeeded with creating the settings notebook. */
           }
@@ -712,4 +755,7 @@ NOM_Scope PWPFolder NOMLINK impl_WPObject_wpQueryFolder(WPObject* nomSelf, CORBA
 
   return _wpParentFldr;
 }
+
+
+
 
