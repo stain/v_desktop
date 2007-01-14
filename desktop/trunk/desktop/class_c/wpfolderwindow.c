@@ -46,16 +46,11 @@
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
-#ifndef WPFolder
-typedef struct WPFolder_struct {
-  struct nomMethodTabStruct  *mtab;
-  gulong body[1];
-} WPFolderObj;
-#define WPFolder WPFolderObj
-typedef WPFolder *PWPFolder;
-#endif
-
+#include "wpnotebook.h"
+#include "wpfolderwindow.h"
+#include "wpfolder.h"
 #include "wpfolderwindow.ih"
+#include "wpobject.h"
 
 NOM_Scope PGtkWidget NOMLINK impl_WPFolderWindow_wpQueryContainerHandle(WPFolderWindow* nomSelf, CORBA_Environment *ev)
 {

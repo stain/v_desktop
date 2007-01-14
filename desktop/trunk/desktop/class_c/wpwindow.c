@@ -45,7 +45,6 @@
 
 #include <string.h>
 
-#include "nomfolderwindow.h"
 #include "wpwindow.ih"
 
 NOM_Scope void NOMLINK impl_WPWindow_wpSetWPObject(WPWindow* nomSelf, const PWPObject wpObject, CORBA_Environment *ev)

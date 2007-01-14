@@ -64,17 +64,8 @@ typedef struct _FLDRGTREEKEY
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
-#ifndef WPFolder
-typedef struct WPFolder_struct {
-  struct nomMethodTabStruct  *mtab;
-  gulong body[1];
-} WPFolderObj;
-#define WPFolder WPFolderObj
-typedef WPFolder *PWPFolder;
-#endif
-
+#include "wpnotebook.h"
 #include "wpfolderwindow.h"
-
 #include "wpfolder.ih"
 #include "wpdatafile.h"
 #include "desktop.h"
