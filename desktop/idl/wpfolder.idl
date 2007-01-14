@@ -67,6 +67,7 @@ interface WPFolder : WPFileSystem
   NOMOVERRIDE(wpInitData);
   NOMOVERRIDE(wpOpen);
   NOMOVERRIDE(wpQueryIcon);
+  NOMOVERRIDE(wpQueryDefaultView);
 
   NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData); /* This will go away... */
   NOMINSTANCEVAR(PGTree fldrObjects);

@@ -39,6 +39,7 @@ typedef struct _VIEWITEM {
   gulong          ulView;
   NOMWindow*      nomWindow;
   gulong          ulViewState;  /*   */
+  nomId           nameSpaceId;
   gpointer        pReserved;
  } VIEWITEM, *PVIEWITEM;
 
@@ -50,6 +51,7 @@ typedef struct _VIEWITEM {
 #define OPEN_CONTENTS         1
 #define OPEN_SETTINGS         2
 
+#if 0
 /* Views for wpFindViewItem() */
 #define VIEW_CONTENTS         0x00000001
 #define VIEW_SETTINGS         0x00000002
@@ -58,6 +60,12 @@ typedef struct _VIEWITEM {
 #define VIEW_DETAILS          0x00000010
 #define VIEW_TREE             0x00000020
 #define VIEW_ANY              0xFFFFFFFF
+#endif
+
+/* Concurrent view flags */
+#define CCVIEW_DEFAULT        0UL
+#define CCVIEW_ON             1UL
+#define CCVIEW_OFF            2UL
 
 /* Flags for menu methods */
 #define MENU_OBJECTPOPUP           0x00000001

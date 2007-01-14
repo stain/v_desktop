@@ -60,3 +60,12 @@ NOM_Scope PWPObject NOMLINK impl_WPWindow_wpQueryWPObject(WPWindow* nomSelf, COR
   return _wpObject;
 }
 
+NOM_Scope void NOMLINK impl_WPWindow_wpSetWindowTitle(WPWindow* nomSelf, const PNOMString newTitle,
+                                                      CORBA_Environment *ev)
+{
+
+  gtk_window_set_title (GTK_WINDOW (WPWindow_queryWindowHandle(nomSelf, NULLHANDLE)),
+                        NOMString_queryCString(newTitle, NULLHANDLE));
+
+}
+

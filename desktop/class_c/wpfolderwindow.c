@@ -114,7 +114,7 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
           WPFolder* wpFolder;
           wpFolder=(WPFolder*)WPFolderWindow_wpQueryWPObject(pWindow, NULLHANDLE);
           g_message("%s: %s", __FUNCTION__, wpFolder->mtab->nomClassName);
-          WPObject_wpDisplayMenu((WPObject*)wpFolder, pWindow, NULL, 0, 0, NULL);
+          WPObject_wpDisplayMenu((WPObject*)wpFolder, pWindow, NULL, MENU_OPENVIEWPOPUP, 0, NULL);
         }
       else
         {
@@ -134,7 +134,7 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
                              0, &wpObject,
                              -1);
           g_message("%s: %s", __FUNCTION__, wpObject->mtab->nomClassName);
-          WPObject_wpDisplayMenu((WPObject*)wpObject, pWindow, NULL, 0, 0, NULL);
+          WPObject_wpDisplayMenu((WPObject*)wpObject, pWindow, NULL, MENU_OBJECTPOPUP, 0, NULL);
         }
     }
   return FALSE;

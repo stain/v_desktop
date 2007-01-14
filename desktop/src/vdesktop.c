@@ -54,9 +54,11 @@
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
-#include "nomfolderwindow.h"
-#include "wpobject.h"
+#include "wpfolderwindow.h"
+#include "wpnotebook.h"
 #include "wpfolder.h"
+#include "wpobject.h"
+
 #include "nomfilepath.h"
 
 
@@ -140,7 +142,6 @@ int _System  main_loop()
     return(1); 
   }
 
-
   /* Init SOM */
   NOMClassMgrObject=nomEnvironmentNew();
   //dbgPrintf( "NOMClassMgrObject: %x", NOMClassMgrObject);
@@ -195,7 +196,8 @@ int _System  main_loop()
 
   //WPFolder_tstSetFullPath(wpDesktop, desktopDir, NULLHANDLE);
   //WPFolder_tstSetFullPath(wpDesktop, "r:", NULLHANDLE);
-  WPFolder_wpOpen(wpDesktop, NULL, OPEN_CONTENTS,  NULL, NULL);
+  g_message("WPFolder ID: %d", nomIdFromString("WPFolder"));
+  WPFolder_wpOpen(wpDesktop, NULL, OPEN_DEFAULT, 0, NULL, NULL);
 
   /* All GTK applications must have a gtk_main(). Control ends here
    * and waits for an event to occur (like a key press or

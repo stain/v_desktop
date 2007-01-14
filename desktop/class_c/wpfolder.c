@@ -104,6 +104,12 @@ static GtkListStore * fldr_CreateStore (void)
   return store;
 }
 
+/*************** Local vars ************************************/
+
+static nomId WPFolderNomId;
+
+/***************************************************************/
+
 #if 0
 static BOOL
 fldr_fillStore (GtkListStore *store, const gchar* gchrPath)
@@ -458,82 +464,94 @@ gboolean tempWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, gpo
 
 
 NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PWPFolderWindow nomFolder,
-                                                const gulong ulView, const gpointer pParam,
-                                                CORBA_Environment *ev)
+                                                const gulong ulView, const nomId nameSpaceId,
+                                                const gpointer pParam, CORBA_Environment *ev)
 {
   WPFolderData* nomThis=WPFolderGetData(nomSelf);
-  g_message("%d %s", __LINE__, __FUNCTION__);
-  switch(ulView)
+  nomId nSpaceId=nameSpaceId;
+  gulong ulV=ulView;
+
+  //  g_message("In %s: %d %d %d", __FUNCTION__, WPFolderNomId, nameSpaceId, ulView);
+
+  /* Special parameter representing a double click or "I just don't know" ;-) */
+  if(OPEN_DEFAULT==ulView)
+    ulV=WPObject_wpQueryDefaultView(nomSelf, &nSpaceId, NULLHANDLE);
+
+  /* We only handle items with in own name space */
+  if(WPFolderNomId==nSpaceId)
     {
-    case OPEN_CONTENTS:
-    case OPEN_DEFAULT:
-      {
-        PUSEITEM pui;
-        ULONG ulError;
-        WPFolderWindow * wpFldrWindow;
-        gchar* pszPath;
-        PPRIVFOLDERDATA priv;
-        GtkListStore* gStore;
-  
-        pszPath=NOMPath_queryCString(WPFolder_wpQueryFileName(nomSelf, TRUE, NULLHANDLE), NULLHANDLE);
-        g_message("%d %s, %s", __LINE__, __FUNCTION__, pszPath);
-        WPFolder_wpPopulate(nomSelf, 0L, pszPath, FALSE,  NULLHANDLE);
-
-
-        wpFldrWindow=WPFolder_wpCreateFolderWindow(nomSelf, NULLHANDLE);
-        WPFolderWindow_wpSetWPObject(wpFldrWindow, (WPObject*)nomSelf, NULLHANDLE);
-
-        /* Insert it into inuse list */
-        pui=(PUSEITEM)WPFolder_wpAllocMem(nomSelf, sizeof(USEITEM)+sizeof(VIEWITEM), &ulError, ev);
-        /* Fill the structures */
-        pui->type=(gulong)USAGE_OPENVIEW;
-        pui->wpObject=(PWPObject)nomSelf;
-        pui++;
-        ((VIEWITEM*)pui)->ulView=VIEW_CONTENTS;
-        ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)wpFldrWindow;
-        pui--;
-#warning !!!!! Folder window must be inserted into inuse list !!!!!
-        /* Make sure the view item is removed when the window is closed */
-        g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)wpFldrWindow, NULLHANDLE)),"delete-event", 
-                         G_CALLBACK(tempWPWindowDeleteHandler), (gpointer) pui);
-        WPFolder_wpAddToObjUseList(nomSelf, pui, NULLHANDLE);
-
-        /* Now create a folder store and insert icons into the window */
-        priv=_privFolderData;
-        gStore=priv->gstoreFldContents;
-
-        if(!gStore)
+      switch(ulV)
+        {
+        case OPEN_CONTENTS:
           {
-            /* Create a store holding the folder contents */
-            gStore=fldr_CreateStore();
-            g_return_val_if_fail(gStore!=NULLHANDLE, FALSE);
-            priv->gstoreFldContents=gStore;
-          }
+            PUSEITEM pui;
+            ULONG ulError;
+            WPFolderWindow * wpFldrWindow;
+            gchar* pszPath;
+            PPRIVFOLDERDATA priv;
+            GtkListStore* gStore;
+            
+            pszPath=NOMPath_queryCString(WPFolder_wpQueryFileName(nomSelf, TRUE, NULLHANDLE), NULLHANDLE);
+            g_message("%d %s, %s", __LINE__, __FUNCTION__, pszPath);
+            WPFolder_wpPopulate(nomSelf, 0L, pszPath, FALSE,  NULLHANDLE);
+            
+            
+            wpFldrWindow=WPFolder_wpCreateFolderWindow(nomSelf, NULLHANDLE);
+            WPFolderWindow_wpSetWPObject(wpFldrWindow, (WPObject*)nomSelf, NULLHANDLE);
+            
+            /* Insert it into inuse list */
+            pui=(PUSEITEM)WPFolder_wpAllocMem(nomSelf, sizeof(USEITEM)+sizeof(VIEWITEM), &ulError, ev);
+            /* Fill the structures */
+            pui->type=(gulong)USAGE_OPENVIEW;
+            pui->wpObject=(PWPObject)nomSelf;
+            pui++;
+            ((VIEWITEM*)pui)->ulView=OPEN_CONTENTS;
+            ((VIEWITEM*)pui)->nomWindow=(NOMWindow*)wpFldrWindow;
+            ((VIEWITEM*)pui)->nameSpaceId=WPFolderNomId;
+            pui--;
+#warning !!!!! Folder window must be inserted into inuse list !!!!!
+            /* Make sure the view item is removed when the window is closed */
+            g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)wpFldrWindow, NULLHANDLE)),"delete-event", 
+                             G_CALLBACK(tempWPWindowDeleteHandler), (gpointer) pui);
+            WPFolder_wpAddToObjUseList(nomSelf, pui, NULLHANDLE);
+            
+            /* Now create a folder store and insert icons into the window */
+            priv=_privFolderData;
+            gStore=priv->gstoreFldContents;
+            
+            if(!gStore)
+              {
+                /* Create a store holding the folder contents */
+                gStore=fldr_CreateStore();
+                g_return_val_if_fail(gStore!=NULLHANDLE, FALSE);
+                priv->gstoreFldContents=gStore;
+              }
+            
+            /* Fill our store */
+            if(gStore)
+              fldr_fillStore(nomSelf, gStore, pszPath);
+            else
+              return FALSE;
+            
+            gtk_icon_view_set_model(GTK_ICON_VIEW (priv->gtkIconView), GTK_TREE_MODEL (priv->gstoreFldContents));
+            
+            /* We now set which model columns that correspond to the text
+             * and pixbuf of each item
+             */
+            gtk_icon_view_set_text_column (GTK_ICON_VIEW (priv->gtkIconView), COL_DISPLAY_NAME);
+            gtk_icon_view_set_pixbuf_column (GTK_ICON_VIEW (priv->gtkIconView), COL_PIXBUF);
+            gtk_icon_view_set_item_width (GTK_ICON_VIEW (priv->gtkIconView), 100);
+            
+            g_object_unref (gStore);
+            
+            return wpFldrWindow;
+          }/* default */
+        default:
+          break;
+        }/* switch */
+    }
 
-        /* Fill our store */
-        if(gStore)
-          fldr_fillStore(nomSelf, gStore, pszPath);
-        else
-          return FALSE;
-        
-        gtk_icon_view_set_model(GTK_ICON_VIEW (priv->gtkIconView), GTK_TREE_MODEL (priv->gstoreFldContents));
-        
-        /* We now set which model columns that correspond to the text
-         * and pixbuf of each item
-         */
-        gtk_icon_view_set_text_column (GTK_ICON_VIEW (priv->gtkIconView), COL_DISPLAY_NAME);
-        gtk_icon_view_set_pixbuf_column (GTK_ICON_VIEW (priv->gtkIconView), COL_PIXBUF);
-        gtk_icon_view_set_item_width (GTK_ICON_VIEW (priv->gtkIconView), 100);
-        
-        g_object_unref (gStore);
-        
-        return wpFldrWindow;
-      }/* default */
-    default:
-      break;
-    }/* switch */
-
-  return WPFolder_wpOpen_parent(nomSelf, nomFolder, ulView, pParam, ev);
+  return WPFolder_wpOpen_parent(nomSelf, nomFolder, ulView, nameSpaceId, pParam, ev);
 }
 
 NOM_Scope gpointer NOMLINK impl_WPFolder_wpQueryIcon(WPFolder* nomSelf, CORBA_Environment *ev)
@@ -558,6 +576,14 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpQueryIcon(WPFolder* nomSelf, CORBA_En
   /*  WPFolder_wpQueryIcon_parent(nomSelf,  ev); */
 }
 
+NOM_Scope gulong NOMLINK impl_WPFolder_wpQueryDefaultView(WPFolder* nomSelf, const pnomId pNameSpaceId,
+                                                          CORBA_Environment *ev)
+{
+  *pNameSpaceId=WPFolderNomId;
+  return OPEN_CONTENTS;
+}
+
+
 static void
 itemActivated (GtkIconView *widget,
 		GtkTreePath *treePath,
@@ -581,7 +607,8 @@ itemActivated (GtkIconView *widget,
                          0, &wpObject,
                          -1);
       g_message("%s: %s", __FUNCTION__, wpObject->mtab->nomClassName);
-      WPObject_wpOpen(wpObject, pWindow, OPEN_CONTENTS, NULL, NULL);
+      /*      WPObject_wpOpen(wpObject, pWindow, OPEN_CONTENTS, NULL, NULL); */
+      WPObject_wpViewObject(wpObject, pWindow, OPEN_DEFAULT, 0, NULLHANDLE, NULL);
     }
 }
 
@@ -606,8 +633,8 @@ NOM_Scope PWPFolderWindow NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* n
   g_signal_connect (priv->gtkIconView, "item-activated",
                     G_CALLBACK (itemActivated), nomSelf);
 
-  gtk_window_set_title (GTK_WINDOW (WPFolderWindow_queryWindowHandle(wpFldrWindow, NULLHANDLE)),
-                        NOMString_queryCString(WPFolder_wpQueryTitle(nomSelf, NULLHANDLE), NULLHANDLE));
+  WPFolderWindow_wpSetWindowTitle(wpFldrWindow, WPFolder_wpQueryTitle(nomSelf, NULLHANDLE), NULLHANDLE);
+
   /* Show the new window */
   WPFolderWindow_show(wpFldrWindow, ev);
 
@@ -673,6 +700,11 @@ NOM_Scope void NOMLINK impl_WPFolder_wpInitData(WPFolder* nomSelf, CORBA_Environ
   WPFolderData* nomThis=WPFolderGetData(nomSelf); 
 
   WPFolder_wpInitData_parent((WPObject*)nomSelf,  ev);
+
+  /* Get our unique class ID. We need it for example when inserting menu items to
+     specify the namespace. We query it here because getting a GQuark from a string
+     is rather time consuming. The result is saved in a var for later use. */
+  WPFolderNomId=nomIdFromString("WPFolder");//g_quark_from_string("WPFolder");
 
   nomPrintf("    Entering %s with nomSelf: 0x%x. nomSelf is: %s.\n",
             __FUNCTION__, nomSelf , nomSelf->mtab->nomClassName);

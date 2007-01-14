@@ -71,7 +71,7 @@ interface WPObject : NOMObject
   boolean  wpFreeMem(in gpointer pByte);
   void     wpInitData();
   void     wpUnInitData();
-  gpointer wpOpen(in PWPFolderWindow nomFolder, in gulong ulView, in gpointer pParam);
+  gpointer wpOpen(in PWPFolderWindow nomFolder, in gulong ulView, in nomId nameSpaceId, in gpointer pParam);
   void     wpLockObject();
   boolean  wpUnlockObject();
   boolean  wpObjectIsLocked();
@@ -95,15 +95,15 @@ interface WPObject : NOMObject
   unsigned long wpInsertSettingsPage(in PWPNoteBook wpNoteBook, in gpointer ppageinfo);
   unsigned long wpAddObjectGeneralPage(in PWPNoteBook wpNoteBook);
 
-  gpointer wpViewObject(in PWPFolderWindow nomFolder, in gulong ulView, in gpointer pParam);
-  gpointer wpSwitchTo(in gulong ulView);
+  gpointer wpViewObject(in PWPFolderWindow nomFolder, in gulong ulView, in nomId nameSpaceId, in gpointer pParam);
+  gpointer wpSwitchTo(in gulong ulView, in nomId nameSpaceId);
   boolean wpRegisterView(in PNOMWindow pWindow, in PNOMString nomStrViewTitle);
 
   /* Inuse list methods */
   boolean   wpAddToObjUseList(in PUSEITEM pUseItem);
   boolean   wpDeleteFromObjUseList(in PUSEITEM pUseItem);
   PUSEITEM  wpFindUseItem( in gulong ulType, in PUSEITEM pCurrentUseItem);
-  PVIEWITEM wpFindViewItem(in gulong flViews,in PVIEWITEM pCurrentItem);
+  PVIEWITEM wpFindViewItem(in gulong ulView, in nomId nameSpaceId, in PVIEWITEM pCurrentItem);
 
   boolean wpSaveDeferred();
   boolean wpSaveImmediate();
@@ -112,6 +112,12 @@ interface WPObject : NOMObject
   PWPFolder wpQueryFolder();
 
   void wpSetTitleFromCString(in string chrNewTitle);
+
+  gulong wpQueryDefaultView(in pnomId pNameSpaceId);
+  boolean wpSetDefaultView(in gulong ulView , in nomId nameSpaceId);
+
+  void   wpSetConcurrentView(in gulong ulCCView);
+  gulong wpQueryConcurrentView();
 
   /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);
