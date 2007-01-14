@@ -32,8 +32,8 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef wpobject_idl
-#define wpobject_idl
+#ifndef WPOBJECT_IDL_INCLUDED
+#define WPOBJECT_IDL_INCLUDED
 
 #include <nomobj.idl>
 
@@ -45,36 +45,21 @@ NOMCLASSNAME(WPObject);
 #include "nommenuitem.idl"
 #include "nomwindow.idl"
 
-#if 0
-#ifndef WPFolderWindow_defined
-#define WPFolderWindow_defined
-native PWPFolderWindow;
-#endif
-#endif
-
 #ifndef WPFLDRWINDOW_IDL_INCLUDED
 native PWPFolderWindow;
-#endif
-
-#if 0
-#ifndef WPFolder_defined
-#define WPFolder_defined
-native PWPFolder;
-#endif
 #endif
 
 #ifndef WPFOLDER_IDL_INCLUDED
 native PWPFolder;
 #endif
 
-#if 0
+#if 1
 #ifndef WPNOTEBOOK_IDL_INCLUDED
 native PWPNoteBook;
 #endif
-#endif
-//NOMCLASSNAME(WPObject);
-
+#else
 #include "wpnotebook.idl"
+#endif
 
 interface WPObject : NOMObject
 {
@@ -141,7 +126,7 @@ interface WPObject : NOMObject
   NOMINSTANCEVAR(PWPFolder wpParentFldr);
 };
 
-#endif
+#endif /* WPOBJECT_IDL_INCLUDED */
 
 
 

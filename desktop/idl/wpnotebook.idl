@@ -46,7 +46,6 @@ native PWPObject;
 
 NOMCLASSNAME(WPNoteBook);
 
-//#include "wpobject.idl"
 #include "wpwindow.idl"
 #include "nomnotebook.idl"
 
@@ -56,12 +55,11 @@ interface WPNoteBook : WPWindow
 
   PNOMNoteBook wpQueryNoteBookObject();
   void wpSetNoteBookObject(in PNOMNoteBook nomNBook);
-  //void wpSetWPObject(in PWPObject wpObject);
-  //PWPObject wpQueryWPObject();
 
   NOMOVERRIDE(nomInit);
 
   NOMINSTANCEVAR(PNOMNoteBook nomNoteBook);
+
   NOMINSTANCEVAR(PWPObject wpObject);
 
 };

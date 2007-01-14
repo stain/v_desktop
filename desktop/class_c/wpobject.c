@@ -49,33 +49,13 @@
 #include <gtk/gtk.h>
 #include <nomguitk.h>
 
-/* We have to declare this here to make PNOMFolderWindow known
-   to wpDisplayMenu(). */
-#ifndef WPFolderWindow
-typedef struct WPFolderWindow_struct {
-  struct nomMethodTabStruct  *mtab;
-  gulong body[1];
-} WPFolderWindowObj;
-#define WPFolderWindow WPFolderWindowObj
-typedef WPFolderWindow *PWPFolderWindow;
-#endif
-
-#ifndef WPFolder
-typedef struct WPFolder_struct {
-  struct nomMethodTabStruct  *mtab;
-  gulong body[1];
-} WPFolderObj;
-#define WPFolder WPFolderObj
-typedef WPFolder *PWPFolder;
-#endif
-
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
-#include "wpobject.ih"
-#include "wpfolderwindow.h"
 #include "wpnotebook.h"
-
+#include "wpfolderwindow.h"
+#include "wpfolder.h"
+#include "wpobject.ih"
 
 
 /*************** Local vars ************************************/

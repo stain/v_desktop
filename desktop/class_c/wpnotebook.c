@@ -45,7 +45,6 @@
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
-#include "nomfolderwindow.h"
 #include "wpnotebook.ih"
 
 NOM_Scope PNOMNoteBook NOMLINK impl_WPNoteBook_wpQueryNoteBookObject(WPNoteBook* nomSelf, CORBA_Environment *ev)

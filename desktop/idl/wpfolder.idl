@@ -41,14 +41,6 @@ NOMCLASSNAME(WPFolder);
 
 #include "wpfilesystem.idl"
 #include "nomfilepath.idl"
-/*#include "nomfolderwindow.idl"*/
-
-#ifndef WPFolderWindow_defined
-#define WPFolderWindow_defined
-native PWPFolderWindow;
-#endif
-
-//NOMCLASSNAME(WPFolder);
 
 interface WPFolder : WPFileSystem
 {

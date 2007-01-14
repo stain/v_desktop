@@ -43,10 +43,17 @@ native PWPObject;
 #endif
 
 #include <nomobj.idl>
+#include "nomwindow.idl"
 
 NOMCLASSNAME(WPWindow);
 
+#if 1
+#ifndef WPOBJECT_IDL_INCLUDED
+native PWPObject;
+#endif
+#else
 #include "wpobject.idl"
+#endif
 
 interface WPWindow : NOMWindow
 {
