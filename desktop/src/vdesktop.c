@@ -113,8 +113,13 @@ int _System  main_loop()
   g_assert(nomRegisterDLLByName(hReg, "ATK.DLL" ));
   g_assert(nomRegisterDLLByName(hReg, "NOBJTK.DLL"));
   g_assert(nomRegisterDLLByName(hReg, "VDESKTOP.DLL"));
+  g_assert(nomRegisterDLLByName(hReg, "VOYFCLS.DLL"));
+  g_assert(nomRegisterDLLByName(hReg, "VOYWP.DLL"));
+  g_assert(nomRegisterDLLByName(hReg, "VOYGUITK.DLL"));
+  //  g_assert(nomRegisterDLLByName(hReg, "PBL-PNG.DLL"));
+  //  g_assert(nomRegisterDLLByName(hReg, "BASIC-FC.DLL"));
   /* Add Pango here? */
-
+  g_assert(nomRegisterDLLByName(hReg, "PANGO.DLL"));
   nomEndRegisterDLLWithGC(hReg);
 
   g_message("We started...\n");
@@ -155,6 +160,7 @@ int _System  main_loop()
   /* Create root folder */
   np=NOMPath_queryPathBegin(nomPath, NULLHANDLE);
   wpRootFolder=WPFolderNew();
+  WPFolder_wpLockObject(wpRootFolder, NULLHANDLE);
   WPFolder_tstSetFullPath(wpRootFolder, NOMPath_queryCString(NOMPath_queryRoot(np, NULLHANDLE),NULLHANDLE),
                           NULLHANDLE);
   chrDisplayName = g_filename_to_utf8 (NOMPath_queryCString(np,NULLHANDLE), -1, NULL, NULL, NULL);
@@ -171,14 +177,16 @@ int _System  main_loop()
       np=NOMPath_queryPathBegin(nomPath, NULLHANDLE);
 
       wpFolder=WPFolderNew();
+      WPFolder_wpLockObject(wpFolder, NULLHANDLE);
       WPFolder_tstSetFullPath(wpFolder, NOMPath_queryCString(np,NULLHANDLE),
                               NULLHANDLE);
       chrDisplayName = g_filename_to_utf8 (NOMPath_queryCString(np,NULLHANDLE), -1, NULL, NULL, NULL);
       WPFolder_wpSetTitleFromCString((WPObject*)wpFolder, chrDisplayName, NULLHANDLE);
       WPFolder_wpSetFolder(wpFolder, wpTempFolder, NULLHANDLE);
+      
       /* insert into contents list */
       WPFolder_wpAddToContent(wpTempFolder, (WPObject*) wpFolder, 
-                              NOMPath_copyCString(wpFolder, NULLHANDLE), NULLHANDLE);
+                              NOMPath_copyCString(np, NULLHANDLE), NULLHANDLE);
       
       wpTempFolder=wpFolder;
       /* Move to next path part */
@@ -219,19 +227,4 @@ int _System  main_loop()
     printf("And now we quit...\n");
 
   return 0;
-}
-
-
-/*
-  Just a test function for making noise...
- */
-void _System theBeep(void)
-{
-  DosBeep(2500,400);
-  DosBeep(500,200);
-  DosBeep(1500,200);
-  DosBeep(2500,400);
-  DosBeep(1500,200);
-  DosBeep(500,200);
-  DosBeep(2500,400);
 }
