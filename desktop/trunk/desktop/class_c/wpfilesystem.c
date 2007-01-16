@@ -48,9 +48,9 @@
 #include "nomwindow.h"
 #include "desktoptypes.h"
 
-#include "nomfolderwindow.h"
-
-
+#include "wpfolderwindow.h"
+#include "wpnotebook.h"
+#include "wpfolder.h"
 #include "wpfilesystem.ih"
 
 NOM_Scope void NOMLINK impl_WPFileSystem_tstSetFullPath(WPFileSystem* nomSelf, const CORBA_char * fullPath,

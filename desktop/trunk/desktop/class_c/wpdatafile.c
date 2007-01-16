@@ -55,8 +55,9 @@
 
 /* wpdatafile.ih includes some WPObject stuff and that needs these
    includes. */
-#include "nomfolderwindow.h"
-
+#include "wpfolderwindow.h"
+#include "wpnotebook.h"
+#include "wpfolder.h"
 #include "wpdatafile.ih"
 
 NOM_Scope CORBA_long NOMLINK impl_WPDataFile_wpQueryFileSize(WPDataFile* nomSelf, CORBA_Environment *ev)
@@ -93,7 +94,10 @@ NOM_Scope gpointer NOMLINK impl_WPDataFile_wpQueryIcon(WPDataFile* nomSelf, CORB
     ptrIcon=gdk_pixbuf_new_from_file (gchrIconName, &error);
   }
 #warning !!!!! Dont create an icon for each object !!!!!
-  return gdk_pixbuf_new_from_file (gchrIconName, &error);
+  if(ptrIcon)
+    return ptrIcon;
+  else
+    return gdk_pixbuf_new_from_file (gchrIconName, &error);
 
 #if 0
   /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
