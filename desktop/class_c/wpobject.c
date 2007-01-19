@@ -470,7 +470,10 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpQueryIcon(WPObject* nomSelf, CORBA_En
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
-  return NULLHANDLE;
+  //g_message("%d %s !!! Achtung explicit metaclass nicht in mtab ---> %x %x", __LINE__, __FUNCTION__,
+  //        _nomGetClass((NOMObject*)nomSelf, NULLHANDLE), _WPObject);
+  return M_WPObject_wpclsQueryIcon(_nomGetClass((NOMObject*)nomSelf, NULLHANDLE), NULLHANDLE);
+  // return M_WPObject_wpclsQueryIcon(_WPObject, NULLHANDLE);
 }
 
 NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpRequestObjectMutexSem(WPObject* nomSelf,

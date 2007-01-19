@@ -114,7 +114,7 @@ int _System  main_loop()
   g_assert(nomRegisterDLLByName(hReg, "NOBJTK.DLL"));
   g_assert(nomRegisterDLLByName(hReg, "VDESKTOP.DLL"));
   g_assert(nomRegisterDLLByName(hReg, "VOYFCLS.DLL"));
-  g_assert(nomRegisterDLLByName(hReg, "VOYWP.DLL"));
+  //g_assert(nomRegisterDLLByName(hReg, "VOYWP.DLL"));
   g_assert(nomRegisterDLLByName(hReg, "VOYGUITK.DLL"));
   //  g_assert(nomRegisterDLLByName(hReg, "PBL-PNG.DLL"));
   //  g_assert(nomRegisterDLLByName(hReg, "BASIC-FC.DLL"));

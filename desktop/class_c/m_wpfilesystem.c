@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -31,54 +31,38 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
+/*
+ * And remember, phase 3 is near...
+ */
+#define INCL_DOS
+#include <os2.h>
 
-#ifndef WPFOLDER_IDL_INCLUDED
-#define WPFOLDER_IDL_INCLUDED
+#include <nom.h>
+#include <nomtk.h>
 
-#include "nombase.idl"
+#include <string.h>
+#include <gtk/gtk.h>
+#include "helper.h"
+#include "desktop.h"
 
-NOMCLASSNAME(WPFolder);
+#include "m_wpfilesystem.ih"
 
-#include "wpfilesystem.idl"
-#include "nomfilepath.idl"
 
-/*NOMMETACLASS("M_WPFolder");*/
-const string METACLASS_TO_USE_51 = "M_WPFolder";
-
-interface WPFolder : WPFileSystem
+/* orbit-idl-c-stubs.c, cs_output_stub line 347 */
+NOM_Scope PNOMString NOMLINK impl_M_WPFileSystem_wpclsQueryTitle(M_WPFileSystem* nomSelf, CORBA_Environment *ev)
 {
-  NOMCLASSVERSION(1, 0);
+  M_WPFileSystemData* nomThis=M_WPFileSystemGetData(nomSelf);
 
-  boolean wpPopulate(in unsigned long ulReserved,
-                     in string pszPath,
-                     in boolean fFoldersOnly);
-  PWPFolderWindow wpCreateFolderWindow();
+  if(!_nomStringTitle)
+    {
+      _nomStringTitle=NOMStringNew();
+      NOMString_assignCString(_nomStringTitle, "File system", NULLHANDLE);
+    }
 
+  return _nomStringTitle;
 #if 0
-  WPObject wpQueryContent(in WPObject Object,
-                          in ULONG ulOption);
-
-  BOOL wpAddToContent(in WPObject Object);
+  /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 119 */
+  M_WPFileSystem_wpclsQueryTitle_parent(nomSelf,  ev);
 #endif
-
-  gulong wpQueryFldrFlags();
-  boolean wpSetFldrFlags(in gulong ulFlags, in gulong ulMask);
-
-  gulong wpAddToContent(in PWPObject wpObject, in string chrFileName);
-  PWPObject wpQueryContent();
-
-  NOMOVERRIDE(wpInitData);
-  NOMOVERRIDE(wpOpen);
-  NOMOVERRIDE(wpQueryIcon);
-  NOMOVERRIDE(wpQueryDefaultView);
-
-  NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData); /* This will go away... */
-  NOMINSTANCEVAR(PGTree fldrObjects);
-  NOMINSTANCEVAR(gulong ulFldrFlags);
-};
-
-#endif /* WPFOLDER_IDL_INCLUDED */
-
-
-
+}
 

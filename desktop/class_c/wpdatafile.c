@@ -84,6 +84,9 @@ NOM_Scope gpointer NOMLINK impl_WPDataFile_wpQueryIcon(WPDataFile* nomSelf, CORB
 
   /* WPDataFileData* nomThis=WPDataFileGetData(nomSelf); */
 
+  return   WPDataFile_wpQueryIcon_parent(nomSelf, NULLHANDLE);
+
+#if 0
   /* Load default wpObject icon */
   if(!gchrIconName){
     gchrIconName=g_build_filename(priv_getIconDir(), WPOBJECT_ICON_FILE, NULL);
@@ -98,7 +101,7 @@ NOM_Scope gpointer NOMLINK impl_WPDataFile_wpQueryIcon(WPDataFile* nomSelf, CORB
     return ptrIcon;
   else
     return gdk_pixbuf_new_from_file (gchrIconName, &error);
-
+#endif
 #if 0
   /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 84 */
   WPDataFile_wpQueryIcon_parent(nomSelf,  ev);
