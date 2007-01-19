@@ -32,52 +32,37 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-#ifndef WPFOLDER_IDL_INCLUDED
-#define WPFOLDER_IDL_INCLUDED
+#ifndef M_WPOBJECT_IDL_INCLUDED
+#define M_WPOBJECT_IDL_INCLUDED
 
-#include "nombase.idl"
+#include <nomcls.idl>
 
-NOMCLASSNAME(WPFolder);
+NOMCLASSNAME(M_WPObject);
 
-#include "wpfilesystem.idl"
-#include "nomfilepath.idl"
+#include "wpnativetypes.idl"
+#include "nomstring.idl"
 
-/*NOMMETACLASS("M_WPFolder");*/
-const string METACLASS_TO_USE_51 = "M_WPFolder";
-
-interface WPFolder : WPFileSystem
+interface M_WPObject : NOMClass
 {
   NOMCLASSVERSION(1, 0);
 
-  boolean wpPopulate(in unsigned long ulReserved,
-                     in string pszPath,
-                     in boolean fFoldersOnly);
-  PWPFolderWindow wpCreateFolderWindow();
+  gpointer wpclsQueryIcon();
+  boolean wpclsSetIcon(in gpointer pNewIcon);
+  PNOMString wpclsQueryTitle();
+  void wpclsInitData();
+  void wpclsUnInitData();
 
-#if 0
-  WPObject wpQueryContent(in WPObject Object,
-                          in ULONG ulOption);
+  /* Methods overriden by this class */
+  NOMOVERRIDE(nomInit);
+  NOMOVERRIDE(nomUninit);
 
-  BOOL wpAddToContent(in WPObject Object);
-#endif
-
-  gulong wpQueryFldrFlags();
-  boolean wpSetFldrFlags(in gulong ulFlags, in gulong ulMask);
-
-  gulong wpAddToContent(in PWPObject wpObject, in string chrFileName);
-  PWPObject wpQueryContent();
-
-  NOMOVERRIDE(wpInitData);
-  NOMOVERRIDE(wpOpen);
-  NOMOVERRIDE(wpQueryIcon);
-  NOMOVERRIDE(wpQueryDefaultView);
-
-  NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData); /* This will go away... */
-  NOMINSTANCEVAR(PGTree fldrObjects);
-  NOMINSTANCEVAR(gulong ulFldrFlags);
+  /* Instance variables of this class. Theses are not
+     attributes. */
+  NOMINSTANCEVAR(PNOMString nomStringTitle);
 };
 
-#endif /* WPFOLDER_IDL_INCLUDED */
+#endif /* M_WPOBJECT_IDL_INCLUDED */
+
 
 
 

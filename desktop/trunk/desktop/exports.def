@@ -7,30 +7,30 @@ EXPORTS
 	_WPObjectClassData  
 	_WPObjectCClassData 
 	WPObjectNewClass    
-;	_M_WPObjectClassData
-;	_M_WPObjectCClassData
-;	M_WPObjectNewClass
+	_M_WPObjectClassData
+	_M_WPObjectCClassData
+	M_WPObjectNewClass
 
 	_WPFileSystemClassData
 	_WPFileSystemCClassData
 	WPFileSystemNewClass
-;	_M_WPFileSystemClassData
-;	_M_WPFileSystemCClassData
-;	M_WPFileSystemNewClass
+	_M_WPFileSystemClassData
+	_M_WPFileSystemCClassData
+	M_WPFileSystemNewClass
 
 	_WPFolderClassData
 	_WPFolderCClassData
 	WPFolderNewClass
-;	_M_WPFolderClassData
-;	_M_WPFolderCClassData
-;	M_WPFolderNewClass
+	_M_WPFolderClassData
+	_M_WPFolderCClassData
+	M_WPFolderNewClass
 
 	_WPDataFileClassData
 	_WPDataFileCClassData
 	WPDataFileNewClass
-;	_M_WPDataFileClassData
-;	_M_WPDataFileCClassData
-;	M_WPDataFileNewClass
+	_M_WPDataFileClassData
+	_M_WPDataFileCClassData
+	M_WPDataFileNewClass
 
 	_WPNoteBookClassData
 	_WPNoteBookCClassData

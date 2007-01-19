@@ -61,6 +61,8 @@ native PWPNoteBook;
 #include "wpnotebook.idl"
 #endif
 
+NOMMETACLASS("M_WPObject");
+
 interface WPObject : NOMObject
 {
   NOMCLASSVERSION(1, 0);

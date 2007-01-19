@@ -67,6 +67,7 @@ typedef struct _FLDRGTREEKEY
 #include "wpnotebook.h"
 #include "wpfolderwindow.h"
 #include "wpfolder.ih"
+#include "m_wpfolder.h"
 #include "wpdatafile.h"
 #include "desktop.h"
 #include "helper.h"
@@ -424,6 +425,10 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PWPFold
 
 NOM_Scope gpointer NOMLINK impl_WPFolder_wpQueryIcon(WPFolder* nomSelf, CORBA_Environment *ev)
 {
+
+  return M_WPFolder_wpclsQueryIcon( _nomGetClass((NOMObject*)nomSelf, NULLHANDLE), NULLHANDLE);
+
+#if 0
   static const gchar *gchrIconName=NULLHANDLE;
   static gpointer ptrIcon=NULLHANDLE;
   GError *error=NULL;
@@ -442,6 +447,7 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpQueryIcon(WPFolder* nomSelf, CORBA_En
   return ptrIcon;
 
   /*  WPFolder_wpQueryIcon_parent(nomSelf,  ev); */
+#endif
 }
 
 NOM_Scope gulong NOMLINK impl_WPFolder_wpQueryDefaultView(WPFolder* nomSelf, const pnomId pNameSpaceId,

@@ -31,53 +31,31 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
+#ifndef M_WPDATAFILE_IDL_INCLUDED
+#define M_WPDATAFILE_IDL_INCLUDED
 
-#ifndef WPFOLDER_IDL_INCLUDED
-#define WPFOLDER_IDL_INCLUDED
+#include <nomcls.idl>
 
-#include "nombase.idl"
+NOMCLASSNAME(M_WPDataFile);
 
-NOMCLASSNAME(WPFolder);
+#include "wpnativetypes.idl"
+#include "m_wpfilesystem.idl"
+#include "nomstring.idl"
 
-#include "wpfilesystem.idl"
-#include "nomfilepath.idl"
-
-/*NOMMETACLASS("M_WPFolder");*/
-const string METACLASS_TO_USE_51 = "M_WPFolder";
-
-interface WPFolder : WPFileSystem
+interface M_WPDataFile : M_WPFileSystem
 {
   NOMCLASSVERSION(1, 0);
 
-  boolean wpPopulate(in unsigned long ulReserved,
-                     in string pszPath,
-                     in boolean fFoldersOnly);
-  PWPFolderWindow wpCreateFolderWindow();
+  /* Methods overriden by this class */
+  NOMOVERRIDE(wpclsQueryTitle);
 
-#if 0
-  WPObject wpQueryContent(in WPObject Object,
-                          in ULONG ulOption);
-
-  BOOL wpAddToContent(in WPObject Object);
-#endif
-
-  gulong wpQueryFldrFlags();
-  boolean wpSetFldrFlags(in gulong ulFlags, in gulong ulMask);
-
-  gulong wpAddToContent(in PWPObject wpObject, in string chrFileName);
-  PWPObject wpQueryContent();
-
-  NOMOVERRIDE(wpInitData);
-  NOMOVERRIDE(wpOpen);
-  NOMOVERRIDE(wpQueryIcon);
-  NOMOVERRIDE(wpQueryDefaultView);
-
-  NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData); /* This will go away... */
-  NOMINSTANCEVAR(PGTree fldrObjects);
-  NOMINSTANCEVAR(gulong ulFldrFlags);
+  /* Instance variables of this class. Theses are not
+     attributes. */
+  NOMINSTANCEVAR(PNOMString nomStringTitle);
 };
 
-#endif /* WPFOLDER_IDL_INCLUDED */
+#endif /* M_WPDATAFILE_IDL_INCLUDED */
+
 
 
 
