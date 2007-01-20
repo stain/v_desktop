@@ -42,8 +42,7 @@ NOMCLASSNAME(WPFolder);
 #include "wpfilesystem.idl"
 #include "nomfilepath.idl"
 
-/*NOMMETACLASS("M_WPFolder");*/
-const string METACLASS_TO_USE_51 = "M_WPFolder";
+NOMMETACLASS(M_WPFolder);
 
 interface WPFolder : WPFileSystem
 {
