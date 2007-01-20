@@ -34,6 +34,11 @@
 /*
  * And remember, phase 3 is near...
  */
+#ifndef NOM_NOMNoteBook_IMPLEMENTATION_FILE
+#define NOM_NOMNoteBook_IMPLEMENTATION_FILE
+#endif
+
+#define INCL_DOS
 #include <os2.h>
 
 #include <nom.h>

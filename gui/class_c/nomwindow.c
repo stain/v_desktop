@@ -34,6 +34,10 @@
 /*
  * And remember, phase 3 is near...
  */
+#ifndef NOM_NOMWindow_IMPLEMENTATION_FILE
+#define NOM_NOMWindow_IMPLEMENTATION_FILE
+#endif
+
 #define INCL_DOS
 #define INCL_DOSERRORS
 #define INCL_DOSSEMAPHORES
