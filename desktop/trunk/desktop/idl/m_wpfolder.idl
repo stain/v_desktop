@@ -53,7 +53,7 @@ interface M_WPFolder : M_WPDataFile
 
   /* Instance variables of this class. Theses are not
      attributes. */
-  NOMINSTANCEVAR(PNOMString nomStringTitle);
+  NOMINSTANCEVAR(string nomStringTitle);
 };
 
 #endif /* M_WPFOLDER_IDL_INCLUDED */

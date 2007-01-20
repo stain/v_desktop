@@ -47,12 +47,14 @@ interface M_WPFileSystem : M_WPObject
 {
   NOMCLASSVERSION(1, 0);
 
+  string wpclsQueryInstanceFilter();
+
   /* Methods overriden by this class */
   NOMOVERRIDE(wpclsQueryTitle);
 
   /* Instance variables of this class. Theses are not
      attributes. */
-  NOMINSTANCEVAR(PNOMString nomStringTitle);
+  NOMINSTANCEVAR(string nomStringTitle);
 };
 
 #endif /* M_WPFILESYSTEM_IDL_INCLUDED */

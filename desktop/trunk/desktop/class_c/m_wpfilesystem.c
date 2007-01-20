@@ -34,6 +34,10 @@
 /*
  * And remember, phase 3 is near...
  */
+#ifndef NOM_M_WPFileSystem_IMPLEMENTATION_FILE
+#define NOM_M_WPFileSystem_IMPLEMENTATION_FILE
+#endif
+
 #define INCL_DOS
 #include <os2.h>
 
@@ -47,16 +51,22 @@
 
 #include "m_wpfilesystem.ih"
 
+NOM_Scope CORBA_string NOMLINK impl_M_WPFileSystem_wpclsQueryInstanceFilter(M_WPFileSystem* nomSelf,
+                                                                            CORBA_Environment *ev)
+{
+/* M_WPFileSystemData* nomThis=M_WPFileSystemGetData(nomSelf); */
+
+  return NULL;
+}
 
 /* orbit-idl-c-stubs.c, cs_output_stub line 347 */
-NOM_Scope PNOMString NOMLINK impl_M_WPFileSystem_wpclsQueryTitle(M_WPFileSystem* nomSelf, CORBA_Environment *ev)
+NOM_Scope CORBA_string NOMLINK impl_M_WPFileSystem_wpclsQueryTitle(M_WPFileSystem* nomSelf, CORBA_Environment *ev)
 {
   M_WPFileSystemData* nomThis=M_WPFileSystemGetData(nomSelf);
 
   if(!_nomStringTitle)
     {
-      _nomStringTitle=NOMStringNew();
-      NOMString_assignCString(_nomStringTitle, "File system", NULLHANDLE);
+      _nomStringTitle="FileSystem";
     }
 
   return _nomStringTitle;
