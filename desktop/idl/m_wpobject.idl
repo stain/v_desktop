@@ -48,7 +48,7 @@ interface M_WPObject : NOMClass
 
   gpointer wpclsQueryIcon();
   boolean wpclsSetIcon(in gpointer pNewIcon);
-  PNOMString wpclsQueryTitle();
+  string wpclsQueryTitle();
   void wpclsInitData();
   void wpclsUnInitData();
 
@@ -58,7 +58,7 @@ interface M_WPObject : NOMClass
 
   /* Instance variables of this class. Theses are not
      attributes. */
-  NOMINSTANCEVAR(PNOMString nomStringTitle);
+  NOMINSTANCEVAR(string nomStringTitle);
 };
 
 #endif /* M_WPOBJECT_IDL_INCLUDED */

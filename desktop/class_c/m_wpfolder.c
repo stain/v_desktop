@@ -34,6 +34,10 @@
 /*
  * And remember, phase 3 is near...
  */
+#ifndef NOM_M_WPFolder_IMPLEMENTATION_FILE
+#define NOM_M_WPFolder_IMPLEMENTATION_FILE
+#endif
+
 #define INCL_DOS
 #include <os2.h>
 
@@ -74,14 +78,13 @@ NOM_Scope gpointer NOMLINK impl_M_WPFolder_wpclsQueryIcon(M_WPFolder* nomSelf, C
 
 
 /* orbit-idl-c-stubs.c, cs_output_stub line 347 */
-NOM_Scope PNOMString NOMLINK impl_M_WPFolder_wpclsQueryTitle(M_WPFolder* nomSelf, CORBA_Environment *ev)
+NOM_Scope CORBA_string NOMLINK impl_M_WPFolder_wpclsQueryTitle(M_WPFolder* nomSelf, CORBA_Environment *ev)
 {
   M_WPFolderData* nomThis=M_WPFolderGetData(nomSelf);
 
   if(!_nomStringTitle)
     {
-      _nomStringTitle=NOMStringNew();
-      NOMString_assignCString(_nomStringTitle, "Data file ", NULLHANDLE);
+      _nomStringTitle="Folder";
     }
 
   return _nomStringTitle;

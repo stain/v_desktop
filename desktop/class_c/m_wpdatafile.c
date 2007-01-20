@@ -34,6 +34,10 @@
 /*
  * And remember, phase 3 is near...
  */
+#ifndef NOM_M_WPDataFile_IMPLEMENTATION_FILE
+#define NOM_M_WPDataFile_IMPLEMENTATION_FILE
+#endif
+
 #define INCL_DOS
 #include <os2.h>
 
@@ -49,14 +53,13 @@
 
 
 /* orbit-idl-c-stubs.c, cs_output_stub line 347 */
-NOM_Scope PNOMString NOMLINK impl_M_WPDataFile_wpclsQueryTitle(M_WPDataFile* nomSelf, CORBA_Environment *ev)
+NOM_Scope CORBA_string NOMLINK impl_M_WPDataFile_wpclsQueryTitle(M_WPDataFile* nomSelf, CORBA_Environment *ev)
 {
   M_WPDataFileData* nomThis=M_WPDataFileGetData(nomSelf);
 
   if(!_nomStringTitle)
     {
-      _nomStringTitle=NOMStringNew();
-      NOMString_assignCString(_nomStringTitle, "Data file ", NULLHANDLE);
+      _nomStringTitle="Data file ";
     }
 
   return _nomStringTitle;

@@ -34,6 +34,10 @@
 /*
  * And remember, phase 3 is near...
  */
+#ifndef NOM_M_WPObject_IMPLEMENTATION_FILE
+#define NOM_M_WPObject_IMPLEMENTATION_FILE
+#endif
+
 #define INCL_DOS
 #include <os2.h>
 
@@ -56,7 +60,7 @@ NOM_Scope gpointer NOMLINK impl_M_WPObject_wpclsQueryIcon(M_WPObject* nomSelf, C
   return pIconCls;
 }
 
-NOM_Scope PNOMString NOMLINK impl_M_WPObject_wpclsQueryTitle(M_WPObject* nomSelf, CORBA_Environment *ev)
+NOM_Scope CORBA_string NOMLINK impl_M_WPObject_wpclsQueryTitle(M_WPObject* nomSelf, CORBA_Environment *ev)
 {
   M_WPObjectData* nomThis=M_WPObjectGetData(nomSelf);
 
@@ -86,8 +90,7 @@ NOM_Scope void NOMLINK impl_M_WPObject_wpclsInitData(M_WPObject* nomSelf, CORBA_
       GError *error=NULL;
       gchar *gchrIconName=NULLHANDLE;
 
-      _nomStringTitle=NOMStringNew();
-      NOMString_assignCString(_nomStringTitle, "Object", NULLHANDLE);
+      _nomStringTitle="Object";
       
       /* Load default wpObject icon */
       if(!pIconCls){
