@@ -42,8 +42,9 @@ NOMCLASSNAME(WPFileSystem);
 #include "wpobject.idl"
 #include "nomfilepath.idl"
 
-interface WPFileSystem : WPObject
+NOMMETACLASS(M_WPFileSystem);
 
+interface WPFileSystem : WPObject
 {
   NOMCLASSVERSION(1, 0);
 

@@ -37,6 +37,7 @@
 
 #include "wpfilesystem.idl"
 
+NOMMETACLASS(M_WPDataFile);
 interface WPDataFile : WPFileSystem
 {
   NOMCLASSVERSION(1, 0);
