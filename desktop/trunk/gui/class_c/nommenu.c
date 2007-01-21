@@ -76,14 +76,12 @@ NOM_Scope void NOMLINK impl_NOMMenu_nomInit(NOMMenu* nomSelf, CORBA_Environment 
 
 
 /* orbit-idl-c-stubs.c, cs_output_stub line 347 */
-NOM_Scope void NOMLINK impl_NOMMenu_nomUninit(NOMMenu* nomSelf, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_NOMMenu_nomUnInit(NOMMenu* nomSelf, CORBA_Environment *ev)
 {
 /* NOMMenuData* nomThis=NOMMenuGetData(nomSelf); */
+  g_message("%s: empty method. Remove it!", __FUNCTION__);
 
-#if 0
-  /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 119 */
-  NOMMenu_nomUninit_parent(nomSelf,  ev);
-#endif
+  NOMMenu_nomUnInit_parent(nomSelf,  ev);
 }
 
 

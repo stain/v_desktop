@@ -54,7 +54,7 @@ interface M_WPObject : NOMClass
 
   /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);
-  NOMOVERRIDE(nomUninit);
+  NOMOVERRIDE(nomUnInit);
 
   /* Instance variables of this class. Theses are not
      attributes. */

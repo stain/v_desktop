@@ -121,13 +121,13 @@ NOM_Scope void NOMLINK impl_M_WPObject_nomInit(M_WPObject* nomSelf, CORBA_Enviro
 
 
 /* orbit-idl-c-stubs.c, cs_output_stub line 347 */
-NOM_Scope void NOMLINK impl_M_WPObject_nomUninit(M_WPObject* nomSelf, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_M_WPObject_nomUnInit(M_WPObject* nomSelf, CORBA_Environment *ev)
 {
 /* M_WPObjectData* nomThis=M_WPObjectGetData(nomSelf); */
 
   M_WPObject_wpclsUnInitData(nomSelf, NULLHANDLE);
 
-  M_WPObject_nomUninit_parent((NOMObject*)nomSelf,  ev);
+  M_WPObject_nomUnInit_parent((NOMObject*)nomSelf,  ev);
 }
 
 

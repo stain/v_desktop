@@ -57,7 +57,7 @@ static gpointer pIconCls=NULL;
 NOM_Scope gpointer NOMLINK impl_M_WPFolder_wpclsQueryIcon(M_WPFolder* nomSelf, CORBA_Environment *ev)
 {
 /* M_WPFolderData* nomThis=M_WPFolderGetData(nomSelf); */
-  g_message("-----------> %s" , __FUNCTION__);
+
   /* Load default  icon */
   if(!pIconCls){
     GError *error=NULL;

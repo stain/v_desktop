@@ -123,7 +123,7 @@ interface WPObject : NOMObject
 
   /* Methods overriden by this class */
   NOMOVERRIDE(nomInit);
-  NOMOVERRIDE(nomUninit);
+  NOMOVERRIDE(nomUnInit);
 
   /* Instancce variables of this class. Theses are not
      attributes. */

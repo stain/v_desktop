@@ -41,6 +41,9 @@
 #define INCL_DOS
 #include <os2.h>
 
+#include <nom.h>
+#include <nomtk.h>
+
 #include <string.h>
 #include <glib.h>
 
@@ -177,16 +180,14 @@ NOM_Scope void NOMLINK impl_NOMString_nomInit(NOMString* nomSelf, CORBA_Environm
   _gString=g_string_new("");
 }
 
-
-
-NOM_Scope void NOMLINK impl_NOMString_nomUninit(NOMString* nomSelf, CORBA_Environment *ev)
+#if 0
+NOM_Scope void NOMLINK impl_NOMString_nomUnInit(NOMString* nomSelf, CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
 
   /* Free GString including the C string data */
   g_string_free(_gString, TRUE);
 
-  NOMString_nomUninit_parent((NOMObject*)nomSelf,  ev);
-
+  NOMString_nomUnInit_parent((NOMObject*)nomSelf,  ev);
 }
-
+#endif
