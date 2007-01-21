@@ -53,7 +53,7 @@ interface NOMMenu : NOMObject
   PGtkWidget queryMenuHandle();
 
   NOMOVERRIDE(nomInit);
-  NOMOVERRIDE(nomUninit);
+  NOMOVERRIDE(nomUnInit);
 
   NOMINSTANCEVAR(PGtkWidget _pgMenuHandle);
 };

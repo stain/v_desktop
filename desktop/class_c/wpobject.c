@@ -134,7 +134,7 @@ NOM_Scope void NOMLINK impl_WPObject_nomInit(WPObject* nomSelf, CORBA_Environmen
   _wpInitData(nomSelf, ev);
 }
 
-NOM_Scope void NOMLINK impl_WPObject_nomUninit(WPObject* nomSelf, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_WPObject_nomUnInit(WPObject* nomSelf, CORBA_Environment *ev)
 {
   WPObjectData* nomThis=WPObjectGetData(nomSelf);
 
@@ -142,7 +142,7 @@ NOM_Scope void NOMLINK impl_WPObject_nomUninit(WPObject* nomSelf, CORBA_Environm
 
   //g_mutex_free(_gObjectMutex);
   DosCloseMutexSem(_gObjectMutex);
-  WPObject_nomUninit_parent((NOMObject*)nomSelf, ev);
+  WPObject_nomUnInit_parent((NOMObject*)nomSelf, ev);
 }
 
 NOM_Scope void NOMLINK impl_WPObject_wpInitData(WPObject* nomSelf, CORBA_Environment *ev)

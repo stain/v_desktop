@@ -41,6 +41,9 @@
 #define INCL_DOS
 #include <os2.h>
 
+#include <nom.h>
+#include <nomtk.h>
+
 #include <string.h>
 #include <glib.h>
 

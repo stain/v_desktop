@@ -60,7 +60,7 @@ interface NOMString : NOMObject
 
   /* Init and uninit the GString */
   NOMOVERRIDE(nomInit);
-  NOMOVERRIDE(nomUninit);
+
   /* The GString holding the data */
   NOMINSTANCEVAR(PGString gString);
 };
