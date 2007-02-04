@@ -89,45 +89,30 @@ NOM_Scope PNOMString NOMLINK impl_NOMString_appendCString(NOMString* nomSelf, co
                                                           CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
-  PNOMString nomRetval=(PNOMString) NOMString_new(nomSelf, NULLHANDLE);
-  GString* gStrTmp;
 
-  gStrTmp=g_string_new(_gString->str);
-  g_string_append(gStrTmp, chrString);
-  NOMString_assignCString(nomRetval, gStrTmp->str, NULLHANDLE);
-  g_string_free(gStrTmp, TRUE);
+  g_string_append(_gString, chrString);
 
-  return nomRetval;
+  return nomSelf;
 }
 
 NOM_Scope PNOMString NOMLINK impl_NOMString_append(NOMString* nomSelf, const PNOMString nomString,
                                                          CORBA_Environment *ev)
 {
-  /*  NOMStringData* nomThis=NOMStringGetData(nomSelf); */
-
   return NOMString_appendCString(nomSelf, NOMString_queryCString(nomString, NULLHANDLE), NULLHANDLE);
 }
 
 NOM_Scope PNOMString NOMLINK impl_NOMString_prepend(NOMString* nomSelf, const PNOMString nomString,
                                                           CORBA_Environment *ev)
 {
-/* NOMStringData* nomThis=NOMStringGetData(nomSelf); */
-
   return NOMString_prependCString(nomSelf, NOMString_queryCString(nomString, NULLHANDLE), NULLHANDLE);
 }
 
 NOM_Scope PNOMString NOMLINK impl_NOMString_prependCString(NOMString* nomSelf, const CORBA_char * chrString, CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
-  PNOMString nomRetval=(PNOMString)NOMString_new(nomSelf, NULLHANDLE);
-  GString* gStrTmp;
+  g_string_prepend(_gString, chrString);
 
-  gStrTmp=g_string_new(_gString->str);
-  g_string_prepend(gStrTmp, chrString);
-  NOMString_assignCString(nomRetval, gStrTmp->str, NULLHANDLE);
-  g_string_free(gStrTmp, TRUE);
-
-  return nomRetval;
+  return nomSelf;
 }
 
 NOM_Scope CORBA_unsigned_long NOMLINK impl_NOMString_length(NOMString* nomSelf, CORBA_Environment *ev)
@@ -141,15 +126,10 @@ NOM_Scope PNOMString NOMLINK impl_NOMString_truncate(NOMString* nomSelf, const C
                                                            CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
-  PNOMString nomRetval=(PNOMString)NOMString_new(nomSelf, NULLHANDLE);
-  GString* gStrTmp;
 
-  gStrTmp=g_string_new(_gString->str);
-  g_string_truncate(gStrTmp, ulNewLen);
-  NOMString_assignCString(nomRetval, gStrTmp->str, NULLHANDLE);
-  g_string_free(gStrTmp, TRUE);
+  g_string_truncate(_gString, ulNewLen);
 
-  return nomRetval;
+  return nomSelf;
 }
 
 NOM_Scope PNOMString NOMLINK impl_NOMString_copy(NOMString* nomSelf, CORBA_Environment *ev)
