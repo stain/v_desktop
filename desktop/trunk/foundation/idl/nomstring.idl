@@ -40,28 +40,142 @@
 
 NOMCLASSNAME(NOMString);
 
+/** \class NOMString
+    The NOMString class is used for strings which automatically grow or shrink.
+    Methods are provided for common tasks when dealing with strings like inserting or
+    appending strings. A string object never can be empty. It always is a string which may have a length of zero.
+    These methods are threadsafe by always working with copies.
+
+    Note that you don't have to delete a NOMString object. This is done by the garbage collector. Deleting
+    it doesn't hurt, though.
+ */
 interface NOMString : NOMObject
 {
+  /**
+     The current version of this class is 1.0
+   */
   NOMCLASSVERSION(1, 0);
 
+  /**
+     Assign a string to this NOMString. An initially created NOMString object is empty.
+     This method can be used to assign some value to it.
+
+     \remark
+     This method does not work on a copy. So by assigning a value to the NOMString the
+     old contents is lost. This may have sideeffects in multithreaded environments if used without care.
+
+     \sa assignCString()
+   */
   PNOMString assign(in PNOMString nomString);   
-  /* Assign a C string to this NOMString */
+
+  /**
+     Assign a C string to this NOMString. An initially created NOMString object is empty.
+     This method can be used to assign some value to it.
+
+     \remark
+     This method does not work on a copy. So by assigning a value to the NOMString the old contents
+     is lost. This may have sideeffects in multithreaded environments if used without care.
+
+     \sa assign()
+  */
   PNOMString assignCString(in string chrString);   
-  /* Returns the C string held by this NOMString*/
+
+  /**
+     Returns the C string holding the info inside the string object. Use with care. 
+     In most cases you rather want to use copyCString() instead.
+
+     \return The C string representing the contents of the string object.
+
+     \sa copyCString()
+  */
   string queryCString();
-  PNOMString append(in PNOMString nomString);   
+
+  /**
+     Add the NOMString nomString to the end of the string object. 
+
+     \param nomString A NOMString object to be put at the end of the string.
+     \return     
+     The returned NOMString object is a new object which is owned by the caller.
+
+     \sa appendCString(), prepend()
+   */
+  PNOMString append(in PNOMString nomString);
+
+  /**
+     Prepend the NOMString \e nomString to the given string object and return a pointer to a
+     new string object.
+
+     \param nomString A NOMString object to be put in front of the string.
+     \return
+     The returned NOMString object is a new object which is owned by the caller.
+
+     \sa prependCString()
+   */   
   PNOMString prepend(in PNOMString nomString);
-  PNOMString appendCString(in string chrString);   
+
+  /**
+     Append the given C string to the end of the string held by the NOMString object.
+
+     \param chrString A null terminated string.
+     \return
+     The NOMString object is a new object which is owned by the caller.
+
+     \sa append(), prependCString()
+   */
+  PNOMString appendCString(in string chrString);
+
+  /**
+     Prepend the C string to the string object.
+
+     \param chrString A null terminated string.
+     \return
+     The NOMString object is a new object which is owned by the caller.
+
+     \sa appendCString(), prepend()
+   */
   PNOMString prependCString(in string chrString);
+
+  /**
+     \return Returns the length of the string in characters.
+   */
   unsigned long length();
+
+  /**
+     Cuts off the end of a string leaving the first ulNewLen characters.
+
+     \return
+     The returned NOMString object is a new object holding the truncated string
+     which is owned by the caller. 
+  */
   PNOMString truncate(in unsigned long ulNewLen);
+
+  /**
+     Create a copy of the NOMString object this method is called on. The caller
+     owns the new NOMString object.
+
+     \return A new NOMString object
+
+     \sa copyCString()
+  */
   PNOMString copy();
+
+  /**
+     Returns a copy of the C string holding the info inside the string object.
+
+     \return
+     The returned C string is owned by the caller.
+
+     \sa copy()
+   */
   string copyCString();
 
-  /* Init and uninit the GString */
+  /**
+     Override of nomInit() to initialize the GString */
   NOMOVERRIDE(nomInit);
 
-  /* The GString holding the data */
+  /**
+     The GString holding the data
+  */
   NOMINSTANCEVAR(PGString gString);
 };
 

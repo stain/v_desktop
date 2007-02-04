@@ -8,6 +8,7 @@ include ./../make.inc
 DLLNAME		=	voyfcls
 OBJDIR		=	./../../../o
 BINDIR		=	./../../../bin
+DOCDIR		=	./../../../docs
 CDIR		=	./src
 
 CLASSCDIR	=	./class_c
@@ -34,6 +35,8 @@ CLASSOBJECTS	=	$(OBJDIR)/nomstring.o \
 
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c
+
+.PHONY:		dox
 
 all:	$(BINDIR)/$(DLLNAME).dll
 
@@ -83,6 +86,10 @@ $(OBJDIR)/o.dep:
 	echo > $(OBJDIR)/o.dep
 	mkdir -p $(BINDIR)
 	mkdir -p $(CLASSTEMPLATEDIR)
+	mkdir -p $(DOCDIR)
+
+dox:
+	cd ./dox && doxygen foundation.dox
 
 clean:
 	-cd $(OBJDIR) && rm -f *.o

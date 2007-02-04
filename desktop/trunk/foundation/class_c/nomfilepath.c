@@ -48,7 +48,8 @@
 #include <glib.h>
 
 #include "nomfilepath.ih"
-/*
+
+/**
   Append a path to the string. A path separator will be added to the current path if necessary and the
   given string appended. If the given string starts with a separator no additional separator will be 
   added to the path prior to appending. If the given string starts with a separator and the current
@@ -80,7 +81,7 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendPath(NOMPath* nomSelf, const PNOMP
   return (NOMPath*) NOMPath_append((NOMString*) np, (NOMString*)nomPath, NULLHANDLE);
 }
 
-/*
+/**
   Append a separator to the path. If the path already has a separator at the end this method does
   nothing other than returning a new path object. If the given path has zero length a path object
   only holding a separator is returned.
@@ -101,7 +102,7 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendSeparator(NOMPath* nomSelf, CORBA_
   return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
 }
 
-/*
+/**
   Strips the path separator from the end of a path if there's one.
 
   This method always returns a new instance of a NOMPath owned by the caller.
@@ -122,7 +123,7 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_stripSeparator(NOMPath* nomSelf, CORBA_E
   return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
 }
 
-/*
+/**
   Returns TRUE if the given path is absolute.
   On OS/2 this means it starts with a letter followed by a colon.
 */
@@ -166,7 +167,7 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_queryRoot(NOMPath* nomSelf, CORBA_Enviro
   return (PNOMPath) NOMPath_assignCString(nomRetval, os2Root, NULLHANDLE);
 }
 
-/*
+/**
   This method strips all characters from the beginning of a path till the first
   directory separator and also this first separator. If there's no separator in
   the path a zero length path is returned.
@@ -190,7 +191,7 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_erasePathBegin(NOMPath* nomSelf, CORBA_E
   return (PNOMPath)NOMPath_assignCString(nomRetval, chrTemp, NULLHANDLE);
 }
 
-/*
+/**
   Returns the part of the path up to the first directory separator ('\' on OS/2).
   If there's no directory separator the whole path is returned. This method does
   not remove the part from the given path. Use erasePathBegin() to do that.
