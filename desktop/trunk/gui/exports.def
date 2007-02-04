@@ -8,9 +8,9 @@ EXPORTS
 	_NOMWindowCClassData 
 	NOMWindowNewClass    
 
-	_NOMFolderWindowClassData  
-	_NOMFolderWindowCClassData 
-	NOMFolderWindowNewClass    
+;	_NOMFolderWindowClassData  
+;	_NOMFolderWindowCClassData 
+;	NOMFolderWindowNewClass    
 
 	_NOMMenuClassData  
 	_NOMMenuCClassData 
