@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2006
+* Portions created by the Initial Developer are Copyright (C) 2006-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -54,6 +54,7 @@
   given string appended. If the given string starts with a separator no additional separator will be 
   added to the path prior to appending. If the given string starts with a separator and the current
   path ends with a separator the ending separator will be removed before appending.
+  If no input path is given only a separator is appended if necessary.
 
   Note that there's no check if the input string is an absolute path. So if an absolute path is given as
   input the resulting path may not be valid.
@@ -71,19 +72,19 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendPath(NOMPath* nomSelf, const PNOMP
   if(0==NOMPath_length((NOMString*)nomPath, ev))
     return NOMPath_appendSeparator(nomSelf, ev);
 
+  /* This is not a copy */
   chrTemp=NOMPath_queryCString(nomPath, NULLHANDLE);
   if(G_DIR_SEPARATOR==chrTemp[0])
     np=NOMPath_stripSeparator(nomSelf, ev);
-  else{
+  else
     np=NOMPath_appendSeparator(nomSelf, ev); /* Make sure current path has a separator */
-  }
 
   return (NOMPath*) NOMPath_append((NOMString*) np, (NOMString*)nomPath, NULLHANDLE);
 }
 
 /**
   Append a separator to the path. If the path already has a separator at the end this method does
-  nothing other than returning a new path object. If the given path has zero length a path object
+  nothing other than returning the path object. If the given path has zero length the path object
   only holding a separator is returned.
  
   This method always returns a new instance of a NOMPath owned by the caller.
@@ -93,19 +94,21 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendSeparator(NOMPath* nomSelf, CORBA_
   gchar*  chrTemp;
   gulong len;
 
+  /* Return only a separator */
   if((len=NOMPath_length((NOMString*)nomSelf, ev))==0)
     return (NOMPath*)NOMPath_appendCString((NOMString*)nomSelf, G_DIR_SEPARATOR_S, ev);
 
+  /* Add a separator */
   if(G_DIR_SEPARATOR!=chrTemp[len-1])
     return (NOMPath*)NOMPath_appendCString( (NOMString*)nomSelf, G_DIR_SEPARATOR_S, ev);
 
-  return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
+  return nomSelf;
 }
 
 /**
   Strips the path separator from the end of a path if there's one.
 
-  This method always returns a new instance of a NOMPath owned by the caller.
+  This method returns the same instance of a NOMPath.
  */
 NOM_Scope PNOMPath NOMLINK impl_NOMPath_stripSeparator(NOMPath* nomSelf, CORBA_Environment *ev)
 {
@@ -113,14 +116,15 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_stripSeparator(NOMPath* nomSelf, CORBA_E
   gulong len;
 
   if((len=NOMPath_length((NOMString*)nomSelf, NULLHANDLE))==0)
-    return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
+    return nomSelf;
 
+  /* This is not a copy */
   chrTemp=NOMPath_queryCString((NOMString*)nomSelf, NULLHANDLE);
 
   if(chrTemp[len-1]==G_DIR_SEPARATOR)
     return (NOMPath*)NOMPath_truncate( (NOMString*)nomSelf, len-1, NULLHANDLE);
 
-  return (PNOMPath)NOMPath_copy(nomSelf, NULLHANDLE);
+  return nomSelf;
 }
 
 /**

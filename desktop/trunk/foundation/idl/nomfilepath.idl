@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -42,7 +42,6 @@ NOMCLASSNAME(NOMPath);
 
 /** \class NOMPath
     NOMPath is a specialized string class for dealing with file or directory paths.
-    As with NOMString the NOMPath class is always working on copies.
  */
 interface NOMPath : NOMString
 {
@@ -57,13 +56,14 @@ interface NOMPath : NOMString
      no additional separator will be added to the path prior to appending. If the given string
      starts with a separator and the current path ends with a separator the ending separator
      will be removed before appending.
+     If no input path is given only a separator is appended if necessary.
 
      \remark
      Note that there's no check if the input string is an absolute path. So if an absolute path
      is given as input the resulting path may not be valid.
 
      \return
-     The method returns a new NOMPath instance after appending.
+     The method returns the same NOMPath instance after appending.
 
      \sa append(), appendCString()
    */
@@ -71,11 +71,14 @@ interface NOMPath : NOMString
 
   /**
      Append a separator to the path. If the path already has a separator at the end this method
-     does nothing other than returning a new path object. If the given path has zero length
-     a path object only holding a separator is returned.
+     does nothing other than returning the path object. If the given path has zero length
+     the path object only holding a separator is returned.
+
+     \remark The returned string object is not newly allocated. Be aware that the string data
+     held by the object may. 
 
      \return
-     This method always returns a new instance of a NOMPath owned by the caller.
+     This method returns the NOMPath. This is not a copy. 
 
      \sa append(), appendPath()
    */
@@ -85,7 +88,7 @@ interface NOMPath : NOMString
      Strips the path separator from the end of a path if there's one.
 
      \return
-     This method always returns a new instance of a NOMPath owned by the caller.
+     This method returns the same instance of a NOMPath.
 
      \sa appendSeparator()
    */

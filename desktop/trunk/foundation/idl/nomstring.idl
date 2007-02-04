@@ -44,7 +44,6 @@ NOMCLASSNAME(NOMString);
     The NOMString class is used for strings which automatically grow or shrink.
     Methods are provided for common tasks when dealing with strings like inserting or
     appending strings. A string object never can be empty. It always is a string which may have a length of zero.
-    These methods are threadsafe by always working with copies.
 
     Note that you don't have to delete a NOMString object. This is done by the garbage collector. Deleting
     it doesn't hurt, though.
@@ -84,7 +83,7 @@ interface NOMString : NOMObject
      Returns the C string holding the info inside the string object. Use with care. 
      In most cases you rather want to use copyCString() instead.
 
-     \return The C string representing the contents of the string object.
+     \return The C string representing the contents of the string object. This is not a copy. 
 
      \sa copyCString()
   */
@@ -93,21 +92,27 @@ interface NOMString : NOMObject
   /**
      Add the NOMString nomString to the end of the string object. 
 
+     \remark The returned string object is not newly allocated. Be aware that the string data
+     held by the object is. 
+
      \param nomString A NOMString object to be put at the end of the string.
      \return     
-     The returned NOMString object is a new object which is owned by the caller.
+     Modified NOMString object with the given string object appended. This is not a copy. 
 
      \sa appendCString(), prepend()
    */
   PNOMString append(in PNOMString nomString);
 
   /**
-     Prepend the NOMString \e nomString to the given string object and return a pointer to a
-     new string object.
+     Prepend the NOMString \e nomString to the given string object and return the modified
+     NOMString.
+
+     \remark The returned string object is not newly allocated. Be aware that the string data
+     held by the object is. 
 
      \param nomString A NOMString object to be put in front of the string.
      \return
-     The returned NOMString object is a new object which is owned by the caller.
+     NOMString object with the string prepended. This is not a copy. 
 
      \sa prependCString()
    */   
@@ -116,9 +121,12 @@ interface NOMString : NOMObject
   /**
      Append the given C string to the end of the string held by the NOMString object.
 
+     \remark The returned string object is not newly allocated. Be aware that the string data
+     held by the object is. 
+
      \param chrString A null terminated string.
      \return
-     The NOMString object is a new object which is owned by the caller.
+     Modified NOMString object with the C string appended. This is not a copy. 
 
      \sa append(), prependCString()
    */
@@ -127,9 +135,12 @@ interface NOMString : NOMObject
   /**
      Prepend the C string to the string object.
 
+     \remark The returned string object is not newly allocated. Be aware that the string data
+     held by the object is. 
+
      \param chrString A null terminated string.
      \return
-     The NOMString object is a new object which is owned by the caller.
+     Modified NOMString object with the C string prepended.  This is not a copy.
 
      \sa appendCString(), prepend()
    */
@@ -143,9 +154,11 @@ interface NOMString : NOMObject
   /**
      Cuts off the end of a string leaving the first ulNewLen characters.
 
+     \remark The returned string object is not newly allocated. Be aware that the string data
+     held by the object is. 
+
      \return
-     The returned NOMString object is a new object holding the truncated string
-     which is owned by the caller. 
+     Truncated NOMString object. This is not a copy. 
   */
   PNOMString truncate(in unsigned long ulNewLen);
 
