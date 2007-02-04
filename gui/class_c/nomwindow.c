@@ -86,3 +86,13 @@ NOM_Scope void NOMLINK impl_NOMWindow_present(NOMWindow* nomSelf, CORBA_Environm
   gtk_window_present(GTK_WINDOW(NOMWindow_queryWindowHandle(nomSelf, ev)));
 }
 
+
+
+
+
+
+
+
+
+
+

@@ -45,16 +45,64 @@ native PGtkWidget;
 
 NOMCLASSNAME(NOMWindow);
 
+/** \class NOMWindow
+    This class represents a toplevel window.
+*/
 interface NOMWindow : NOMObject
 {
+  /**
+     Current class version is 1.0
+   */
   NOMCLASSVERSION(1, 0);
 
+  /**
+     Query the window handle from the instance data. This is the handle of the toplevel window,
+     not a child window handle.
+
+     \return Toplevel window handle.
+
+     \sa setWindowHandle.
+   */
   PGtkWidget queryWindowHandle();   
+
+  /**
+     Saves the toplevel window handle in the instance data.
+
+     \remark
+     When overriding don't save any child window handle using this method. It's only
+     for toplevel windows.
+
+     \param pgWidget Handle of a toplevel GTK window.
+
+     \sa queryWindowHandle()
+  */
   void setWindowHandle(in PGtkWidget pgWidget);   
+
+  /**
+     Shows a hidden window.
+
+     \sa present()
+   */
   void show();
+
+  /**
+     Hides the window.
+
+     \sa show()
+   */
   void hide();
+
+  /**
+     Brings a window to the front if covered by other windows. If the window
+     is iconofied it will be deiconofied and brought to the foreground.
+
+     \sa show()
+  */
   void present();
 
+  /**
+     Private variable holding the GtkWidget pointer.
+   */
   NOMINSTANCEVAR(PGtkWidget _pgWindowHandle);
 };
 

@@ -8,6 +8,8 @@ include ./../make.inc
 DLLNAME		=	voyguitk
 OBJDIR		=	./../../../o
 BINDIR		=	./../../../bin
+DOCDIR		=	./../../../docs
+
 CDIR		=	./src
 
 CLASSCDIR	=	./class_c
@@ -31,13 +33,15 @@ ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
 
 
 CLASSOBJECTS	=	$(OBJDIR)/nomwindow.o \
-			$(OBJDIR)/nomfolderwindow.o \
 			$(OBJDIR)/nommenu.o \
 			$(OBJDIR)/nommenuitem.o \
 			$(OBJDIR)/nomnotebook.o
+#			$(OBJDIR)/nomfolderwindow.o \
 
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c
+
+.PHONY:		dox
 
 all:	$(BINDIR)/$(DLLNAME).dll
 
@@ -87,6 +91,10 @@ $(OBJDIR)/o.dep:
 	echo > $(OBJDIR)/o.dep
 	mkdir -p $(BINDIR)
 	mkdir -p $(CLASSTEMPLATEDIR)
+	mkdir -p $(DOCDIR)
+
+dox:
+	cd ./dox && doxygen gui.dox
 
 clean:
 	-cd $(OBJDIR) && rm -f *.o
