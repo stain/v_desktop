@@ -68,6 +68,9 @@ static nomId WPObjectNomId;
 
 /***************************************************************/
 
+/**
+   \brief Function which implements the wpAllocMem() method of WPObject.
+ */
 NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const gulong cbBytes,
                                                     gulong* prc, CORBA_Environment *ev)
 {
@@ -98,6 +101,9 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpAllocMem(WPObject* nomSelf, const gul
   return (gpointer)((PBYTE)ptrMem+sizeof(USEITEM)+sizeof(MEMORYITEM));    
 }
 
+/**
+   \brief Function which implements the wpFreeMem() method of WPObject.
+ */
 NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpFreeMem(WPObject* nomSelf, const gpointer pByte, CORBA_Environment *ev)
 {
   gpointer ptrMem=NULLHANDLE;
@@ -114,6 +120,9 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpFreeMem(WPObject* nomSelf, const
   return TRUE; /* free can't fail */;
 }
 
+/**
+   \brief Override of nomInit() from NOMObject.
+ */
 NOM_Scope void NOMLINK impl_WPObject_nomInit(WPObject* nomSelf, CORBA_Environment *ev)
 {
   WPObjectData* nomThis=WPObjectGetData(nomSelf);
@@ -145,6 +154,9 @@ NOM_Scope void NOMLINK impl_WPObject_nomUnInit(WPObject* nomSelf, CORBA_Environm
   WPObject_nomUnInit_parent((NOMObject*)nomSelf, ev);
 }
 
+/**
+   \brief Function which implements the wpInitData() method of WPObject.
+ */
 NOM_Scope void NOMLINK impl_WPObject_wpInitData(WPObject* nomSelf, CORBA_Environment *ev)
 {
   WPObjectData* nomThis=WPObjectGetData(nomSelf);
@@ -158,6 +170,9 @@ NOM_Scope void NOMLINK impl_WPObject_wpInitData(WPObject* nomSelf, CORBA_Environ
   _pnomStringTitle=NOMStringNew();
 }
 
+/**
+   \brief Function which implements the wpUnInitData() method of WPObject.
+ */
 NOM_Scope void NOMLINK impl_WPObject_wpUnInitData(WPObject* nomSelf, CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
@@ -188,6 +203,9 @@ gboolean defaultWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, 
   return FALSE; /* Let other handlers run */
 }
 
+/**
+   \brief Function which implements the wpOpen() method of WPObject.
+ */
 NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PWPFolderWindow nomFolder,
                                                 const gulong ulView, const nomId nameSpaceId,
                                                 const gpointer pParam, CORBA_Environment *ev)
@@ -249,6 +267,9 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PWPFold
   return NULLHANDLE;
 }
 
+/**
+   \brief Function which implements the wpViewObject() method of WPObject.
+ */
 NOM_Scope gpointer NOMLINK impl_WPObject_wpViewObject(WPObject* nomSelf, const PWPFolderWindow nomFolder,
                                                       const gulong ulView, const nomId nameSpaceId,
                                                       const gpointer pParam, CORBA_Environment *ev)
@@ -271,6 +292,9 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpViewObject(WPObject* nomSelf, const P
   return WPObject_wpOpen(nomSelf, nomFolder, ulV, nSpaceId, pParam, NULLHANDLE);
 }
 
+/**
+   \brief Function which implements the wpSwitchTo() method of WPObject.
+ */
 NOM_Scope gpointer NOMLINK impl_WPObject_wpSwitchTo(WPObject* nomSelf, const gulong ulView, const nomId nameSpaceId,
                                                     CORBA_Environment *ev)
 {
@@ -288,6 +312,9 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpSwitchTo(WPObject* nomSelf, const gul
   return NULLHANDLE;
 }
 
+/**
+   \brief Function which implements the wpRegisterView() method of WPObject.
+ */
 NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpRegisterView(WPObject* nomSelf, const PNOMWindow pWindow,
                                                              const PNOMString nomStrViewTitle, CORBA_Environment *ev)
 {
@@ -297,6 +324,9 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpRegisterView(WPObject* nomSelf, 
   return FALSE;
 }
 
+/**
+   \brief Function which implements the wpAddToObjUseList() method of WPObject.
+ */
 NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpAddToObjUseList(WPObject* nomSelf, const PUSEITEM pUseItem,
                                                                 CORBA_Environment *ev)
 {
@@ -316,6 +346,9 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpAddToObjUseList(WPObject* nomSel
   return TRUE;
 }
 
+/**
+   \brief Function which implements the wpDeleteFromObjUseList() method of WPObject.
+ */
 NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpDeleteFromObjUseList(WPObject* nomSelf, const PUSEITEM pUseItem,
                                                                      CORBA_Environment *ev)
 {

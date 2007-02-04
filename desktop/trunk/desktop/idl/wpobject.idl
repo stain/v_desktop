@@ -68,16 +68,126 @@ interface WPObject : NOMObject
   NOMCLASSVERSION(1, 0);
 
   /* Memory allocation */
+  /**
+     Allocate a block of \e cbBytes length. The storage area
+     is tracked in the objects inuse list.
+
+     \par How to override
+     This method is usually not overriden.
+
+     \param cbBytes Number of bytes to allocate.
+     \param prc Pointer to a gulong which will hold an error code if the method fails.
+     \return A pointer to the block of memory
+
+     \sa wpFreeMem()
+   */
   gpointer wpAllocMem(in gulong cbBytes,
                       in pgulong prc);
+  /**
+     Free a block of memory. The method removes the memory block from the objects inuse
+     list. Because NOM uses a garbage collector the memory isn't freed instantly but
+     will be collected later.
+
+     \par How to override
+     This method is usually not overriden.
+
+     \param pByte Block of memory to be freed.
+     \return TRUE if successful.
+
+     \sa wpAllocMem()
+   */
   boolean  wpFreeMem(in gpointer pByte);
+
+  /**
+     Method to be overriden by objects when they need to do some setup.
+
+     \remark Desktop classes should override this method instead of nomInit().
+
+     \par How to override
+     This method should be overriden by classes which need initialization. The parent
+     must be called first.
+
+     \sa wpUnInitData()
+   */
   void     wpInitData();
+
+  /**
+     Method to be overriden by objects when they need to do some unititialization work.
+
+     \remark Desktop classes should override this method instead of nomUnInit().
+
+     \par How to override
+     This method should be overriden by classes which need uninitialization. The parent must
+     be called last.
+
+     \sa wpInitData()
+   */
   void     wpUnInitData();
+
+  /**
+     This method always opens a new view of an object. The concurrent view setting is not
+     taken into account. wpViewObject() should be called most of the time.
+
+     \par How to override
+     Desktop objects override this method when they have a private view.
+
+     \param nomFolder The folder view (window) containing the object. Note that an object may
+     live in different folder windows at the same time.
+     \param ulView The view to be opened.
+     \param nameSpaceId See menu handling for more information.
+     \param pParam Reserved and must be set to NULL.
+     \return A pointer to the view.
+
+     \sa wpViewObject()
+  */
   gpointer wpOpen(in PWPFolderWindow nomFolder, in gulong ulView, in nomId nameSpaceId, in gpointer pParam);
+
+  /**
+     Increase the use counter of the object.
+
+     \remark The increment operation on the internal counter is an atomic operation but be aware
+     that the method call itself is not.
+
+     \par How to override
+     This method is usually not overriden.
+
+     \sa wpObjectIsLocked(), wpUnlockObject()
+   */
   void     wpLockObject();
+
+  /**
+     Decrease the use counter of the object.
+
+     \remark When the use counter of an object reaches 0 the object will be destroyed.
+     The decrement operation on the internal counter is an atomic operation but be aware
+     that the method call itself is not.
+
+     \par How to override
+     This method is usually not overriden.
+
+     \sa wpObjectIsLocked(), wpLockObject()
+   */
   boolean  wpUnlockObject();
+
+  /**
+     Query if the object is in use.
+
+     \remark This method reflects the state of the object at the time of the call. Note that
+     in a multithreaded environment other threads may alter the use counter at any time.
+
+     \par How to override
+     This method is usually not overriden.
+
+     \return TRUE if the objects use counter is greater than 0. This means the object is still in use.
+
+     \sa wpLockObject(), wpUnlockObject()
+   */
   boolean  wpObjectIsLocked();
   gpointer wpQueryIcon();
+
+  /**
+
+   */
   unsigned long  wpRequestObjectMutexSem(in unsigned long ulReserved);
   unsigned long  wpReleaseObjectMutexSem();
 
@@ -97,20 +207,95 @@ interface WPObject : NOMObject
   unsigned long wpInsertSettingsPage(in PWPNoteBook wpNoteBook, in gpointer ppageinfo);
   unsigned long wpAddObjectGeneralPage(in PWPNoteBook wpNoteBook);
 
+  /**
+     This method either resurfaces an existing view or creates a new view according to the
+     objects concurrent view setting.
+
+     If concurrent view is set to \e No the objects inuse list is searched for an existing
+     view of the kind being requested. If found the view is brought to the front. If concurrent
+     view setting is \e yes or no view can be found wpOpen() is called to create a new view.
+
+     \remark This method should be use in preference to the wpOpen() method.
+
+     \par How to override
+     This method is usually not overriden.
+
+     \param nomFolder The folder view (window) containing the object. Note that an object may
+     live in different folder windows at the same time.
+     \param ulView The view to be opened.
+     \param nameSpaceId See menu handling for more information.
+     \param pParam Reserved and must be set to NULL.
+     \return A pointer to the view.
+
+     \sa wpOpen(), wpSwitchTo()
+   */
   gpointer wpViewObject(in PWPFolderWindow nomFolder, in gulong ulView, in nomId nameSpaceId, in gpointer pParam);
+
+  /**
+     Search the objects inuse list for the given view and if found bring it to the front.
+
+     \par How to override
+     This method is usually not overriden.
+
+     \param ulView The view to be opened.
+     \param nameSpaceId See menu handling for more information.
+     \return A pointer to the view or NULL if no view exists.
+
+     \sa wpViewObject()
+   */
   gpointer wpSwitchTo(in gulong ulView, in nomId nameSpaceId);
   boolean wpRegisterView(in PNOMWindow pWindow, in PNOMString nomStrViewTitle);
 
-  /* Inuse list methods */
+  /* ---- Inuse list methods ---- */
+
+  /**
+     Register an inuse item in the objects inuse list. Inuse items may describe blocks of
+     memory used by the object, open views and some more.
+
+     \How to override
+     This method is usually not overriden.
+
+     \param
+     \return TRUE if success.
+
+     \sa wpDeleteFromObjUseList(), wpFindUseItem(), wpFindViewItem()
+   */
   boolean   wpAddToObjUseList(in PUSEITEM pUseItem);
+
+  /**
+     Remove an inuse item from the objects inuse list. Inuse items may describe blocks of
+     memory used by the object, open views and some more.
+
+     \remark The use item will not be freed by this method.
+
+     \par How to override
+     This method is usually not overriden.
+
+     \param pUseItem Use item to be removed from the objects inuse list.
+     \return TRUE if success.
+
+     \sa wpAddToObjUseList(), wpFindUseItem(), wpFindViewItem()
+  */
   boolean   wpDeleteFromObjUseList(in PUSEITEM pUseItem);
+
+  /**
+     \sa wpAddToObjUseList(), wpDeleteFromObjUseList(), wpFindViewItem()
+   */
   PUSEITEM  wpFindUseItem( in gulong ulType, in PUSEITEM pCurrentUseItem);
-  PVIEWITEM wpFindViewItem(in gulong ulView, in nomId nameSpaceId, in PVIEWITEM pCurrentItem);
+  PVIEWITEM wpFindViewItem( in gulong ulView, in nomId nameSpaceId, in PVIEWITEM pCurrentItem);
 
   boolean wpSaveDeferred();
   boolean wpSaveImmediate();
 
   void wpSetFolder(in PWPFolder wpParentFolder);
+
+  /**
+     Get the folder this object is living in.
+
+     \return Folder object. Note that this is not a folder view (window)
+
+     \sa wpSetFolder()
+   */
   PWPFolder wpQueryFolder();
 
   void wpSetTitleFromCString(in string chrNewTitle);
@@ -122,12 +307,41 @@ interface WPObject : NOMObject
   gulong wpQueryConcurrentView();
 
   /* Methods overriden by this class */
+
+  /**
+     Override of nomInit(). The object semaphore for serializing access to 
+     objects data is created here. After setting it up wpInitData() is called.
+     This method should be overriden by desktop classes instead of nomInit().
+   */
   NOMOVERRIDE(nomInit);
+
+  /**
+     Override of nomUnInit(). First wpUnitData() is called on the object. Note
+     that desktop classes should override wpUnInitData() instead of nomUnInit.
+
+     After destroying the object semaphor nomUnInit() is called.
+
+     \remark This override will put any desktop object on the list of objects with
+     finalizers.
+   */
   NOMOVERRIDE(nomUnInit);
 
   /* Instancce variables of this class. Theses are not
      attributes. */
+  /**
+     Object lock counter instance variable. This variable is private and can't be accessed
+     from the outside.
+
+     \sa wpObjectIsLocked(), wpLockObject(), wpUnlockObject()
+   */
   NOMINSTANCEVAR(gint iLockCounter);
+
+  /**
+     Object semaphor. This variable is private and can't be accessed
+     from the outside.
+
+     \sa wpRequestObjectMutexSem(), wpReleaseObjectMutexSem()
+   */
   NOMINSTANCEVAR(HMUX gObjectMutex);
   NOMINSTANCEVAR(PGSList glstObjectInUse);
   NOMINSTANCEVAR(PNOMString pnomStringTitle);
