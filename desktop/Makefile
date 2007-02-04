@@ -8,6 +8,7 @@ include ./../make.inc
 
 OBJDIR		=	./../../../o
 BINDIR		=	./../../../bin
+DOCDIR		=	./../../../docs
 CDIR		=	./src
 
 CLASSCDIR	=	./class_c
@@ -35,12 +36,12 @@ DLLOBJECTS	=	$(OBJDIR)/vdesktop.o \
 			$(OBJDIR)/quitwindow.o
 
 CLASSOBJECTS	=	$(OBJDIR)/wpobject.o \
+			$(OBJDIR)/wpnotebook.o \
+			$(OBJDIR)/wpfolderwindow.o \
 			$(OBJDIR)/wpfilesystem.o \
 			$(OBJDIR)/wpdatafile.o \
 			$(OBJDIR)/wpfolder.o \
 			$(OBJDIR)/wpwindow.o \
-			$(OBJDIR)/wpnotebook.o \
-			$(OBJDIR)/wpfolderwindow.o \
 			$(OBJDIR)/wpclassmanager.o \
 			$(OBJDIR)/m_wpobject.o \
 			$(OBJDIR)/m_wpfilesystem.o \
@@ -48,8 +49,27 @@ CLASSOBJECTS	=	$(OBJDIR)/wpobject.o \
 			$(OBJDIR)/m_wpfolder.o \
 			$(OBJDIR)/helper.o
 
+IHFILES		=	$(CLASSINC)/wpnativetypes.ih \
+			$(CLASSINC)/wpobject.ih \
+			$(CLASSINC)/wpnotebook.ih \
+			$(CLASSINC)/wpfolderwindow.ih \
+			$(CLASSINC)/wpfilesystem.ih \
+			$(CLASSINC)/wpdatafile.ih \
+			$(CLASSINC)/wpfolder.ih \
+			$(CLASSINC)/wpwindow.ih \
+			$(CLASSINC)/wpnotebook.ih \
+			$(CLASSINC)/wpclassmanager.ih \
+			$(CLASSINC)/m_wpobject.ih \
+			$(CLASSINC)/m_wpfilesystem.ih \
+			$(CLASSINC)/m_wpdatafile.ih \
+			$(CLASSINC)/m_wpfolder.ih
+
+#$(CLASSINC)/wpnativetypes.ih \
+
 
 .PRECIOUS:	$(CLASSINC)/%.ih $(CLASSCDIR)/%.c $(CDIR)/%.c
+
+.PHONY:		dox
 
 all:	$(BINDIR)/voywp.dll $(BINDIR)/vdesktop.dll
 
@@ -61,7 +81,7 @@ $(BINDIR)/vdesktop.dll:	$(OBJDIR)/o.dep $(DLLOBJECTS) ./src/exports.def
 	@echo "[32;1;mDone linking "$@"...[0;m"
 
 
-$(BINDIR)/voywp.dll:	 $(OBJDIR)/o.dep $(CLASSOBJECTS) exports.def
+$(BINDIR)/voywp.dll:	 $(OBJDIR)/o.dep $(IHFILES) $(CLASSOBJECTS) exports.def
 	@echo "[33;1;mLinking "$@"...[0;m"
 	@cmd.exe /C create_voywp_def $(OBJDIR)/voywp.def
 	$(CC) $(GCCLDFLAGS) -o $@ $(CLASSOBJECTS) $(LIBS) $(CLASSDLLLIBS) $(OBJDIR)/voywp.def
@@ -84,8 +104,13 @@ BASE_NOMCOMPILEC	=	$(IDLCOMP) $(IDLINC) --showcpperrors --c-template --output-di
 $(OBJDIR)/%.o:	$(CLASSCDIR)/%.c
 	$(CC) -I $(INC) $(GCCFLAGS)  -o$@ $<
 
-$(OBJDIR)/helper.o:	$(CLASSCDIR)/helper.c
+$(OBJDIR)/helper.o:	$(CLASSCDIR)/helper.c 
 	$(CC) -I $(INC) $(GCCFLAGS)  -o$@ $<
+
+$(CLASSINC)/wpnativetypes.ih:	$(IDLDIR)/wpnativetypes.idl
+	$(BASE_NOMCOMPILEIH)
+	$(BASE_NOMCOMPILEH)
+
 
 $(CLASSINC)/%.ih:	$(IDLDIR)/%.idl
 	$(BASE_NOMCOMPILEIH)
@@ -109,6 +134,10 @@ $(OBJDIR)/o.dep:
 	echo > $(OBJDIR)/o.dep
 	mkdir -p $(BINDIR)
 	mkdir -p $(CLASSTEMPLATEDIR)
+	mkdir -p $(DOCDIR)
+
+dox:
+	cd ./dox && doxygen desktop.dox
 
 clean:
 	-cd $(OBJDIR) && rm -f *.o

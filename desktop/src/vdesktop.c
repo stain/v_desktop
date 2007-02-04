@@ -31,7 +31,6 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
-
 #define INCL_DOSPROCESS
 #define INCL_DOS
 #define INCL_DOSPROFILE
@@ -56,6 +55,7 @@
 
 #include "wpfolderwindow.h"
 #include "wpnotebook.h"
+#include "m_wpfolder.h"
 #include "wpfolder.h"
 #include "wpobject.h"
 
@@ -118,7 +118,7 @@ int _System  main_loop()
   g_assert(nomRegisterDLLByName(hReg, "VOYGUITK.DLL"));
   //  g_assert(nomRegisterDLLByName(hReg, "PBL-PNG.DLL"));
   //  g_assert(nomRegisterDLLByName(hReg, "BASIC-FC.DLL"));
-  /* Add Pango here? */
+  /* Add Pango */
   g_assert(nomRegisterDLLByName(hReg, "PANGO.DLL"));
   nomEndRegisterDLLWithGC(hReg);
 
@@ -140,14 +140,16 @@ int _System  main_loop()
   /*
     Bootstrap our objects...
   */
+#if 0
   pEnv=nomTkInit();
 
   if(!pEnv) {
     nomPrintf("Can't initialize NOM environment. Exit...\n");
     return(1); 
   }
+#endif
 
-  /* Init SOM */
+  /* Init NOM */
   NOMClassMgrObject=nomEnvironmentNew();
   //dbgPrintf( "NOMClassMgrObject: %x", NOMClassMgrObject);
 

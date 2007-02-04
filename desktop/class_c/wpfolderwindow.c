@@ -115,9 +115,9 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
       {
         PWPFolderWindow pWindow;
         GtkTreePath* treePath;
-        DosBeep(5000, 100);
+        //DosBeep(5000, 100);
         pWindow=(WPFolderWindow*)user_data;
-        TST_OBJECT(pWindow);
+        //TST_OBJECT(pWindow);
         treePath=gtk_icon_view_get_path_at_pos(GTK_ICON_VIEW(widget), event->x, event->y );
         if(NULL==treePath)
           {
@@ -165,7 +165,6 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
   return FALSE;
 }
 
-/* orbit-idl-c-stubs.c, cs_output_stub line 347 */
 NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORBA_Environment *ev)
 {
   GtkWidget* window;
@@ -184,8 +183,6 @@ NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORB
 
   /* Folder toplevel window. */
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  /* Set title */
-  //  gtk_window_set_title (GTK_WINDOW (window), "");
 
   /* FIXME: Set default size of folder frame. Will later use a stored value */
   gtk_window_set_default_size (GTK_WINDOW (window), 650, 400);
@@ -276,4 +273,5 @@ NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORB
   WPFolderWindow_setWindowHandle(nomSelf, window, NULLHANDLE);
   /* Window is hidden here and must be shown by the caller */
 }
+
 
