@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -340,7 +340,6 @@ NOM_Scope gpointer NOMLINK impl_WPFolder_wpOpen(WPFolder* nomSelf, const PWPFold
             
             
             wpFldrWindow=WPFolder_wpCreateFolderWindow(nomSelf, NULLHANDLE);
-            WPFolderWindow_wpSetWPObject(wpFldrWindow, (WPObject*)nomSelf, NULLHANDLE);
             
             /* Insert it into inuse list */
             pui=(PUSEITEM)WPFolder_wpAllocMem(nomSelf, sizeof(USEITEM)+sizeof(VIEWITEM), &ulError, NULLHANDLE);
@@ -469,7 +468,68 @@ itemActivated (GtkIconView *widget,
     }
 }
 
-/*
+enum{
+  WPOBJECT_TARGET_PATH,
+  WPOBJECT_TARGET_OBJECT,
+  WPOBJECT_TARGET_STRING
+};
+
+static GtkTargetEntry targetEntries[]=
+{
+  {"WPObject-path", 0, WPOBJECT_TARGET_PATH},
+  {"WPObject", 0, WPOBJECT_TARGET_OBJECT},
+  {"STRING", 0, WPOBJECT_TARGET_STRING},
+};
+
+static void fldrDragDataReceived(GtkWidget * widget, GdkDragContext* dragContext, int x, int y, GtkSelectionData *seldata,
+                          guint info, guint uiTime, gpointer ptrUserData)
+{
+  DosBeep(5000, 100);
+  g_message("%s", __FUNCTION__);
+  return;
+}
+
+
+
+
+static void fldrDragDataGet(GtkWidget * widget, GdkDragContext* dragContext, GtkSelectionData *seldata,
+                    guint uiInfo, guint t, gpointer ptrUserData)
+{
+  DosBeep(100, 100);
+  g_message("%s", __FUNCTION__);
+  //  gtk_selection_data_set();
+  return;
+}
+
+
+#if 0
+/**
+   Get the WPFolder object from a container widget (icon view). If the object can't be queried
+   NULL is returned.
+   Note that this function checks if the pointer points to a NOMObject so a call to
+   nomIsObj() is not necessary.
+ */
+static PWPFolder fldrQueryWPFolderFromContainer(GtkWidget * wgtThis)
+{
+  GtkWidget* wgtToplevel;
+  PWPFolder wpFolder;
+
+  if((wgtToplevel=gtk_widget_get_toplevel(wgtThis))==NULLHANDLE)
+    return NULLHANDLE;
+
+  if(!GTK_WIDGET_TOPLEVEL(wgtToplevel))
+    return NULLHANDLE;
+
+  wpFolder=(PWPFolder) g_object_get_data(G_OBJECT(wgtToplevel), NOMOBJECT_KEY_STRING);
+  if(nomIsObj(wpFolder))
+    return wpFolder;
+
+  return NULLHANDLE;
+}
+#endif
+
+
+/**
   This method creates the folder window it doesn't query any files or creates
   models and stuff.
 */
@@ -478,16 +538,30 @@ NOM_Scope PWPFolderWindow NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* n
   WPFolderWindow * wpFldrWindow;
   PPRIVFOLDERDATA priv;
   WPFolderData *nomThis = WPFolderGetData(nomSelf);
-
+  
   priv=(PPRIVFOLDERDATA)_privFolderData;
 
   wpFldrWindow=WPFolderWindowNew();
+
+  /* Save a pointer to the desktop folder object */
+  WPFolderWindow_wpSetWPObject(wpFldrWindow, (WPObject*)nomSelf, NULLHANDLE);
 
   /* Connect to the "item_activated" signal */
   g_signal_connect (WPFolderWindow_wpQueryContainerHandle(wpFldrWindow, NULLHANDLE), "item-activated",
                     G_CALLBACK (itemActivated), nomSelf);
 
   WPFolderWindow_wpSetWindowTitle(wpFldrWindow, WPFolder_wpQueryTitle(nomSelf, NULLHANDLE), NULLHANDLE);
+
+  /* Prepare drag and drop */
+  gtk_drag_source_set(WPFolderWindow_wpQueryContainerHandle(wpFldrWindow, NULLHANDLE), GDK_BUTTON3_MASK, targetEntries,
+                      G_N_ELEMENTS(targetEntries) ,
+                      GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
+  gtk_drag_dest_set(WPFolderWindow_wpQueryContainerHandle(wpFldrWindow, NULLHANDLE), GTK_DEST_DEFAULT_ALL, targetEntries, 1 ,
+                      GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
+  g_signal_connect(WPFolderWindow_wpQueryContainerHandle(wpFldrWindow, NULLHANDLE),"drag_data_received",
+                   G_CALLBACK(fldrDragDataReceived), NULL);
+  g_signal_connect(WPFolderWindow_wpQueryContainerHandle(wpFldrWindow, NULLHANDLE),"drag_data_get",
+                   G_CALLBACK(fldrDragDataGet), NULL);
 
   /* Show the new window */
   WPFolderWindow_show(wpFldrWindow, ev);
@@ -571,5 +645,18 @@ NOM_Scope void NOMLINK impl_WPFolder_wpInitData(WPFolder* nomSelf, CORBA_Environ
 }
 
 
+/* orbit-idl-c-stubs.c, cs_output_stub line 347 */
+NOM_Scope gulong NOMLINK impl_WPFolder_wpDragOver(WPFolder* nomSelf, const gpointer containerHandle,
+                                                  const gpointer pDragInfo, CORBA_Environment *ev)
+{
+/* WPFolderData* nomThis=WPFolderGetData(nomSelf); */
+
+  return GDK_ACTION_COPY;
+  
+#if 0
+  /* orbit-idl-c-stubs.c, VoyagerWriteProtoForParentCall line 119 */
+  WPFolder_wpDragOver_parent(nomSelf,  ev);
+#endif
+}
 
 

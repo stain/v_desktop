@@ -60,7 +60,49 @@ interface WPWindow : NOMWindow
 {
   NOMCLASSVERSION(1, 0);
 
+  /**
+     Instances of the WPWindow class (or subclasses of WPWindow) are usually created
+     by desktop classes. For example WPFolderWindow instances (folder views) or
+     WPNoteBook instances (settings notebooks). This method is used so the desktop class
+     can save a pointer to itself for use from within the WPWindow class code.
+  
+     \remark Note that this method is \b not a wrapper around
+     \code 
+     g_object_set_data(G_OBJECT(window), NOMOBJECT_KEY_STRING, nomSelf);
+     \endcode
+     That call is used internally by the WPWindow class to connect a WPWindow instance
+     (nomSelf in this call) with a GTK window.
+
+     \par How to override:
+     This method is usually not overriden.
+
+     \param wpObject The desktop object this window belongs to.
+
+     \par Example:
+     The follwing code is a method implementation of class WPFolder. It creates a new
+     folder window (of class WPFolderWindow) and uses wpSetWPObject() to connect the folder
+     object (nomSelf) with the folder window.
+     \include wpsetwpobject.c
+
+     \sa wpQueryWPObject()
+   */
   void wpSetWPObject(in PWPObject wpObject);
+
+  /**
+     Query the desktop object this window belongs to.
+
+     \remark Note that this method is \b not a wrapper around
+     \code 
+     g_object_get_data(G_OBJECT(window), NOMOBJECT_KEY_STRING);
+     \endcode
+     Using that call one queries the window object (\b not the desktop object) from
+     a GTK toplevel window.
+
+     \par How to override:
+     This method is usually not overriden.
+
+     \sa wpSetWPObject()
+  */
   PWPObject wpQueryWPObject();
   void wpSetWindowTitle(in PNOMString newTitle);
   NOMINSTANCEVAR(PWPObject wpObject);

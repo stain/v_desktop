@@ -165,6 +165,189 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
   return FALSE;
 }
 
+static gboolean fldrWindowHandleDragDrop(GtkWidget * widget, GdkDragContext* dragContext, gint x, gint y,
+                         guint t, gpointer ptrUserData)
+{
+  DosBeep(2500, 10);
+  DosBeep(500, 10);
+  DosBeep(2500, 10);
+  g_message("%s", __FUNCTION__);
+  return FALSE;
+}
+
+#if 0
+static void fldrDragLeave(GtkWidget * widget, GdkDragContext* dragContext,
+                          guint t, gpointer ptrUserData)
+{
+  GdkPixmap *pixMapDrag;
+  
+  gdk_pixbuf_render_pixmap_and_mask(pixBufStop, &pixMapDrag, NULL, 128);
+  gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
+  g_object_unref(pixMapDrag);
+  gtk_widget_queue_draw(wgtDrag);
+
+  g_message("%s", __FUNCTION__);
+
+  return;
+}
+#endif
+
+static GtkWidget *wgtDrag=NULL;
+
+static GdkPixmap *pixMapDrag=NULL;
+static GdkPixmap *pixMapStop=NULL;
+
+/*
+  Callback which loads a pixmap into the drag widget as soon as it#s realized.
+ */
+static void fldrWidgetRealize(GtkWidget * wgtDrag, gpointer ptrUserData)
+{
+  gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
+
+  g_message("%s", __FUNCTION__);
+  return;
+}
+
+static void fldrWindowHandleDragBegin(GtkWidget * widget, GdkDragContext* dragContext,
+                    gpointer ptrUserData)
+{
+  if(NULLHANDLE==wgtDrag)
+    {
+      GdkPixbuf *pixBufDrag;
+      GdkPixbuf *pixBufStop;
+
+      wgtDrag=gtk_window_new(GTK_WINDOW_POPUP);
+
+      /*
+        FIXME:
+        In GTK 2.8 use *_HINT_DND instead.
+       */
+#warning move this somewhere else. Maybe into WPClassMgr 
+      gtk_window_set_type_hint(GTK_WINDOW(wgtDrag), GDK_WINDOW_TYPE_HINT_MENU);
+      gtk_widget_set_app_paintable(GTK_WIDGET(wgtDrag), TRUE);
+
+      pixBufDrag=gtk_widget_render_icon(wgtDrag, GTK_STOCK_DND, GTK_ICON_SIZE_DND, NULL);
+      gdk_pixbuf_render_pixmap_and_mask(pixBufDrag, &pixMapDrag, NULL, 128);
+
+      gtk_widget_set_size_request(wgtDrag, gdk_pixbuf_get_width(pixBufDrag), gdk_pixbuf_get_height(pixBufDrag));
+
+      g_object_unref(pixBufDrag);
+
+      pixBufStop=gtk_widget_render_icon(wgtDrag, GTK_STOCK_STOP, GTK_ICON_SIZE_DND, NULL);
+      gdk_pixbuf_render_pixmap_and_mask(pixBufStop, &pixMapStop, NULL, 128);
+      g_object_unref(pixBufStop);
+
+      if(!pixMapDrag)
+        g_warning("Cannot load pixbuf");
+      if(!pixMapStop)
+        g_warning("Cannot load stop pixbuf");
+
+      //      gdk_pixbuf_render_pixmap_and_mask(pixBufDrag, &pixMapDrag, NULL, 128);
+      //    gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
+      //      g_object_unref(pixMapDrag);
+      g_signal_connect_after(GTK_WIDGET(wgtDrag), "realize", G_CALLBACK(fldrWidgetRealize), NULL);
+    }
+  DosBeep(1000, 10);
+  g_message("%s", __FUNCTION__);
+  //  if(wgtDrag->window)
+  //gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
+
+  gtk_drag_set_icon_widget(dragContext, wgtDrag, 0, 0);
+
+  return;
+}
+
+static gboolean fldrWindowHandleDragMotion(GtkWidget * wgtThis, GdkDragContext* dragContext, int x, int y, guint t,
+                    gpointer ptrUserData)
+{
+  GtkWidget *wgtSource;
+  GtkTreePath* treePath;
+  PWPFolderWindow pWindow;
+  gulong rc=0;
+  static gulong oldRc=0;
+
+  if(dragContext==NULL)
+    return FALSE;
+
+  if((wgtSource=gtk_drag_get_source_widget(dragContext))==NULLHANDLE)
+    return FALSE;
+
+#if 0
+  if(wgtSource==wgtThis){
+    gdk_drag_status(dragContext, GDK_ACTION_MOVE, t);
+    //    gdk_drag_status(dragContext, 0, t);
+    gtk_drag_highlight(wgtThis);
+  }
+  else{
+    gdk_drag_status(dragContext, GDK_ACTION_COPY, t);
+    gtk_drag_unhighlight(wgtSource);
+  }
+#endif
+
+  treePath=gtk_icon_view_get_path_at_pos(GTK_ICON_VIEW(wgtThis), x, y );
+
+  if(NULL==treePath)
+    {      
+      PWPFolder wpFolder;
+      /* White space */
+
+      pWindow=(WPFolderWindow*)ptrUserData;
+      if(!nomIsObj(pWindow))
+        return FALSE;
+
+      wpFolder=(WPFolder*)WPFolderWindow_wpQueryWPObject(pWindow, NULLHANDLE);     
+
+      if(!nomIsObj(wpFolder))
+        return FALSE;
+
+      rc=WPObject_wpDragOver((WPObject*)wpFolder, wgtThis, dragContext, NULL);
+    }
+  else
+    {
+      GtkTreeIter iter;
+      GtkTreeModel* model;
+      WPObject *wpObject;
+      /* Over an icon */
+      
+      //   g_message("%s: %s", __FUNCTION__, gtk_tree_path_to_string(treePath));
+      //    gtk_icon_view_item_activated(GTK_ICON_VIEW(wgtThis), treePath);
+
+      model=gtk_icon_view_get_model(GTK_ICON_VIEW(wgtThis));
+            
+      gtk_tree_model_get_iter(model , &iter, treePath);            
+      gtk_tree_model_get(model, &iter, 0, &wpObject, -1);
+
+      //TST_OBJECT(wpObject);
+
+      //if(nomIsObj(wpObject))
+      rc=WPObject_wpDragOver((WPObject*)wpObject, wgtThis, dragContext, NULL);
+    }
+
+  if(oldRc!=rc)
+    {
+      /* drag icon */
+      switch(rc)
+        {
+        case 0:
+          {
+            /* Don't drop */    
+            gdk_window_set_back_pixmap(wgtDrag->window, pixMapStop, FALSE);
+            break;
+          }
+        default:
+          {
+            gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
+            break;
+          }
+        } 
+      gtk_widget_queue_draw(wgtDrag);
+    }
+  oldRc=rc;
+
+  return FALSE;
+}
+
+
 NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORBA_Environment *ev)
 {
   GtkWidget* window;
@@ -253,6 +436,15 @@ NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORB
                     G_CALLBACK (fldr_handleButtonEvent), nomSelf);
   g_signal_connect (GTK_WIDGET(icon_view), "button-release-event",
                     G_CALLBACK (fldr_handleButtonEvent), nomSelf);
+
+  /* Handle folder DnD */
+  g_signal_connect(GTK_WIDGET(icon_view),"drag-begin",
+                   G_CALLBACK(fldrWindowHandleDragBegin), nomSelf);
+  g_signal_connect(GTK_WIDGET(icon_view),"drag-motion",
+                   G_CALLBACK(fldrWindowHandleDragMotion), nomSelf);
+  g_signal_connect(GTK_WIDGET(icon_view),"drag-drop",
+                   G_CALLBACK(fldrWindowHandleDragDrop), nomSelf);
+
 
 #if 0
   /* Connect to the "clicked" signal of the "Up" tool button */
