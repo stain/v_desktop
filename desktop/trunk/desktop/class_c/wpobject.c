@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -797,5 +797,21 @@ NOM_Scope PWPFolder NOMLINK impl_WPObject_wpQueryFolder(WPObject* nomSelf, CORBA
 }
 
 
+NOM_Scope gulong NOMLINK impl_WPObject_wpDragOver(WPObject* nomSelf, const gpointer containerHandle,
+                                                  const gpointer pDragInfo, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  return 0; /* Don't allow drop */
+}
+
+NOM_Scope gulong NOMLINK impl_WPObject_wpDrop(WPObject* nomSelf, const gpointer containerHandle,
+                                              const gpointer pDragInfo, CORBA_Environment *ev)
+{
+/* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
+
+  DosBeep(500, 100);
+  return 0;
+}
 
 

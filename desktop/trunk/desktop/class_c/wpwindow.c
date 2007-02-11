@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -52,12 +52,24 @@
 
 #include "wpwindow.ih"
 
+/**
+   This function implements the wpSetWPObject() method of WPWindow. See method description for more
+   info.
+
+   \sa wpQueryWPObject(), wpSetWPObject()
+ */
 NOM_Scope void NOMLINK impl_WPWindow_wpSetWPObject(WPWindow* nomSelf, const PWPObject wpObject, CORBA_Environment *ev)
 {
   WPWindowData* nomThis=WPWindowGetData(nomSelf);
   _wpObject=wpObject;
 }
 
+/**
+   This function implements the wpQueryWPObject() method of WPWindow. See method description for more
+   info.
+
+   \sa wpQueryWPObject(), wpSetWPObject()
+ */
 NOM_Scope PWPObject NOMLINK impl_WPWindow_wpQueryWPObject(WPWindow* nomSelf, CORBA_Environment *ev)
 {
   WPWindowData* nomThis=WPWindowGetData(nomSelf);
@@ -65,6 +77,12 @@ NOM_Scope PWPObject NOMLINK impl_WPWindow_wpQueryWPObject(WPWindow* nomSelf, COR
   return _wpObject;
 }
 
+/**
+   This function implements the wpSetWindowTitle() method of WPWindow. See method description for more
+   info.
+
+   \sa wpSetWindowTitle()
+ */
 NOM_Scope void NOMLINK impl_WPWindow_wpSetWindowTitle(WPWindow* nomSelf, const PNOMString newTitle,
                                                       CORBA_Environment *ev)
 {
@@ -73,4 +91,5 @@ NOM_Scope void NOMLINK impl_WPWindow_wpSetWindowTitle(WPWindow* nomSelf, const P
                         NOMString_queryCString(newTitle, NULLHANDLE));
 
 }
+
 

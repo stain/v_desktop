@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -72,7 +72,7 @@ interface WPObject : NOMObject
      Allocate a block of \e cbBytes length. The storage area
      is tracked in the objects inuse list.
 
-     \par How to override
+     \par How to override:
      This method is usually not overriden.
 
      \param cbBytes Number of bytes to allocate.
@@ -88,7 +88,7 @@ interface WPObject : NOMObject
      list. Because NOM uses a garbage collector the memory isn't freed instantly but
      will be collected later.
 
-     \par How to override
+     \par How to override:
      This method is usually not overriden.
 
      \param pByte Block of memory to be freed.
@@ -103,7 +103,7 @@ interface WPObject : NOMObject
 
      \remark Desktop classes should override this method instead of nomInit().
 
-     \par How to override
+     \par How to override:
      This method should be overriden by classes which need initialization. The parent
      must be called first.
 
@@ -128,7 +128,7 @@ interface WPObject : NOMObject
      This method always opens a new view of an object. The concurrent view setting is not
      taken into account. wpViewObject() should be called most of the time.
 
-     \par How to override
+     \par How to override:
      Desktop objects override this method when they have a private view.
 
      \param nomFolder The folder view (window) containing the object. Note that an object may
@@ -148,7 +148,7 @@ interface WPObject : NOMObject
      \remark The increment operation on the internal counter is an atomic operation but be aware
      that the method call itself is not.
 
-     \par How to override
+     \par How to override:
      This method is usually not overriden.
 
      \sa wpObjectIsLocked(), wpUnlockObject()
@@ -162,7 +162,7 @@ interface WPObject : NOMObject
      The decrement operation on the internal counter is an atomic operation but be aware
      that the method call itself is not.
 
-     \par How to override
+     \par How to override:
      This method is usually not overriden.
 
      \sa wpObjectIsLocked(), wpLockObject()
@@ -175,7 +175,7 @@ interface WPObject : NOMObject
      \remark This method reflects the state of the object at the time of the call. Note that
      in a multithreaded environment other threads may alter the use counter at any time.
 
-     \par How to override
+     \par How to override:
      This method is usually not overriden.
 
      \return TRUE if the objects use counter is greater than 0. This means the object is still in use.
@@ -186,10 +186,32 @@ interface WPObject : NOMObject
   gpointer wpQueryIcon();
 
   /**
+     Request the object semaphor which protects the objects data structures. For example
+     before changing the in use list of the object the semaphor is aquired to prevent
+     access from several places at the same time.
 
+     \par How to override
+     This method is usually not overriden.
+
+     \return 0 if no error occured. Any other value describes an error.
+
+     \sa wpReleaseObjectMutexSem()
    */
   unsigned long  wpRequestObjectMutexSem(in unsigned long ulReserved);
-  unsigned long  wpReleaseObjectMutexSem();
+
+  /**
+     Release the object semaphor which protects the objects data structures. For example
+     before changing the in use list of the object the semaphor is aquired to prevent
+     access from several places at the same time.
+
+     \par How to override:
+     This method is usually not overriden.
+
+     \return 0 if no error occured. Any other value describes an error.
+
+     \sa wpRequestObjectMutexSem()
+   */
+  unsigned long wpReleaseObjectMutexSem();
 
   void wpSetTitle(in PNOMString pnomStrNewTitle);
   PNOMString wpQueryTitle();
@@ -217,7 +239,7 @@ interface WPObject : NOMObject
 
      \remark This method should be use in preference to the wpOpen() method.
 
-     \par How to override
+     \par How to override:
      This method is usually not overriden.
 
      \param nomFolder The folder view (window) containing the object. Note that an object may
@@ -234,7 +256,7 @@ interface WPObject : NOMObject
   /**
      Search the objects inuse list for the given view and if found bring it to the front.
 
-     \par How to override
+     \par How to override:
      This method is usually not overriden.
 
      \param ulView The view to be opened.
@@ -252,10 +274,10 @@ interface WPObject : NOMObject
      Register an inuse item in the objects inuse list. Inuse items may describe blocks of
      memory used by the object, open views and some more.
 
-     \How to override
+     \par How to override:
      This method is usually not overriden.
 
-     \param
+
      \return TRUE if success.
 
      \sa wpDeleteFromObjUseList(), wpFindUseItem(), wpFindViewItem()
@@ -266,9 +288,9 @@ interface WPObject : NOMObject
      Remove an inuse item from the objects inuse list. Inuse items may describe blocks of
      memory used by the object, open views and some more.
 
-     \remark The use item will not be freed by this method.
+     \remark The use item will not be freed by this method. This must be done by the caller.
 
-     \par How to override
+     \par How to override:
      This method is usually not overriden.
 
      \param pUseItem Use item to be removed from the objects inuse list.
@@ -287,12 +309,27 @@ interface WPObject : NOMObject
   boolean wpSaveDeferred();
   boolean wpSaveImmediate();
 
+  /**
+     Set the information about the folder this object is living in. This method is called for
+     example if the object is moved to another location.
+
+     \par How to override:
+     This method is usually not overriden.
+
+     \param wpParentFolder The folder this object is living in.
+     \return Folder object. Note that this is not a folder view (window).
+
+     \sa wpQueryFolder()
+   */
   void wpSetFolder(in PWPFolder wpParentFolder);
 
   /**
      Get the folder this object is living in.
 
-     \return Folder object. Note that this is not a folder view (window)
+     \par How to override:
+     This method is usually not overriden.
+
+     \return Folder object. Note that this is not a folder view (window).
 
      \sa wpSetFolder()
    */
@@ -306,6 +343,9 @@ interface WPObject : NOMObject
   void   wpSetConcurrentView(in gulong ulCCView);
   gulong wpQueryConcurrentView();
 
+  gulong wpDragOver(in gpointer containerHandle, in gpointer pDragInfo);
+
+  gulong wpDrop(in gpointer containerHandle, in gpointer pDragInfo);
   /* Methods overriden by this class */
 
   /**
