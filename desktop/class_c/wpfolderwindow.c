@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -165,13 +165,40 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
   return FALSE;
 }
 
-static gboolean fldrWindowHandleDragDrop(GtkWidget * widget, GdkDragContext* dragContext, gint x, gint y,
+/* FIXME: move to an include file */
+enum{
+  WPOBJECT_TARGET_OBJECT,
+  WPOBJECT_TARGET_CPATH,
+  WPOBJECT_TARGET_PATH,
+  WPOBJECT_TARGET_STRING
+};
+
+static GtkTargetEntry targetEntries[]=
+{
+  {"WPObject", 0, WPOBJECT_TARGET_OBJECT},
+  {"WPObject-C-path", 0, WPOBJECT_TARGET_CPATH},
+  {"WPObject-path", 0, WPOBJECT_TARGET_PATH},
+  {"STRING", 0, WPOBJECT_TARGET_STRING},
+};
+
+
+/*
+  This callback handles the drop of an item on an object.
+ */
+static gboolean fldrWindowHandleDragDrop(GtkWidget * wgtThis, GdkDragContext* dragContext, gint x, gint y,
                          guint t, gpointer ptrUserData)
 {
-  DosBeep(2500, 10);
   DosBeep(500, 10);
-  DosBeep(2500, 10);
   g_message("%s", __FUNCTION__);
+  g_message("  action: %d", dragContext->action );
+
+  if(dragContext->targets)
+    {
+      GdkAtom targetType;
+      targetType=GDK_POINTER_TO_ATOM(g_list_nth_data(dragContext->targets, WPOBJECT_TARGET_OBJECT));
+      g_message("  calling gtk_drag_get_data()..." );
+      gtk_drag_get_data(wgtThis, dragContext, targetType, t);
+    }
   return FALSE;
 }
 
@@ -198,7 +225,7 @@ static GdkPixmap *pixMapDrag=NULL;
 static GdkPixmap *pixMapStop=NULL;
 
 /*
-  Callback which loads a pixmap into the drag widget as soon as it#s realized.
+  Callback which loads a pixmap into the drag widget as soon as it's realized.
  */
 static void fldrWidgetRealize(GtkWidget * wgtDrag, gpointer ptrUserData)
 {
@@ -207,7 +234,9 @@ static void fldrWidgetRealize(GtkWidget * wgtDrag, gpointer ptrUserData)
   g_message("%s", __FUNCTION__);
   return;
 }
-
+/**
+   Callback for the drag-begin signal.
+ */
 static void fldrWindowHandleDragBegin(GtkWidget * widget, GdkDragContext* dragContext,
                     gpointer ptrUserData)
 {
@@ -271,6 +300,15 @@ static gboolean fldrWindowHandleDragMotion(GtkWidget * wgtThis, GdkDragContext* 
 
   if((wgtSource=gtk_drag_get_source_widget(dragContext))==NULLHANDLE)
     return FALSE;
+
+  /* This does not work for some reason */
+  gtk_drag_highlight(wgtThis);
+  gtk_widget_queue_draw(wgtThis);
+
+  if(dragContext)
+    {
+      g_message("  Actions: %x %x" , dragContext->actions, dragContext->suggested_action);
+    }
 
 #if 0
   if(wgtSource==wgtThis){
@@ -347,6 +385,47 @@ static gboolean fldrWindowHandleDragMotion(GtkWidget * wgtThis, GdkDragContext* 
   return FALSE;
 }
 
+
+static void fldrWindowHandleDragDataReceived(GtkWidget * widget, GdkDragContext* dragContext, int x, int y, GtkSelectionData *selData,
+                          guint info, guint uiTime, gpointer ptrUserData)
+{
+  DosBeep(5000, 100);
+  g_message("%s", __FUNCTION__);
+  //  gdk_drag_status(dragContext, GDK_ACTION_COPY, uiTime);
+  return;
+}
+
+
+
+/*
+
+  \param uiInfo the entry in the GtkTargetList used in gtk_drag_source_set().
+
+ */
+static void fldrWindowHandleDragDataGet(GtkWidget * widget, GdkDragContext* dragContext, GtkSelectionData *selData,
+                    guint uiTargetInfo, guint t, gpointer ptrUserData)
+{
+  DosBeep(100, 100);
+  g_message("%s", __FUNCTION__);
+  g_message("  info: %d, userData: %x", uiTargetInfo, ptrUserData);
+
+  switch(uiTargetInfo)
+    {
+    case WPOBJECT_TARGET_OBJECT:
+      {
+        gpointer wpObject=1234;
+
+        g_message("WPOBJECT_TARGET_OBJECT requested");
+        gtk_selection_data_set(selData, selData->target, 8, (guchar*) &wpObject, sizeof(wpObject));
+        break;
+      }
+    default:
+
+      break;
+    };
+  //  
+  return;
+}
 
 NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORBA_Environment *ev)
 {
@@ -438,13 +517,23 @@ NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORB
                     G_CALLBACK (fldr_handleButtonEvent), nomSelf);
 
   /* Handle folder DnD */
-  g_signal_connect(GTK_WIDGET(icon_view),"drag-begin",
+  g_signal_connect(GTK_WIDGET(icon_view), "drag-begin",
                    G_CALLBACK(fldrWindowHandleDragBegin), nomSelf);
-  g_signal_connect(GTK_WIDGET(icon_view),"drag-motion",
+  g_signal_connect(GTK_WIDGET(icon_view), "drag-motion",
                    G_CALLBACK(fldrWindowHandleDragMotion), nomSelf);
-  g_signal_connect(GTK_WIDGET(icon_view),"drag-drop",
+  g_signal_connect(GTK_WIDGET(icon_view), "drag-drop",
                    G_CALLBACK(fldrWindowHandleDragDrop), nomSelf);
+  g_signal_connect(GTK_WIDGET(icon_view), "drag_data_received",
+                   G_CALLBACK(fldrWindowHandleDragDataReceived), NULL);
+  g_signal_connect(GTK_WIDGET(icon_view), "drag_data_get",
+                   G_CALLBACK(fldrWindowHandleDragDataGet), NULL);
 
+  /* Prepare drag and drop */
+  gtk_drag_source_set(GTK_WIDGET(icon_view), GDK_BUTTON3_MASK, targetEntries,
+                      G_N_ELEMENTS(targetEntries) ,
+                      GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
+  gtk_drag_dest_set(GTK_WIDGET(icon_view), GTK_DEST_DEFAULT_ALL, targetEntries, 1 ,
+                      GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
 
 #if 0
   /* Connect to the "clicked" signal of the "Up" tool button */
