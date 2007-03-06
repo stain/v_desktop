@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -35,7 +35,6 @@
 #define INCL_DOS
 #define INCL_DOSPROFILE
 #define INCL_DOSERRORS
-#define INCL_PM
 
 #include <os2.h>
 #include <stdio.h>

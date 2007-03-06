@@ -27,7 +27,8 @@ INC		= 	./include -I ./class_h \
 			-I $(DESKTOPPATH)/class_h -I $(DESKTOPPATH)/include \
 			-I $(FOUNDATIONPATH)/class_h -I $(FOUNDATIONPATH)/include
 
-ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
+ADDLIBS		=	 -l$(OBJDIR)/nobjtk
+# -l$(OBJDIR)/voywp
 
 # Define objects to build
 
@@ -35,7 +36,10 @@ ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
 CLASSOBJECTS	=	$(OBJDIR)/nomwindow.o \
 			$(OBJDIR)/nommenu.o \
 			$(OBJDIR)/nommenuitem.o \
-			$(OBJDIR)/nomnotebook.o
+			$(OBJDIR)/nomnotebook.o \
+			$(OBJDIR)/nomdragwindow.o \
+			$(OBJDIR)/nomdraginfo.o
+
 #			$(OBJDIR)/nomfolderwindow.o \
 
 

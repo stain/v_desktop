@@ -1,0 +1,123 @@
+/* ***** BEGIN LICENSE BLOCK *****
+* Version: CDDL 1.0/LGPL 2.1
+*
+* The contents of this file are subject to the COMMON DEVELOPMENT AND
+* DISTRIBUTION LICENSE (CDDL) Version 1.0 (the "License"); you may not use
+* this file except in compliance with the License. You may obtain a copy of
+* the License at http://www.sun.com/cddl/
+*
+* Software distributed under the License is distributed on an "AS IS" basis,
+* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+* for the specific language governing rights and limitations under the
+* License.
+*
+* The Original Code is "NOM" Netlabs Object Model
+*
+* The Initial Developer of the Original Code is
+* netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
+* Portions created by the Initial Developer are Copyright (C) 2007
+* the Initial Developer. All Rights Reserved.
+*
+* Contributor(s):
+*
+* Alternatively, the contents of this file may be used under the terms of
+* the GNU Lesser General Public License Version 2.1 (the "LGPL"), in which
+* case the provisions of the LGPL are applicable instead of those above. If
+* you wish to allow use of your version of this file only under the terms of
+* the LGPL, and not to allow others to use your version of this file under
+* the terms of the CDDL, indicate your decision by deleting the provisions
+* above and replace them with the notice and other provisions required by the
+* LGPL. If you do not delete the provisions above, a recipient may use your
+* version of this file under the terms of any one of the CDDL or the LGPL.
+*
+* ***** END LICENSE BLOCK ***** */
+
+#ifndef NOMDRAGINFO_IDL_INCLUDED
+#define NOMDRAGINFO_IDL_INCLUDED
+
+#include "wpfolder.idl"
+
+NOMCLASSNAME(NOMDragInfo);
+
+interface NOMDragInfo : NOMObject
+{
+  /**
+     Current class version is 1.0
+   */
+  NOMCLASSVERSION(1, 0);
+
+  /**
+    Query the number of items currently dragged.
+
+    \return Number of items dragged.
+  */
+  gulong queryNumDragItems();
+
+  /**
+
+  */
+  gulong addWPObjectToItemList(in PWPObject wpObject, in PWPFolder wpFolder,
+                               in PGtkWidget wgtSource);
+  /**
+    Delete all information about items. This method can be used to reset the
+    internal list of dragged items.
+  */
+  void deleteAllDragItems();
+
+  /**
+    Check if the item at index ulIdx is a desktop object.
+
+    \param ulIdx The index into the array of dragged items. The index starts with 0.
+
+    \return TRUE if the indexed item is a desktop object.
+  */
+  boolean queryIsItemWPObject(in gulong ulIdx);
+
+  /**
+    Query a desktop object from the current set of dragged items.
+    
+    \param ulIdx The index into the array of dragged items. The index starts with 0.    
+
+    \return
+    The object at the index ulIdx in the current drag set. If the index
+    is out of range or the item is not a desktop object NULL is returned.
+
+  */
+  PWPObject queryWPObjectFromItemList(in gulong ulIdx);
+
+  /**
+    Set the GdkDragInfo pointer into the instance var for later use. This
+    strukture is used during drag and drop handling of GTK.
+  */
+  void setGdkDragContextPointer(in PGdkDragContext gdkDragContext);
+
+  PGtkWidget querySourceWidgetHandle(in gulong ulIdx);
+
+  /**
+    The source object where the draged item is coming from is not ncessarily a WPFolder.
+  */
+  PWPObject querySourceWPObject(in gulong ulIdx);
+
+  GdkDragAction queryChosenDropAction();
+
+  NOMOVERRIDE(nomInit);
+
+  /**
+    Private array holding the items being dragged. It's not possible to access
+    this array directly from the outside.
+  */
+  NOMINSTANCEVAR(PGArray arrayDragItems);
+
+  /**
+    Private pointer to the GdkDragContext used during a drag.
+  */
+  NOMINSTANCEVAR(PGdkDragContext dragContext);
+};
+
+#endif  /* NOMDRAGINFO_IDL_INCLUDED */
+
+
+
+
+
+

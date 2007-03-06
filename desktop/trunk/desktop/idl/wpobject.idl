@@ -346,6 +346,43 @@ interface WPObject : NOMObject
   gulong wpDragOver(in gpointer containerHandle, in gpointer pDragInfo);
 
   gulong wpDrop(in gpointer containerHandle, in gpointer pDragInfo);
+
+  /**
+    Move an object to a new location.
+    
+    \par How to override:
+    This method is overriden by classes which need special processing when
+    objects are moved.
+
+    \param wpTargetFolder The new folder into which the object will be moved.
+
+    \return TRUE when success.
+
+    \sa wpCopyObject()
+  */
+  boolean wpMoveObject(in PWPFolder wpTargetFolder);
+
+  /**
+    Copy an object to a new location.
+    
+    \par How to override:
+    This method is overriden by classes which need special processing when
+    objects are copied. An override can also be used to keep track of created
+    objects.
+
+    \param wpTargetFolder The new folder into which the object will be moved.
+    \param fLock If set TRUE the created object will be locked after creation.
+    A call to wpUnlockObject() is necessary so the object can go dormant. If
+    set to FALSE the object will be made dormant if the object is no longer used
+    and the folder containing it is closed.
+
+    \return TRUE when success.
+
+    \sa wpMoveObject()
+  */
+
+  PWPObject wpCopyObject(in PWPFolder wpTargetFolder, in boolean fLock);
+
   /* Methods overriden by this class */
 
   /**
