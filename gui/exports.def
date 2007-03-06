@@ -23,3 +23,12 @@ EXPORTS
 	_NOMNoteBookClassData  
 	_NOMNoteBookCClassData 
 	NOMNoteBookNewClass    
+
+	_NOMDragWindowClassData  
+	_NOMDragWindowCClassData 
+	NOMDragWindowNewClass
+
+	_NOMDragInfoClassData  
+	_NOMDragInfoCClassData 
+	NOMDragInfoNewClass
+      

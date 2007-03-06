@@ -24,7 +24,8 @@ INC		= 	./include -I ./class_h \
 			-I $(GUITKPATH)/class_h -I $(GUITKPATH)/include
 
 
-ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voywp
+ADDLIBS		=	 -l$(OBJDIR)/nobjtk
+# -l$(OBJDIR)/voywp
 
 # Define objects to build
 

@@ -61,6 +61,9 @@
 #include "wpobject.h"
 #include "exception.h"
 
+#include "nomdragwindow.h"
+#include "nomdraginfo.h"
+
 NOM_Scope PGtkWidget NOMLINK impl_WPFolderWindow_wpQueryContainerHandle(WPFolderWindow* nomSelf, CORBA_Environment *ev)
 {
   WPFolderWindowData* nomThis=WPFolderWindowGetData(nomSelf);
@@ -69,7 +72,7 @@ NOM_Scope PGtkWidget NOMLINK impl_WPFolderWindow_wpQueryContainerHandle(WPFolder
 }
 
 NOM_Scope void NOMLINK impl_WPFolderWindow_wpSetContainerHandle(WPFolderWindow* nomSelf, const PGtkWidget pgWidget,
-                                                              CORBA_Environment *ev)
+                                                                CORBA_Environment *ev)
 {
   WPFolderWindowData* nomThis=WPFolderWindowGetData(nomSelf);
 
@@ -115,7 +118,7 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
       {
         PWPFolderWindow pWindow;
         GtkTreePath* treePath;
-        //DosBeep(5000, 100);
+
         pWindow=(WPFolderWindow*)user_data;
         //TST_OBJECT(pWindow);
         treePath=gtk_icon_view_get_path_at_pos(GTK_ICON_VIEW(widget), event->x, event->y );
@@ -181,23 +184,79 @@ static GtkTargetEntry targetEntries[]=
   {"STRING", 0, WPOBJECT_TARGET_STRING},
 };
 
+static NOMDragWindow *nomDragWindow=NULL;
+static NOMDragInfo   *nomDragInfo=NULL;
 
 /*
   This callback handles the drop of an item on an object.
  */
-static gboolean fldrWindowHandleDragDrop(GtkWidget * wgtThis, GdkDragContext* dragContext, gint x, gint y,
+static gboolean fldrWindowHandleDragDrop(GtkWidget * wgtThis, GdkDragContext* dragContext,
+                                         gint x, gint y,
                          guint t, gpointer ptrUserData)
 {
-  DosBeep(500, 10);
-  g_message("%s", __FUNCTION__);
-  g_message("  action: %d", dragContext->action );
+  GtkTreePath* treePath;
+  PWPFolderWindow pWindow;
+  gulong rc=0;
+  WPObject *wpObject;
 
+  //g_message("   %s", __FUNCTION__);
+  //g_message("   action: %d", dragContext->action );
+
+  /* Find the object beneath the pointer */
+  treePath=gtk_icon_view_get_path_at_pos(GTK_ICON_VIEW(wgtThis), x, y );
+  if(NULL==treePath)
+    {      
+
+      /* White space, so ask the folder */
+      
+      pWindow=(WPFolderWindow*)ptrUserData;
+      if(!nomIsObj(pWindow))
+        return FALSE;
+
+      wpObject=WPFolderWindow_wpQueryWPObject(pWindow, NULLHANDLE);     
+
+      if(!nomIsObj(wpObject))
+        return FALSE;
+    }
+  else
+    {
+      GtkTreeIter iter;
+      GtkTreeModel* model;
+
+      /* Over an icon */
+      
+      model=gtk_icon_view_get_model(GTK_ICON_VIEW(wgtThis));            
+      gtk_tree_model_get_iter(model , &iter, treePath);            
+      gtk_tree_model_get(model, &iter, 0, &wpObject, -1);
+
+      //TST_OBJECT(wpObject);
+
+      if(!nomIsObj(wpObject))
+        return FALSE;
+    }
+  rc=WPObject_wpDragOver(wpObject, wgtThis, nomDragInfo, NULL);
+  g_message("rc: %d", rc);
   if(dragContext->targets)
     {
       GdkAtom targetType;
       targetType=GDK_POINTER_TO_ATOM(g_list_nth_data(dragContext->targets, WPOBJECT_TARGET_OBJECT));
-      g_message("  calling gtk_drag_get_data()..." );
+      //    g_message("  calling gtk_drag_get_data()..." );
       gtk_drag_get_data(wgtThis, dragContext, targetType, t);
+
+      /* FIXME:
+         We don't use the returned data for now but use our own draginfo stuff. This is
+         broken.
+         The following may be moved to dragDataReceived later. */
+      if(rc) {
+        //        g_message("Now call wpDrop() actions: %d action: %d sugg %d", dragContext->action,
+        //        dragContext->action, dragContext->suggested_action);
+
+        WPObject_wpDrop( wpObject, wgtThis, nomDragInfo, NULLHANDLE);
+        
+        gtk_drag_finish(dragContext, TRUE, FALSE, t);
+        return TRUE;
+      }
+
     }
   return FALSE;
 }
@@ -207,82 +266,94 @@ static void fldrDragLeave(GtkWidget * widget, GdkDragContext* dragContext,
                           guint t, gpointer ptrUserData)
 {
   GdkPixmap *pixMapDrag;
-  
   gdk_pixbuf_render_pixmap_and_mask(pixBufStop, &pixMapDrag, NULL, 128);
   gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
   g_object_unref(pixMapDrag);
   gtk_widget_queue_draw(wgtDrag);
-
   g_message("%s", __FUNCTION__);
-
   return;
 }
 #endif
 
-static GtkWidget *wgtDrag=NULL;
-
-static GdkPixmap *pixMapDrag=NULL;
-static GdkPixmap *pixMapStop=NULL;
-
-/*
-  Callback which loads a pixmap into the drag widget as soon as it's realized.
- */
-static void fldrWidgetRealize(GtkWidget * wgtDrag, gpointer ptrUserData)
-{
-  gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
-
-  g_message("%s", __FUNCTION__);
-  return;
-}
 /**
    Callback for the drag-begin signal.
  */
 static void fldrWindowHandleDragBegin(GtkWidget * widget, GdkDragContext* dragContext,
-                    gpointer ptrUserData)
+                                      gpointer ptrUserData)
 {
-  if(NULLHANDLE==wgtDrag)
+  GtkTreePath* treePath;
+  gint x, y;
+
+  /* Create the drag window displayed to the user */
+  if(NULLHANDLE==nomDragWindow)
     {
-      GdkPixbuf *pixBufDrag;
-      GdkPixbuf *pixBufStop;
-
-      wgtDrag=gtk_window_new(GTK_WINDOW_POPUP);
-
-      /*
-        FIXME:
-        In GTK 2.8 use *_HINT_DND instead.
-       */
-#warning move this somewhere else. Maybe into WPClassMgr 
-      gtk_window_set_type_hint(GTK_WINDOW(wgtDrag), GDK_WINDOW_TYPE_HINT_MENU);
-      gtk_widget_set_app_paintable(GTK_WIDGET(wgtDrag), TRUE);
-
-      pixBufDrag=gtk_widget_render_icon(wgtDrag, GTK_STOCK_DND, GTK_ICON_SIZE_DND, NULL);
-      gdk_pixbuf_render_pixmap_and_mask(pixBufDrag, &pixMapDrag, NULL, 128);
-
-      gtk_widget_set_size_request(wgtDrag, gdk_pixbuf_get_width(pixBufDrag), gdk_pixbuf_get_height(pixBufDrag));
-
-      g_object_unref(pixBufDrag);
-
-      pixBufStop=gtk_widget_render_icon(wgtDrag, GTK_STOCK_STOP, GTK_ICON_SIZE_DND, NULL);
-      gdk_pixbuf_render_pixmap_and_mask(pixBufStop, &pixMapStop, NULL, 128);
-      g_object_unref(pixBufStop);
-
-      if(!pixMapDrag)
-        g_warning("Cannot load pixbuf");
-      if(!pixMapStop)
-        g_warning("Cannot load stop pixbuf");
-
-      //      gdk_pixbuf_render_pixmap_and_mask(pixBufDrag, &pixMapDrag, NULL, 128);
-      //    gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
-      //      g_object_unref(pixMapDrag);
-      g_signal_connect_after(GTK_WIDGET(wgtDrag), "realize", G_CALLBACK(fldrWidgetRealize), NULL);
+      nomDragWindow=NOMDragWindowNew();
     }
-  DosBeep(1000, 10);
-  g_message("%s", __FUNCTION__);
-  //  if(wgtDrag->window)
-  //gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
 
-  gtk_drag_set_icon_widget(dragContext, wgtDrag, 0, 0);
+  if(NULLHANDLE==nomDragInfo)
+    {
+      nomDragInfo=NOMDragInfoNew();
+    }
 
+  if(!dragContext)
+    return;
+
+  /* Make sure we have no leftovers... */
+  NOMDragInfo_deleteAllDragItems(nomDragInfo, NULLHANDLE);
+  NOMDragInfo_setGdkDragContextPointer(nomDragInfo, dragContext, NULLHANDLE);
+
+  /* Get the object beneath the pointer if any */
+  gtk_widget_get_pointer(widget, &x, &y);
+  treePath=gtk_icon_view_get_path_at_pos(GTK_ICON_VIEW(widget), x, y );
+
+  if(NULL==treePath)
+    {
+      /* Click on white space */
+      //    NOMDragWindow_hide(nomDragWindow, NULLHANDLE);
+      g_message("%d %s: White space!", __LINE__, __FUNCTION__);
+    }
+  else
+    {
+      GtkTreeIter iter;
+      GtkTreeModel* model;
+      WPObject *wpObject;
+      WPFolderWindow *wpFolderWindow=(WPFolderWindow*)ptrUserData;
+
+      /* Click on an icon occurred */
+
+      if(!nomIsObj(wpFolderWindow))
+        return; //Oops...
+      
+      g_message("%s: %s", __FUNCTION__, gtk_tree_path_to_string(treePath));
+      
+      /* Get the object belonging to the tree path */
+      model=gtk_icon_view_get_model(GTK_ICON_VIEW(widget));
+      gtk_tree_model_get_iter(model , &iter, treePath);            
+      gtk_tree_model_get(model, &iter, 0, &wpObject, -1);
+      
+      //  TST_OBJECT(wpObject);
+      
+      if(nomIsObj(wpObject)){
+        g_message("%s: %s begin DnD", __FUNCTION__, wpObject->mtab->nomClassName);
+
+        /* Add the object to the list of items for this drag */
+        NOMDragInfo_addWPObjectToItemList(nomDragInfo, wpObject,
+                                       (PWPFolder)WPFolderWindow_wpQueryWPObject(wpFolderWindow, NULLHANDLE),
+                                       widget, NULLHANDLE);
+      }
+      else
+        g_message("%d %s: WPDataFile object not valid!", __LINE__, __FUNCTION__);
+  
+     NOMDragWindow_show(nomDragWindow, NULLHANDLE);
+    }
+
+
+  /* Tell GTK to use our drag window as an 'icon' while dragging. */
+  gtk_drag_set_icon_widget(dragContext,
+                           NOMDragWindow_queryWindowHandle(nomDragWindow, NULLHANDLE), 0, 0);   
+
+  // gdk_drag_status(dragContext, GDK_ACTION_MOVE, t);
+  //NOMDragWindow_hide(nomDragWindow, NULLHANDLE);
   return;
 }
 
@@ -292,8 +363,10 @@ static gboolean fldrWindowHandleDragMotion(GtkWidget * wgtThis, GdkDragContext* 
   GtkWidget *wgtSource;
   GtkTreePath* treePath;
   PWPFolderWindow pWindow;
+  WPObject *wpObject;
   gulong rc=0;
-  static gulong oldRc=0;
+  static gulong oldRc=0xff;/* Make sure we at last one time have an rc!=oldRc so the icon is
+                              set properly below */
 
   if(dragContext==NULL)
     return FALSE;
@@ -302,12 +375,13 @@ static gboolean fldrWindowHandleDragMotion(GtkWidget * wgtThis, GdkDragContext* 
     return FALSE;
 
   /* This does not work for some reason */
-  gtk_drag_highlight(wgtThis);
-  gtk_widget_queue_draw(wgtThis);
+  //  gtk_drag_highlight(wgtThis);
+  //gtk_widget_queue_draw(wgtThis);
+
 
   if(dragContext)
     {
-      g_message("  Actions: %x %x" , dragContext->actions, dragContext->suggested_action);
+      //        g_message("  Actions: %x %x" , dragContext->actions, dragContext->suggested_action);
     }
 
 #if 0
@@ -322,34 +396,28 @@ static gboolean fldrWindowHandleDragMotion(GtkWidget * wgtThis, GdkDragContext* 
   }
 #endif
 
+  /* Find the object beneath the pointer */
   treePath=gtk_icon_view_get_path_at_pos(GTK_ICON_VIEW(wgtThis), x, y );
-
   if(NULL==treePath)
     {      
-      PWPFolder wpFolder;
-      /* White space */
+      /* White space, so ask the folder */
 
       pWindow=(WPFolderWindow*)ptrUserData;
       if(!nomIsObj(pWindow))
         return FALSE;
 
-      wpFolder=(WPFolder*)WPFolderWindow_wpQueryWPObject(pWindow, NULLHANDLE);     
+      wpObject=WPFolderWindow_wpQueryWPObject(pWindow, NULLHANDLE);     
 
-      if(!nomIsObj(wpFolder))
+      if(!nomIsObj(wpObject))
         return FALSE;
-
-      rc=WPObject_wpDragOver((WPObject*)wpFolder, wgtThis, dragContext, NULL);
     }
   else
     {
       GtkTreeIter iter;
       GtkTreeModel* model;
-      WPObject *wpObject;
+
       /* Over an icon */
       
-      //   g_message("%s: %s", __FUNCTION__, gtk_tree_path_to_string(treePath));
-      //    gtk_icon_view_item_activated(GTK_ICON_VIEW(wgtThis), treePath);
-
       model=gtk_icon_view_get_model(GTK_ICON_VIEW(wgtThis));
             
       gtk_tree_model_get_iter(model , &iter, treePath);            
@@ -357,31 +425,103 @@ static gboolean fldrWindowHandleDragMotion(GtkWidget * wgtThis, GdkDragContext* 
 
       //TST_OBJECT(wpObject);
 
-      //if(nomIsObj(wpObject))
-      rc=WPObject_wpDragOver((WPObject*)wpObject, wgtThis, dragContext, NULL);
+      if(!nomIsObj(wpObject))
+        return FALSE;
+      //g_message("Over an icon");
     }
+  rc=WPObject_wpDragOver(wpObject, wgtThis, nomDragInfo, NULL);
+  //g_message("rc: %d oldRc %d", rc, oldRc);
 
+  /* Change the drag icon if necesary. Note that this will not change the
+     cursor. */
   if(oldRc!=rc)
     {
       /* drag icon */
       switch(rc)
         {
-        case 0:
+        case DOR_NODROP:
           {
             /* Don't drop */    
-            gdk_window_set_back_pixmap(wgtDrag->window, pixMapStop, FALSE);
+            NOMDragWindow_displayStopImage(nomDragWindow, NULLHANDLE);
+            //     gdk_drag_status(dragContext, 0, t);
             break;
           }
         default:
           {
-            gdk_window_set_back_pixmap(wgtDrag->window, pixMapDrag, FALSE);
-            break;
+            NOMDragWindow_displayDragImage(nomDragWindow, NULLHANDLE);
+            //  gdk_drag_status(dragContext, GDK_ACTION_MOVE, t);
+           break;
           }
         } 
-      gtk_widget_queue_draw(wgtDrag);
+      /* Tell GTK to redraw the drag window */
+      gtk_widget_queue_draw(NOMDragWindow_queryWindowHandle(nomDragWindow, NULLHANDLE));
     }
   oldRc=rc;
 
+  switch(dragContext->actions)
+    {  
+    case GDK_ACTION_COPY:
+      {
+        gdk_drag_status(dragContext, GDK_ACTION_COPY, t);
+        break;
+      }
+    case GDK_ACTION_MOVE:
+      {
+        gdk_drag_status(dragContext, GDK_ACTION_MOVE, t);
+        break;
+      }
+    case GDK_ACTION_LINK:
+      {
+        gdk_drag_status(dragContext, GDK_ACTION_LINK, t);
+        break;
+      }
+    default:
+      {
+        if(dragContext->actions & GDK_ACTION_MOVE) //FIXME
+          gdk_drag_status(dragContext, GDK_ACTION_MOVE, t);        
+        break;
+      }
+    }
+#if 0
+  /* Now change the cursor */
+  switch(rc & DOR_ALLFLAGS)
+    {
+    case DOR_NODROP:
+      {
+        /* Don't drop */    
+        gdk_drag_status(dragContext, 0, t);
+        break;
+      }
+    default:
+      {
+        switch(rc & DO_ALLFLAGS)
+          {
+          case DO_MOVE:
+            {
+              gdk_drag_status(dragContext, GDK_ACTION_MOVE, t);
+              break;
+            }
+          case DO_COPY:
+            {
+              gdk_drag_status(dragContext, GDK_ACTION_COPY, t);
+              break;
+            }
+          case DO_LINK:
+            {
+              gdk_drag_status(dragContext, GDK_ACTION_LINK, t);
+              break;
+            }
+
+          default:
+            if(dragContext->actions & GDK_ACTION_MOVE) //FIXME
+              gdk_drag_status(dragContext, GDK_ACTION_MOVE, t);
+            break;
+          }
+        break;
+      }
+    }/* switch() */
+#endif
+ 
   return FALSE;
 }
 
@@ -389,12 +529,10 @@ static gboolean fldrWindowHandleDragMotion(GtkWidget * wgtThis, GdkDragContext* 
 static void fldrWindowHandleDragDataReceived(GtkWidget * widget, GdkDragContext* dragContext, int x, int y, GtkSelectionData *selData,
                           guint info, guint uiTime, gpointer ptrUserData)
 {
-  DosBeep(5000, 100);
   g_message("%s", __FUNCTION__);
   //  gdk_drag_status(dragContext, GDK_ACTION_COPY, uiTime);
   return;
 }
-
 
 
 /*
@@ -423,7 +561,7 @@ static void fldrWindowHandleDragDataGet(GtkWidget * widget, GdkDragContext* drag
 
       break;
     };
-  //  
+
   return;
 }
 
@@ -524,16 +662,16 @@ NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORB
   g_signal_connect(GTK_WIDGET(icon_view), "drag-drop",
                    G_CALLBACK(fldrWindowHandleDragDrop), nomSelf);
   g_signal_connect(GTK_WIDGET(icon_view), "drag_data_received",
-                   G_CALLBACK(fldrWindowHandleDragDataReceived), NULL);
+                   G_CALLBACK(fldrWindowHandleDragDataReceived), nomSelf);
   g_signal_connect(GTK_WIDGET(icon_view), "drag_data_get",
-                   G_CALLBACK(fldrWindowHandleDragDataGet), NULL);
+                   G_CALLBACK(fldrWindowHandleDragDataGet), nomSelf);
 
   /* Prepare drag and drop */
   gtk_drag_source_set(GTK_WIDGET(icon_view), GDK_BUTTON3_MASK, targetEntries,
-                      G_N_ELEMENTS(targetEntries) ,
-                      GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
-  gtk_drag_dest_set(GTK_WIDGET(icon_view), GTK_DEST_DEFAULT_ALL, targetEntries, 1 ,
-                      GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
+                      G_N_ELEMENTS(targetEntries),
+                      GDK_ACTION_DEFAULT|GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
+  gtk_drag_dest_set(GTK_WIDGET(icon_view), GTK_DEST_DEFAULT_ALL, targetEntries, 1,
+                      GDK_ACTION_DEFAULT|GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
 
 #if 0
   /* Connect to the "clicked" signal of the "Up" tool button */
