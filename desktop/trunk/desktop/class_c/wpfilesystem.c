@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -90,11 +90,35 @@ NOM_Scope PNOMPath NOMLINK impl_WPFileSystem_wpQueryFileName(WPFileSystem* nomSe
       return (PNOMPath) NOMPath_assignCString(nomRetval, _pszFullPath, ev);
     }
 
-  /* We area folder somwhere in the chain */
+  /* We are a folder somwhere in the chain */
   nomRetval=WPFileSystem_wpQueryFileName((WPFileSystem*)wpParent, bFullPath, NULLHANDLE);
   nomPath=NOMPathNew();
   nomPath= (PNOMPath) NOMPath_assignCString(nomPath, _pszFullPath, ev);
 
   return (PNOMPath)NOMPath_appendPath(nomRetval, nomPath, NULLHANDLE);
+}
+
+
+NOM_Scope CORBA_boolean NOMLINK impl_WPFileSystem_wpMoveObject(WPFileSystem* nomSelf,
+                                                               const PWPFolder wpTargetFolder,
+                                                               CORBA_Environment *ev)
+{
+/* WPFileSystemData* nomThis=WPFileSystemGetData(nomSelf); */
+
+  return WPFileSystem_wpMoveObject_parent(nomSelf, wpTargetFolder,  ev);
+  return FALSE;
+}
+
+
+NOM_Scope PWPObject NOMLINK impl_WPFileSystem_wpCopyObject(WPFileSystem* nomSelf,
+                                                           const PWPFolder wpTargetFolder,
+                                                           const CORBA_boolean fLock,
+                                                           CORBA_Environment *ev)
+{
+/* WPFileSystemData* nomThis=WPFileSystemGetData(nomSelf); */
+
+  return WPFileSystem_wpCopyObject_parent(nomSelf, wpTargetFolder, fLock, ev);
+
+  return NULLHANDLE;
 }
 
