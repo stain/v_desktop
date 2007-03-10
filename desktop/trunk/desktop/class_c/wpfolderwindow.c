@@ -650,6 +650,7 @@ NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORB
                     G_CALLBACK (fldr_cbPopupMenu), nomSelf);
 #endif
 
+#if 0
   /* Handle mouse buttons */
   g_signal_connect (GTK_WIDGET(icon_view), "button-press-event",
                     G_CALLBACK (fldr_handleButtonEvent), nomSelf);
@@ -674,13 +675,14 @@ NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORB
                       GDK_ACTION_DEFAULT|GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
   gtk_drag_dest_set(GTK_WIDGET(icon_view), GTK_DEST_DEFAULT_ALL, targetEntries, 1,
                       GDK_ACTION_DEFAULT|GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
-
+#endif
 #if 0
   /* Connect to the "clicked" signal of the "Up" tool button */
   g_signal_connect (up_button, "clicked",
                     G_CALLBACK (up_clicked), store);
 #endif
 
+  _wpConnectDefaultSignalHandlers(nomSelf, icon_view, NULLHANDLE);
   WPFolderWindow_wpSetContainerHandle(nomSelf, icon_view, NULLHANDLE);
 
   /* Add icon view as child to the scroll window created earlier */
@@ -695,4 +697,36 @@ NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORB
   /* Window is hidden here and must be shown by the caller */
 }
 
+NOM_Scope void NOMLINK impl_WPFolderWindow_wpConnectDefaultSignalHandlers(WPFolderWindow* nomSelf,
+                                                                          const PGtkWidget pgWidget,
+                                                                          CORBA_Environment *ev)
+{
+/* WPFolderWindowData* nomThis=WPFolderWindowGetData(nomSelf); */
+
+  /* Handle mouse buttons */
+  g_signal_connect (GTK_WIDGET(pgWidget), "button-press-event",
+                    G_CALLBACK (fldr_handleButtonEvent), nomSelf);
+  g_signal_connect (GTK_WIDGET(pgWidget), "button-release-event",
+                    G_CALLBACK (fldr_handleButtonEvent), nomSelf);
+
+  /* Handle folder DnD */
+  g_signal_connect(GTK_WIDGET(pgWidget), "drag-begin",
+                   G_CALLBACK(fldrWindowHandleDragBegin), nomSelf);
+  g_signal_connect(GTK_WIDGET(pgWidget), "drag-motion",
+                   G_CALLBACK(fldrWindowHandleDragMotion), nomSelf);
+  g_signal_connect(GTK_WIDGET(pgWidget), "drag-drop",
+                   G_CALLBACK(fldrWindowHandleDragDrop), nomSelf);
+  g_signal_connect(GTK_WIDGET(pgWidget), "drag_data_received",
+                   G_CALLBACK(fldrWindowHandleDragDataReceived), nomSelf);
+  g_signal_connect(GTK_WIDGET(pgWidget), "drag_data_get",
+                   G_CALLBACK(fldrWindowHandleDragDataGet), nomSelf);
+
+  /* Prepare drag and drop */
+  gtk_drag_source_set(GTK_WIDGET(pgWidget), GDK_BUTTON3_MASK, targetEntries,
+                      G_N_ELEMENTS(targetEntries),
+                      GDK_ACTION_DEFAULT|GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
+  gtk_drag_dest_set(GTK_WIDGET(pgWidget), GTK_DEST_DEFAULT_ALL, targetEntries, 1,
+                      GDK_ACTION_DEFAULT|GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
+
+}
 

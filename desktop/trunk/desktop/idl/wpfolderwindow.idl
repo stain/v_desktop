@@ -58,17 +58,82 @@ NOMCLASSNAME(WPFolderWindow);
 /** \interface WPFolderWindow
 
     Default desktop window used by folders to show objects to the user.
+    It's essential that the WPFolder owning the WPFolderWindow is set
+    into the instance variable by using wpSetObject() a method inherited
+    from WPWindow.
+
+    This class can be used as a base class for window classes which will
+    be used for folder windows. When creating a new class override nomInit()
+    and create your window. Be sure to have at least one container window as
+    a child of the toplevel window which will hold the folders objects. Save
+    the handle to this container using wpSetContainerHandle(). Default drag and
+    drop behaviour for desktop objects can easily be added by calling
+    wpConnectDefaultSignalHandlers() with the created container handle.
+
+    There is no limitation on the number of containers held by the toplevel
+    window. Each of these containers can be drag and drop enabled for desktop
+    objects.
+
 
  */
 interface WPFolderWindow : WPWindow
 {
   NOMCLASSVERSION(1, 0);
 
-  PGtkWidget wpQueryContainerHandle();
-  void wpSetContainerHandle(in PGtkWidget pgWidget);   
+  /**
+     Query the handle to the container holding the objects.
+ 
+     \par How to override:
+     This method is usually not overriden.
 
+     \sa wpSetContainerHandle()
+   */
+  PGtkWidget wpQueryContainerHandle();
+
+  /**
+     Set the container handle of this folder window into the instance variable.
+
+     \remarks Always use this method to save the handle to the folder container.
+     While it's possible to write to the instance variable from within nomInit()
+     (where the toplevel window is created with at least one container window as a
+     child), using this methods gives subclasses the chance to alter the container
+     by overriding this method.
+
+     \param pgWidget Handle to a container window (usually GtkIconView)
+
+     \sa wpQueryContainerHandle()
+   */
+  void wpSetContainerHandle(in PGtkWidget pgWidget);
+
+  /**
+     Connect signal handlers with the given container which enable drag and drop
+     of desktop objects and context menus.
+
+     \remarks Using this method every container window (don't confuse that with GtkContainer)
+     can be enabled for drag and drop of desktop objects. Default context menu behaviour
+     known by desktop object will be enabled, too. There's no limit on the number
+     of containers in a folder window.
+
+     \par How to override:
+     This method can be overriden if additional signal handlers should be connected to the
+     container.
+
+     \param pgWidget Container window handle. This is for example an icon view.
+
+     \sa wpSetContainerHandle()
+   */  
+  void wpConnectDefaultSignalHandlers(in PGtkWidget pgWidget);
+
+  /**
+     Override which creates a toplevel window with a container for icons.
+   */
   NOMOVERRIDE(nomInit);
 
+  /**
+     This variable holds the container window handle (normaly a handle of a GtkIconView).
+
+     \sa wpSetContainerHandle(), wpQueryContainerHandle()
+   */
   NOMINSTANCEVAR(PGtkWidget pgContainerHandle);
 };
 
