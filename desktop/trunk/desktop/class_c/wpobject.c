@@ -249,7 +249,8 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PWPFold
             pui--;
             //g_message("   in %s wpNoteBook: %lx pui %lx", __FUNCTION__, wpNoteBook, pui);
             /* Make sure the view item is removed when the window is closed */
-            g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)wpNoteBook, NULLHANDLE)),"delete-event", 
+            g_signal_connect(G_OBJECT(NOMWindow_queryWindowHandle((NOMWindow*)wpNoteBook, NULLHANDLE)),
+                             "delete-event", 
                              G_CALLBACK(defaultWPWindowDeleteHandler), (gpointer) pui);
             WPObject_wpAddToObjUseList(nomSelf, pui, ev);
             WPNoteBook_show(wpNoteBook, ev);
@@ -417,7 +418,7 @@ NOM_Scope PVIEWITEM NOMLINK impl_WPObject_wpFindViewItem(WPObject* nomSelf, cons
     pUseItem=WPObject_wpFindUseItem(nomSelf, USAGE_OPENVIEW,  NULLHANDLE, ev);
   else{
     pUseItem=(PUSEITEM)pCurrentItem;
-    pUseItem--;
+    pUseItem--; /* Note that VIEWITEM comes after the USEITEM structure */
     pUseItem=WPObject_wpFindUseItem(nomSelf, USAGE_OPENVIEW,  pUseItem, ev);
   }
 
@@ -425,7 +426,7 @@ NOM_Scope PVIEWITEM NOMLINK impl_WPObject_wpFindViewItem(WPObject* nomSelf, cons
     {
       ++pUseItem;
       pViewItem=(PVIEWITEM)pUseItem;
-      pUseItem--;
+      pUseItem--; /* Note that VIEWITEM comes after the USEITEM structure */
       //g_message("        a in %s %d", __FUNCTION__, flViews);
       if((pViewItem->ulView == ulView) && (pViewItem->nameSpaceId==nameSpaceId))
         break;
@@ -810,12 +811,39 @@ NOM_Scope gulong NOMLINK impl_WPObject_wpDrop(WPObject* nomSelf, const gpointer 
   return 0;
 }
 
+
 NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMoveObject(WPObject* nomSelf,
                                                            const PWPFolder wpTargetFolder,
                                                            CORBA_Environment *ev)
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
-  g_message("Calling %s, not implemented yet", __FUNCTION__);
+  WPFolder * wpFolder;
+  PUSEITEM pui;
+
+  if(!nomIsObj(wpTargetFolder))
+    return FALSE;
+
+  /* Get folder holding the object */
+  wpFolder=WPObject_wpQueryFolder(nomSelf, NULLHANDLE);
+
+  g_message("Parent folder is %s", 
+            NOMPath_queryCString(WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE),
+                                 NULLHANDLE));
+
+  /* Remove it from the parent folders content list. */
+  WPFolder_wpDeleteFromContent(wpFolder, nomSelf, NULLHANDLE);
+
+  /* Remove it from the folders model thus any folder window. */
+  pui=_wpDeleteFromStore(wpFolder, nomSelf, NULLHANDLE);
+  _wpFreeMem(nomSelf, pui, NULLHANDLE);
+
+  g_message("Target folder is %s", 
+            NOMPath_queryCString(WPFolder_wpQueryFileName(wpTargetFolder, TRUE, NULLHANDLE),
+                                 NULLHANDLE));
+
+  /* Insert into the new folder */
+  _wpAddToContent(wpTargetFolder, nomSelf, NULLHANDLE, NULLHANDLE);
+  _wpAddToStore(wpTargetFolder, nomSelf, NULLHANDLE);
 
   return FALSE;
 }
@@ -827,7 +855,8 @@ NOM_Scope PWPObject NOMLINK impl_WPObject_wpCopyObject(WPObject* nomSelf,
 {
 /* WPObjectData* nomThis=WPObjectGetData(nomSelf); */
 
-  g_message("Calling %s, not implmnted yet", __FUNCTION__);
+  g_message("Calling %s, not implmented yet", __FUNCTION__);
+
   return FALSE;
 }
 

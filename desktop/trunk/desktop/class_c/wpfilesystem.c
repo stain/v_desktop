@@ -104,7 +104,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFileSystem_wpMoveObject(WPFileSystem* nom
                                                                CORBA_Environment *ev)
 {
 /* WPFileSystemData* nomThis=WPFileSystemGetData(nomSelf); */
-
+  g_message("  %s", __FUNCTION__);
   return WPFileSystem_wpMoveObject_parent(nomSelf, wpTargetFolder,  ev);
   return FALSE;
 }

@@ -66,15 +66,32 @@ interface WPFolder : WPFileSystem
   gulong wpAddToContent(in PWPObject wpObject, in string chrFileName);
   PWPObject wpQueryContent();
 
+  /**
+     Delete an object from the internal list of objects held by
+     the folder.
+
+     \param wpObject The object to be removed.
+
+     \return TRUE on success FALSE otherwise.
+
+     \sa wpQueryContents(), wpAddToContents()
+   */
+  boolean wpDeleteFromContent(in PWPObject wpObject);
+
+  PUSEITEM wpAddToStore(in PWPObject wpObject);
+  PUSEITEM wpDeleteFromStore(in PWPObject wpObject);
+
   NOMOVERRIDE(wpInitData);
   NOMOVERRIDE(wpOpen);
   NOMOVERRIDE(wpQueryIcon);
   NOMOVERRIDE(wpQueryDefaultView);
   NOMOVERRIDE(wpDragOver);
+  NOMOVERRIDE(wpDrop);
 
   NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData); /* This will go away... */
   NOMINSTANCEVAR(PGTree fldrObjects);
   NOMINSTANCEVAR(gulong ulFldrFlags);
+  NOMINSTANCEVAR(PGtkListStore pListStore);
 };
 
 #endif /* WPFOLDER_IDL_INCLUDED */
