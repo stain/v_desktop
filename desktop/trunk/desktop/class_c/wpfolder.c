@@ -634,7 +634,7 @@ NOM_Scope PWPFolderWindow NOMLINK impl_WPFolder_wpCreateFolderWindow(WPFolder* n
   wpFldrWindow=WPFolderWindowNew();
 
   /* Save a pointer to the desktop folder object */
-  WPFolderWindow_wpSetWPObject(wpFldrWindow, (WPObject*)nomSelf, NULLHANDLE);
+  WPFolderWindow_wpSetObject(wpFldrWindow, (WPObject*)nomSelf, NULLHANDLE);
 
   /* Connect to the "item_activated" signal */
   g_signal_connect (WPFolderWindow_wpQueryContainerHandle(wpFldrWindow, NULLHANDLE), "item-activated",
