@@ -37,6 +37,9 @@
 
 #include <nomobj.idl>
 
+/** \file wpobject.idl 
+    
+*/
 NOMCLASSNAME(WPObject);
 
 #include "wpnativetypes.idl"
@@ -63,6 +66,10 @@ native PWPNoteBook;
 
 NOMMETACLASS(M_WPObject);
 
+/** \interface WPObject
+
+    This is the root of all desktop classes.
+ */
 interface WPObject : NOMObject
 {
   NOMCLASSVERSION(1, 0);
@@ -303,9 +310,18 @@ interface WPObject : NOMObject
   boolean   wpDeleteFromObjUseList(in PUSEITEM pUseItem);
 
   /**
+     Find a useitem previously registerd using wpAddToObjUseList(). 
+
+     \param ulType The type of the useitem e.g. USAGE_MEMORY.
+     \param pCurrentItem If set to NULL the first item is returned. When set
+     to a useitem pointer the next matching useitem is searched.
+
+     \return A pointer to a useitem or NULL if no matchin item can be found.
+     
      \sa wpAddToObjUseList(), wpDeleteFromObjUseList(), wpFindViewItem()
    */
   PUSEITEM  wpFindUseItem( in gulong ulType, in PUSEITEM pCurrentUseItem);
+
   PVIEWITEM wpFindViewItem( in gulong ulView, in nomId nameSpaceId, in PVIEWITEM pCurrentItem);
 
   boolean wpSaveDeferred();
@@ -352,11 +368,19 @@ interface WPObject : NOMObject
   /**
     Move an object to a new location.
     
+    \remark This method removes the object from the content list of the
+    source folder and inserts it into the list of the target folder using
+    wpDeleteFromContent() and wpAddToContent(). The same is done for the stores
+    held by the source and target folders.
+    Note that this method must be overriden by subclasses to actually perform
+    any moving of files. 
+
     \par How to override:
     This method is overriden by classes which need special processing when
-    objects are moved.
+    objects are moved. The parent method must be called last.
 
     \param wpTargetFolder The new folder into which the object will be moved.
+    If this is not a valid object FALSE is returned.
 
     \return TRUE when success.
 
@@ -424,6 +448,14 @@ interface WPObject : NOMObject
   NOMINSTANCEVAR(HMUX gObjectMutex);
   NOMINSTANCEVAR(PGSList glstObjectInUse);
   NOMINSTANCEVAR(PNOMString pnomStringTitle);
+  /**
+     This instance variable holds the pointer to the folder containing this
+     object.
+
+     \remarks This variable may be accessed using wpQueryFolder() and wpSetFolder()
+
+     \sa wpQueryFolder(), wpSetFolder()
+   */
   NOMINSTANCEVAR(PWPFolder wpParentFldr);
 };
 

@@ -31,7 +31,9 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
-
+/** \file 
+    
+*/
 #ifndef WPFOLDER_IDL_INCLUDED
 #define WPFOLDER_IDL_INCLUDED
 
@@ -44,26 +46,80 @@ NOMCLASSNAME(WPFolder);
 
 NOMMETACLASS(M_WPFolder);
 
+/** \interface WPFolder
+
+    A desktop class representing directories.
+ */
 interface WPFolder : WPFileSystem
 {
   NOMCLASSVERSION(1, 0);
 
+  /**
+     This method gathers the content of a folder (by searching the filesystem)
+     and creates the objects it contains. This means the representation of the
+     files and folders on disk.
+     All found objects are inserted into the internal list of objects.
+
+     \remarks This method does not create a folder window nor does it add any
+     objects to the store holding objects to be shown in a folder window.
+
+     \param fFoldersOnly If set to TRUE only directories are inserted into the
+     content list. This is useful when building tree views.
+
+     \return TRUE on success FALSE otherwise.
+
+   */
   boolean wpPopulate(in unsigned long ulReserved,
                      in string pszPath,
                      in boolean fFoldersOnly);
+
+  /**
+     Create a window which may show the objects in this folder. The default folder
+     window is just a toplevel window with a container for the icons.
+     This method is called when a new folder view is created. No objects are inserted
+     during execution of this method.
+
+     \remarks The default window is of class WPFolderWindow. If you want to
+     replace the window make sure you have at least one container window (an
+     icon view) into which objects may be inserted
+
+     \par How to override:
+     This method may be overriden if the default folder window doesn't fit your
+     needs. 
+
+     \note This method and the WPFolderWindow class need some detailed explanation
+     about subclassing and replacing.
+   */
   PWPFolderWindow wpCreateFolderWindow();
-
-#if 0
-  WPObject wpQueryContent(in WPObject Object,
-                          in ULONG ulOption);
-
-  BOOL wpAddToContent(in WPObject Object);
-#endif
 
   gulong wpQueryFldrFlags();
   boolean wpSetFldrFlags(in gulong ulFlags, in gulong ulMask);
 
-  gulong wpAddToContent(in PWPObject wpObject, in string chrFileName);
+  /**
+     Add an object to the internal list of objects held by
+     the folder.
+
+     \remarks The object is not added to the store which is used
+     for displaying objects in the folder window. It's necessary to call
+     wpAddToStore() for this.
+
+     \par How to override:
+     This method may be overriden to track the insertion of objects into
+     a folder. The parent should be called first.
+
+     \param wpObject The object to be added.
+
+     \return TRUE on success FALSE otherwise.
+
+     \sa wpQueryContent(), wpDeleteFromContent(), wpAddToStore()
+   */
+  gulong wpAddToContent(in PWPObject wpObject);
+
+  /**
+     This method needs implementation. The signature will change.
+
+     Don't use!
+   */
   PWPObject wpQueryContent();
 
   /**
@@ -74,23 +130,84 @@ interface WPFolder : WPFileSystem
 
      \return TRUE on success FALSE otherwise.
 
-     \sa wpQueryContents(), wpAddToContents()
+     \sa wpQueryContent(), wpAddToContent()
    */
   boolean wpDeleteFromContent(in PWPObject wpObject);
 
+  /**
+     Add an object to the store of the folder. By adding the object
+     to the store it will show in the folder window.
+
+     \remarks Don't insert an object into the folders store which is not
+     already in the internal list of folder objects. Use wpAddToContent()
+     to do that. If there's no store yet this methods does nothing. A folder
+     only has a store if any view was created.
+
+     \param wpObject The object to be added to the store. Using NULL here is
+     save and will do nothing.
+
+     \return TRUE on success FALSE otherwise.
+
+     \sa wpAddToContent(), wpDeleteFromStore()
+   */
   PUSEITEM wpAddToStore(in PWPObject wpObject);
+
+  /**
+     Delete an object from the store. The store holds all the objects which
+     are visible in the folder window.
+
+     \remarks An object must first be removed from the folders store before it
+     is removed from the folders content list.
+
+     \param wpObject The object to be removed from the folders store.
+
+     \sa wpAddToStore(), wpDeleteFromContent()
+   */
   PUSEITEM wpDeleteFromStore(in PWPObject wpObject);
 
   NOMOVERRIDE(wpInitData);
+  /**
+     Override of the wpOpen() method. The WPFolder implementation calls
+     wpPopulate(), creates a new folder window and inserts the objects into the
+     window.
+   */
   NOMOVERRIDE(wpOpen);
   NOMOVERRIDE(wpQueryIcon);
   NOMOVERRIDE(wpQueryDefaultView);
   NOMOVERRIDE(wpDragOver);
   NOMOVERRIDE(wpDrop);
 
+  /**
+     This variable will go away.
+   */
   NOMINSTANCEVAR(PPRIVFOLDERDATA privFolderData); /* This will go away... */
+  /**
+     This varable holds the binary tree containing all the objects inserted into this
+     folder. The key for accessing the objects is the objects name. This way a fast
+     search for duplicates is possible.
+
+     \remarks This variable is private and can only be accessed from within the class.
+     
+     \sa wpAddToContent(), wpDeleteFromContent()
+   */
   NOMINSTANCEVAR(PGTree fldrObjects);
+
+  /**
+     Container flags.
+
+     \remarks This variable has access methods for setting and querying.
+
+     \sa wpQueryFldrFlags(), wpSetFldrFlags(),
+   */
   NOMINSTANCEVAR(gulong ulFldrFlags);
+  /**
+     This private instance variable holds the store of this folder. The store contains
+     all the objects which are shown in the container.
+
+     \remarks This variable is private and can only be accessed from within the class.
+
+     \sa wpAddToStore(), wpDeleteFromStore()
+   */
   NOMINSTANCEVAR(PGtkListStore pListStore);
 };
 

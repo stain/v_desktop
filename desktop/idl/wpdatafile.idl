@@ -31,6 +31,9 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
+/** \file 
+    
+*/
 
 #ifndef wpdataf_idl
 #define wpdataf_idl
@@ -38,9 +41,19 @@
 #include "wpfilesystem.idl"
 
 NOMMETACLASS(M_WPDataFile);
+
+/** \interface WPDataFile
+
+    This is the root of all desktop classes.
+ */
 interface WPDataFile : WPFileSystem
 {
   NOMCLASSVERSION(1, 0);
+  /**
+     Query the size of a file.
+
+     \note The return type may change to long long.
+   */
   long  wpQueryFileSize();
   long  wpSetFileSizeInfo(in long cbFileSize,
                           in long cbEASize);

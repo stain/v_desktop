@@ -31,6 +31,9 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
+/** \file 
+    
+*/
 
 #ifndef WPWINDOW_IDL_INCLUDED
 #define WPWINDOW_IDL_INCLUDED
@@ -56,6 +59,11 @@ native PWPObject;
 #include "wpobject.idl"
 #endif
 
+/** \interface WPWindow
+
+    Base class for all windows created by desktop objects. This class offers methods to
+    store and retrieve associated desktop objects.
+ */
 interface WPWindow : NOMWindow
 {
   NOMCLASSVERSION(1, 0);
