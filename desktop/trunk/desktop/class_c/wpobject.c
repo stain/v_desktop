@@ -842,7 +842,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPObject_wpMoveObject(WPObject* nomSelf,
                                  NULLHANDLE));
 
   /* Insert into the new folder */
-  _wpAddToContent(wpTargetFolder, nomSelf, NULLHANDLE, NULLHANDLE);
+  _wpAddToContent(wpTargetFolder, nomSelf, NULLHANDLE);
   _wpAddToStore(wpTargetFolder, nomSelf, NULLHANDLE);
 
   return FALSE;

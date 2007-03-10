@@ -32,6 +32,10 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
+/** \file 
+    
+*/
+
 #ifndef WPFLDRWINDOW_IDL_INCLUDED
 #define WPFLDRWINDOW_IDL_INCLUDED
 
@@ -51,6 +55,11 @@ NOMCLASSNAME(WPFolderWindow);
 
 #include "wpwindow.idl"
 
+/** \interface WPFolderWindow
+
+    Default desktop window used by folders to show objects to the user.
+
+ */
 interface WPFolderWindow : WPWindow
 {
   NOMCLASSVERSION(1, 0);

@@ -31,6 +31,9 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
+/** \file 
+    
+*/
 
 #ifndef wpfsys_idl
 #define wpfsys_idl
@@ -44,13 +47,31 @@ NOMCLASSNAME(WPFileSystem);
 
 NOMMETACLASS(M_WPFileSystem);
 
+/** \interface WPFileSystem
+
+    Any object which represents a filesystem object is a subclass of this class, e.g.
+    WPDataFile or WPFolder.
+ */
 interface WPFileSystem : WPObject
 {
   NOMCLASSVERSION(1, 0);
 
-  void tstSetFullPath(in string fullPath);   
+  void tstSetFullPath(in string fullPath);
+  /**
+     Query the filename of this object.
+
+     \remarks This name may be different from the displayed title because of filename
+     encoding on disk.
+
+     \param bFullPath If set to TRUE the fully qualified path is returned.
+   */
   PNOMPath wpQueryFileName(in boolean bFullPath);
 
+  /**
+     wpMoveObject() must be overriden to physically move a file or folder when requested.
+     The method implementation of WPObject only handles the graphical representation on the
+     desktop by inserting icons into folder windows.
+   */
   NOMOVERRIDE(wpMoveObject);
   NOMOVERRIDE(wpCopyObject);
 
