@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -31,7 +31,9 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
-
+/** \file 
+    Class definition file for WPNoteBook class.
+*/
 #ifndef WPNOTEBOOK_IDL_INCLUDED
 #define WPNOTEBOOK_IDL_INCLUDED
 
@@ -49,12 +51,18 @@ NOMCLASSNAME(WPNoteBook);
 #include "wpwindow.idl"
 #include "nomnotebook.idl"
 
+/** \interface WPNoteBook
+    
+    This class implements settings notebooks for desktop objects.
+
+    Implementation is very preliminary.
+*/
 interface WPNoteBook : WPWindow
 {
   NOMCLASSVERSION(1, 0);
 
-  PNOMNoteBook wpQueryNoteBookObject();
-  void wpSetNoteBookObject(in PNOMNoteBook nomNBook);
+  PNOMNoteBook wpQueryNoteBook();
+  void wpSetNoteBook(in PNOMNoteBook nomNBook);
 
   NOMOVERRIDE(nomInit);
 

@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -31,6 +31,9 @@
 * version of this file under the terms of any one of the CDDL or the LGPL.
 *
 * ***** END LICENSE BLOCK ***** */
+/** \file 
+    Class definition file for M_WPObject class.
+*/
 
 #ifndef M_WPOBJECT_IDL_INCLUDED
 #define M_WPOBJECT_IDL_INCLUDED
@@ -42,14 +45,46 @@ NOMCLASSNAME(M_WPObject);
 #include "wpnativetypes.idl"
 #include "nomstring.idl"
 
+/** \interface M_WPObject
+
+    This class is the metaclass for the WPObject class.
+ */
 interface M_WPObject : NOMClass
 {
   NOMCLASSVERSION(1, 0);
 
   gpointer wpclsQueryIcon();
   boolean wpclsSetIcon(in gpointer pNewIcon);
+
+  /**
+     This method returns the class title for classes for which this is the metaclass.
+   */
   string wpclsQueryTitle();
+
+  /**
+     Method to be overriden by metaclasses when they need to do some setup.
+
+     \remark Desktop metaclasses should override this method instead of nomInit().
+
+     \par How to override:
+     This method should be overriden by classes which need initialization. The parent
+     must be called first.
+
+     \sa wpclsUnInitData()
+   */
   void wpclsInitData();
+
+  /**
+     Method to be overriden by classes when they need to do some unititialization work.
+
+     \remark Desktop metaclasses should override this method instead of nomUnInit().
+
+     \par How to override
+     This method should be overriden by classes which need uninitialization. The parent must
+     be called last.
+
+     \sa wpclsInitData()
+   */
   void wpclsUnInitData();
 
   /* Methods overriden by this class */

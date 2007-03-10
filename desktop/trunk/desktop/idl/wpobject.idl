@@ -108,7 +108,7 @@ interface WPObject : NOMObject
   boolean  wpFreeMem(in gpointer pByte);
 
   /**
-     Method to be overriden by objects when they need to do some setup.
+     Method to be overriden by classes when they need to do some setup.
 
      \remark Desktop classes should override this method instead of nomInit().
 
@@ -121,7 +121,7 @@ interface WPObject : NOMObject
   void     wpInitData();
 
   /**
-     Method to be overriden by objects when they need to do some unititialization work.
+     Method to be overriden by classes when they need to do some unititialization work.
 
      \remark Desktop classes should override this method instead of nomUnInit().
 
