@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -52,14 +52,14 @@
 
 #include "wpnotebook.ih"
 
-NOM_Scope PNOMNoteBook NOMLINK impl_WPNoteBook_wpQueryNoteBookObject(WPNoteBook* nomSelf, CORBA_Environment *ev)
+NOM_Scope PNOMNoteBook NOMLINK impl_WPNoteBook_wpQueryNoteBook(WPNoteBook* nomSelf, CORBA_Environment *ev)
 {
   WPNoteBookData* nomThis=WPNoteBookGetData(nomSelf);
 
   return _nomNoteBook;
 }
 
-NOM_Scope void NOMLINK impl_WPNoteBook_wpSetNoteBookObject(WPNoteBook* nomSelf, const PNOMNoteBook nomNBook,
+NOM_Scope void NOMLINK impl_WPNoteBook_wpSetNoteBook(WPNoteBook* nomSelf, const PNOMNoteBook nomNBook,
                                                            CORBA_Environment *ev)
 {
   WPNoteBookData* nomThis=WPNoteBookGetData(nomSelf);
@@ -86,7 +86,7 @@ NOM_Scope void NOMLINK impl_WPNoteBook_nomInit(WPNoteBook* nomSelf, CORBA_Enviro
 
   /* Create the notebook */
   nomNoteBook=NOMNoteBookNew();
-  _wpSetNoteBookObject(nomSelf, nomNoteBook, ev);
+  _wpSetNoteBook(nomSelf, nomNoteBook, ev);
 
   gtk_container_add(GTK_CONTAINER(gtkWindow), NOMNoteBook_queryWindowHandle(nomNoteBook, ev));
 

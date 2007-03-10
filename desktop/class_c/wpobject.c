@@ -189,7 +189,7 @@ gboolean defaultWPWindowDeleteHandler(GtkWidget* gtkWidget, GdkEvent* gdkEvent, 
   g_return_val_if_fail(NULLHANDLE!=wpWindow, FALSE);
 
   /* This is also in the use item */
-  wpObject=WPNoteBook_wpQueryWPObject(wpWindow, NULLHANDLE);
+  wpObject=WPNoteBook_wpQueryObject(wpWindow, NULLHANDLE);
 
   g_return_val_if_fail(NULLHANDLE!=wpObject, FALSE);
 
@@ -232,7 +232,7 @@ NOM_Scope gpointer NOMLINK impl_WPObject_wpOpen(WPObject* nomSelf, const PWPFold
                 return wpNoteBook;
             }
             wpNoteBook=WPNoteBookNew();
-            WPNoteBook_wpSetWPObject(wpNoteBook, nomSelf, NULLHANDLE);
+            WPNoteBook_wpSetObject(wpNoteBook, nomSelf, NULLHANDLE);
             
             _wpAddSettingsPages(nomSelf, wpNoteBook, ev);
             
@@ -626,7 +626,7 @@ NOM_Scope CORBA_unsigned_long NOMLINK impl_WPObject_wpAddObjectGeneralPage(WPObj
 
   gtk_widget_show_all (vbox);
 
-  NOMNoteBook_prependPage(WPNoteBook_wpQueryNoteBookObject(wpNoteBook, ev), vbox, label, ev);
+  NOMNoteBook_prependPage(WPNoteBook_wpQueryNoteBook(wpNoteBook, ev), vbox, label, ev);
 
   return 1234;
 }
