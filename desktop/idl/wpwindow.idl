@@ -78,7 +78,7 @@ interface WPWindow : NOMWindow
      \code 
      g_object_set_data(G_OBJECT(window), NOMOBJECT_KEY_STRING, nomSelf);
      \endcode
-     That call is used internally by the WPWindow class to connect a WPWindow instance
+     That function is used internally by the WPWindow class to connect a WPWindow instance
      (nomSelf in this call) with a GTK window.
 
      \par How to override:
@@ -88,13 +88,13 @@ interface WPWindow : NOMWindow
 
      \par Example:
      The follwing code is a method implementation of class WPFolder. It creates a new
-     folder window (of class WPFolderWindow) and uses wpSetWPObject() to connect the folder
+     folder window (of class WPFolderWindow) and uses wpSetObject() to connect the folder
      object (nomSelf) with the folder window.
      \include wpsetwpobject.c
 
-     \sa wpQueryWPObject()
+     \sa wpQueryObject()
    */
-  void wpSetWPObject(in PWPObject wpObject);
+  void wpSetObject(in PWPObject wpObject);
 
   /**
      Query the desktop object this window belongs to.
@@ -103,15 +103,15 @@ interface WPWindow : NOMWindow
      \code 
      g_object_get_data(G_OBJECT(window), NOMOBJECT_KEY_STRING);
      \endcode
-     Using that call one queries the window object (\b not the desktop object) from
+     Using that function one queries the window object (\b not the desktop object) from
      a GTK toplevel window.
 
      \par How to override:
      This method is usually not overriden.
 
-     \sa wpSetWPObject()
+     \sa wpSetObject()
   */
-  PWPObject wpQueryWPObject();
+  PWPObject wpQueryObject();
   void wpSetWindowTitle(in PNOMString newTitle);
   NOMINSTANCEVAR(PWPObject wpObject);
 };

@@ -126,7 +126,7 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
           {
             /* Click on white space */
             WPFolder* wpFolder;
-            wpFolder=(WPFolder*)WPFolderWindow_wpQueryWPObject(pWindow, NULLHANDLE);
+            wpFolder=(WPFolder*)WPFolderWindow_wpQueryObject(pWindow, NULLHANDLE);
             TST_OBJECT(wpFolder);
             
             if(nomIsObj(wpFolder))
@@ -215,7 +215,7 @@ static gboolean fldrWindowHandleDragDrop(GtkWidget * wgtThis, GdkDragContext* dr
       if(!nomIsObj(pWindow))
         return FALSE;
 
-      wpObject=WPFolderWindow_wpQueryWPObject(pWindow, NULLHANDLE);     
+      wpObject=WPFolderWindow_wpQueryObject(pWindow, NULLHANDLE);     
 
       if(!nomIsObj(wpObject))
         return FALSE;
@@ -340,7 +340,7 @@ static void fldrWindowHandleDragBegin(GtkWidget * widget, GdkDragContext* dragCo
 
         /* Add the object to the list of items for this drag */
         NOMDragInfo_addWPObjectToItemList(nomDragInfo, wpObject,
-                                       (PWPFolder)WPFolderWindow_wpQueryWPObject(wpFolderWindow, NULLHANDLE),
+                                       (PWPFolder)WPFolderWindow_wpQueryObject(wpFolderWindow, NULLHANDLE),
                                        widget, NULLHANDLE);
       }
       else
@@ -408,7 +408,7 @@ static gboolean fldrWindowHandleDragMotion(GtkWidget * wgtThis, GdkDragContext* 
       if(!nomIsObj(pWindow))
         return FALSE;
 
-      wpObject=WPFolderWindow_wpQueryWPObject(pWindow, NULLHANDLE);     
+      wpObject=WPFolderWindow_wpQueryObject(pWindow, NULLHANDLE);     
 
       if(!nomIsObj(wpObject))
         return FALSE;
@@ -651,37 +651,12 @@ NOM_Scope void NOMLINK impl_WPFolderWindow_nomInit(WPFolderWindow* nomSelf, CORB
 #endif
 
 #if 0
-  /* Handle mouse buttons */
-  g_signal_connect (GTK_WIDGET(icon_view), "button-press-event",
-                    G_CALLBACK (fldr_handleButtonEvent), nomSelf);
-  g_signal_connect (GTK_WIDGET(icon_view), "button-release-event",
-                    G_CALLBACK (fldr_handleButtonEvent), nomSelf);
-
-  /* Handle folder DnD */
-  g_signal_connect(GTK_WIDGET(icon_view), "drag-begin",
-                   G_CALLBACK(fldrWindowHandleDragBegin), nomSelf);
-  g_signal_connect(GTK_WIDGET(icon_view), "drag-motion",
-                   G_CALLBACK(fldrWindowHandleDragMotion), nomSelf);
-  g_signal_connect(GTK_WIDGET(icon_view), "drag-drop",
-                   G_CALLBACK(fldrWindowHandleDragDrop), nomSelf);
-  g_signal_connect(GTK_WIDGET(icon_view), "drag_data_received",
-                   G_CALLBACK(fldrWindowHandleDragDataReceived), nomSelf);
-  g_signal_connect(GTK_WIDGET(icon_view), "drag_data_get",
-                   G_CALLBACK(fldrWindowHandleDragDataGet), nomSelf);
-
-  /* Prepare drag and drop */
-  gtk_drag_source_set(GTK_WIDGET(icon_view), GDK_BUTTON3_MASK, targetEntries,
-                      G_N_ELEMENTS(targetEntries),
-                      GDK_ACTION_DEFAULT|GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
-  gtk_drag_dest_set(GTK_WIDGET(icon_view), GTK_DEST_DEFAULT_ALL, targetEntries, 1,
-                      GDK_ACTION_DEFAULT|GDK_ACTION_LINK|GDK_ACTION_COPY|GDK_ACTION_MOVE);
-#endif
-#if 0
   /* Connect to the "clicked" signal of the "Up" tool button */
   g_signal_connect (up_button, "clicked",
                     G_CALLBACK (up_clicked), store);
 #endif
 
+  /* Prepare drag and drop */
   _wpConnectDefaultSignalHandlers(nomSelf, icon_view, NULLHANDLE);
   WPFolderWindow_wpSetContainerHandle(nomSelf, icon_view, NULLHANDLE);
 

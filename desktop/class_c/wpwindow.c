@@ -56,9 +56,9 @@
    This function implements the wpSetWPObject() method of WPWindow. See method description for more
    info.
 
-   \sa wpQueryWPObject(), wpSetWPObject()
+   \sa wpQueryObject(), wpSetObject()
  */
-NOM_Scope void NOMLINK impl_WPWindow_wpSetWPObject(WPWindow* nomSelf, const PWPObject wpObject, CORBA_Environment *ev)
+NOM_Scope void NOMLINK impl_WPWindow_wpSetObject(WPWindow* nomSelf, const PWPObject wpObject, CORBA_Environment *ev)
 {
   WPWindowData* nomThis=WPWindowGetData(nomSelf);
   _wpObject=wpObject;
@@ -70,7 +70,7 @@ NOM_Scope void NOMLINK impl_WPWindow_wpSetWPObject(WPWindow* nomSelf, const PWPO
 
    \sa wpQueryWPObject(), wpSetWPObject()
  */
-NOM_Scope PWPObject NOMLINK impl_WPWindow_wpQueryWPObject(WPWindow* nomSelf, CORBA_Environment *ev)
+NOM_Scope PWPObject NOMLINK impl_WPWindow_wpQueryObject(WPWindow* nomSelf, CORBA_Environment *ev)
 {
   WPWindowData* nomThis=WPWindowGetData(nomSelf);
 
