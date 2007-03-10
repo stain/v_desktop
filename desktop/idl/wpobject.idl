@@ -88,10 +88,12 @@ interface WPObject : NOMObject
      list. Because NOM uses a garbage collector the memory isn't freed instantly but
      will be collected later.
 
+     \remark It is save to call this method with a NULL memory pointer.
+
      \par How to override:
      This method is usually not overriden.
 
-     \param pByte Block of memory to be freed.
+     \param pByte Block of memory to be freed. This may be NULL.
      \return TRUE if successful.
 
      \sa wpAllocMem()

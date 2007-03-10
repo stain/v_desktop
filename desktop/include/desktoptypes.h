@@ -43,9 +43,15 @@ typedef struct _VIEWITEM {
   gpointer        pReserved;
  } VIEWITEM, *PVIEWITEM;
 
+/* USAGE_STORE */
+typedef struct _STOREITEM {
+  GtkTreeIter    treeIter;
+  GtkListStore  *pListStore;
+}STOREITEM, *PSTOREITEM;
 
 #define USAGE_MEMORY          1
 #define USAGE_OPENVIEW        5
+#define USAGE_STORE           7
 
 #define OPEN_DEFAULT          0
 #define OPEN_CONTENTS         1
@@ -83,7 +89,7 @@ typedef struct _VIEWITEM {
 /* Misc types used with objects */
 typedef GSList *PGSList;
 typedef GMutex *PGMutex;
-
+typedef GtkListStore  *PGtkListStore;
 /* Errors */ 
 #define NOMERROR_NOT_ENOUGH_MEMORY 8
   

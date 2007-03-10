@@ -141,12 +141,14 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
             WPObject *wpObject;
             /* Click on an icon */
             
-            g_message("%s: %s", __FUNCTION__, gtk_tree_path_to_string(treePath));
+            //g_message("%s: %s", __FUNCTION__, gtk_tree_path_to_string(treePath));
             
             model=gtk_icon_view_get_model(GTK_ICON_VIEW(widget));
-            g_message("%s: model: %x", __FUNCTION__, (UINT)model);
+            //g_message("%s: model: %x", __FUNCTION__, (UINT)model);
             
-            gtk_tree_model_get_iter(model , &iter, treePath);            
+            gtk_tree_model_get_iter(model , &iter, treePath);     
+            //g_message("%s: iter.stamp: %x %x %x %x", __FUNCTION__, (UINT)iter.stamp, (UINT) iter.user_data
+            //        , (UINT)iter.user_data2, (UINT)iter.user_data3);       
             gtk_tree_model_get(model, &iter, 0, &wpObject, -1);
 
             TST_OBJECT(wpObject);
@@ -235,7 +237,7 @@ static gboolean fldrWindowHandleDragDrop(GtkWidget * wgtThis, GdkDragContext* dr
         return FALSE;
     }
   rc=WPObject_wpDragOver(wpObject, wgtThis, nomDragInfo, NULL);
-  g_message("rc: %d", rc);
+
   if(dragContext->targets)
     {
       GdkAtom targetType;
@@ -543,9 +545,9 @@ static void fldrWindowHandleDragDataReceived(GtkWidget * widget, GdkDragContext*
 static void fldrWindowHandleDragDataGet(GtkWidget * widget, GdkDragContext* dragContext, GtkSelectionData *selData,
                     guint uiTargetInfo, guint t, gpointer ptrUserData)
 {
-  DosBeep(100, 100);
+  
   g_message("%s", __FUNCTION__);
-  g_message("  info: %d, userData: %x", uiTargetInfo, ptrUserData);
+  //  g_message("  info: %d, userData: %x", uiTargetInfo, ptrUserData);
 
   switch(uiTargetInfo)
     {

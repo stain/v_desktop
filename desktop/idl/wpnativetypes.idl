@@ -42,6 +42,7 @@ native HMUX;      /* This one will be removed when a threaded glib is avail */
 native PGSList;   /* For inuse list */
 native PUSEITEM;  /* For inuse list */
 native PVIEWITEM; /* For inuse list */
+native PGtkListStore;
 
 #endif /* WPFOLDERTYPES_IDL_INCLUDED */
 
