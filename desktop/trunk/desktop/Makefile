@@ -41,12 +41,16 @@ CLASSOBJECTS	=	$(OBJDIR)/wpobject.o \
 			$(OBJDIR)/wpfilesystem.o \
 			$(OBJDIR)/wpdatafile.o \
 			$(OBJDIR)/wpfolder.o \
+			$(OBJDIR)/wprootfolder.o \
+			$(OBJDIR)/wpdrives.o \
 			$(OBJDIR)/wpwindow.o \
 			$(OBJDIR)/wpclassmanager.o \
 			$(OBJDIR)/m_wpobject.o \
 			$(OBJDIR)/m_wpfilesystem.o \
 			$(OBJDIR)/m_wpdatafile.o \
 			$(OBJDIR)/m_wpfolder.o \
+			$(OBJDIR)/m_wprootfolder.o \
+			$(OBJDIR)/m_wpdrives.o \
 			$(OBJDIR)/helper.o
 
 IHFILES		=	$(CLASSINC)/wpnativetypes.ih \
@@ -56,13 +60,17 @@ IHFILES		=	$(CLASSINC)/wpnativetypes.ih \
 			$(CLASSINC)/wpfilesystem.ih \
 			$(CLASSINC)/wpdatafile.ih \
 			$(CLASSINC)/wpfolder.ih \
+			$(CLASSINC)/wprootfolder.ih \
+			$(CLASSINC)/wpdrives.ih \
 			$(CLASSINC)/wpwindow.ih \
 			$(CLASSINC)/wpnotebook.ih \
 			$(CLASSINC)/wpclassmanager.ih \
 			$(CLASSINC)/m_wpobject.ih \
 			$(CLASSINC)/m_wpfilesystem.ih \
 			$(CLASSINC)/m_wpdatafile.ih \
-			$(CLASSINC)/m_wpfolder.ih
+			$(CLASSINC)/m_wpfolder.ih \
+			$(CLASSINC)/m_wprootfolder.ih \
+			$(CLASSINC)/m_wpdrives.ih
 
 #$(CLASSINC)/wpnativetypes.ih \
 

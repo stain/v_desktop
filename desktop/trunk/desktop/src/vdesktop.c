@@ -56,6 +56,8 @@
 #include "wpnotebook.h"
 #include "m_wpfolder.h"
 #include "wpfolder.h"
+#include "m_wprootfolder.h"
+#include "wprootfolder.h"
 #include "wpobject.h"
 
 #include "nomfilepath.h"
@@ -86,9 +88,6 @@ int _System  main_loop()
   char desktopDir[CCHMAXPATH]={0};
   PNOM_ENV pEnv;
   NOMClassMgr *NOMClassMgrObject;
-  GtkWidget* window;
-  int a;
-  ULONG pMem;
   HREGDLL hReg=NULLHANDLE;
   
   /* Desktop folder */
@@ -98,11 +97,11 @@ int _System  main_loop()
   PNOMPath np;
   gchar *chrDisplayName;
 
+  /* Register DLLs with the garbage collector */
   hReg=nomBeginRegisterDLLWithGC();
   if(NULLHANDLE==hReg)
     return 1;
   
-  /* Register DLLs with the garbage collector */
   g_assert(nomRegisterDLLByName(hReg, "GLIB2.DLL" ));
   g_assert(nomRegisterDLLByName(hReg, "GOBJECT2.DLL"));
   g_assert(nomRegisterDLLByName(hReg, "GMODULE2.DLL"));
@@ -124,7 +123,7 @@ int _System  main_loop()
   g_message("We started...\n");
 
 #if 0
-  /* Initialize thread subsystem */
+  /* Initialize thread subsystem. This needs a multithreaded glib */
   if(!g_thread_supported())
     g_thread_init(NULL);
 #endif
@@ -160,12 +159,12 @@ int _System  main_loop()
 
   /* Create root folder */
   np=NOMPath_queryPathBegin(nomPath, NULLHANDLE);
-  wpRootFolder=WPFolderNew();
-  WPFolder_wpLockObject(wpRootFolder, NULLHANDLE);
-  WPFolder_tstSetFullPath(wpRootFolder, NOMPath_queryCString(NOMPath_queryRoot(np, NULLHANDLE),NULLHANDLE),
+  wpRootFolder=WPRootFolderNew();
+  WPRootFolder_wpLockObject(wpRootFolder, NULLHANDLE);
+  WPRootFolder_tstSetFullPath(wpRootFolder, NOMPath_queryCString(NOMPath_queryRoot(np, NULLHANDLE),NULLHANDLE),
                           NULLHANDLE);
   chrDisplayName = g_filename_to_utf8 (NOMPath_queryCString(np,NULLHANDLE), -1, NULL, NULL, NULL);
-  WPFolder_wpSetTitleFromCString((WPObject*)wpRootFolder, chrDisplayName, NULLHANDLE);
+  WPRootFolder_wpSetTitleFromCString((WPObject*)wpRootFolder, chrDisplayName, NULLHANDLE);
 
   wpTempFolder=wpRootFolder;
   nomPath=NOMPath_erasePathBegin(nomPath, NULLHANDLE);
@@ -187,7 +186,7 @@ int _System  main_loop()
       
       /* insert into contents list */
       WPFolder_wpAddToContent(wpTempFolder, (WPObject*) wpFolder, 
-                              NOMPath_copyCString(np, NULLHANDLE), NULLHANDLE);
+                              NULLHANDLE);
       
       wpTempFolder=wpFolder;
       /* Move to next path part */
@@ -214,17 +213,7 @@ int _System  main_loop()
   gtk_main ();
 
     
-#if 0
-    mem=g_malloc(1250000);
-    memset(mem, 0xaa, 10000);
-    //  *pGlobalMemInExe=mem;
-    for(a=0;a<50;a++){
-      g_malloc(1250000);
-      printf("%x %x %x %x %d\n", *mem, *(mem+1), *(mem+2), *(mem+3), 0);
-      //printf("%x\n", *((ULONG*)pGlobalMemInExe));
-    }
-#endif
-
+#warning !!!!! A call to NOMTerminate() or alike is missing 
     printf("And now we quit...\n");
 
   return 0;

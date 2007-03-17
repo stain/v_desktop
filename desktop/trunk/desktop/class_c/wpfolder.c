@@ -319,6 +319,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpPopulate(WPFolder* nomSelf, cons
   else if(_wpQueryFldrFlags(nomSelf, NULLHANDLE) & FOI_POPULATEDWITHALL)
     return TRUE;
 
+
   /* Go through the directory and extract all the file
    * information */
   fldrPath=WPFolder_wpQueryFileName(nomSelf, TRUE, NULLHANDLE);
@@ -662,6 +663,7 @@ NOM_Scope CORBA_boolean NOMLINK impl_WPFolder_wpSetFldrFlags(WPFolder* nomSelf, 
 {
   WPFolderData* nomThis=WPFolderGetData(nomSelf);
 
+  g_message("Calling %s", __FUNCTION__);
   WPFolder_wpRequestObjectMutexSem(nomSelf, 0,ev);
 
   _ulFldrFlags=(_ulFldrFlags & ~ulMask)| ulFlags;

@@ -32,42 +32,33 @@
 *
 * ***** END LICENSE BLOCK ***** */
 /** \file 
-    Class definition file for M_WPFileSystem class.
+    Class definition file for the WPDrives desktop class.    
 */
 
-#ifndef M_WPFILESYSTEM_IDL_INCLUDED
-#define M_WPFILESYSTEM_IDL_INCLUDED
+#ifndef WPDRIVES_IDL_INCLUDED
+#define WPDRIVES_IDL_INCLUDED
 
-#include <nomcls.idl>
+#include "nombase.idl"
 
-NOMCLASSNAME(M_WPFileSystem);
+NOMCLASSNAME(WPDrives);
 
-#include "wpnativetypes.idl"
-#include "m_wpobject.idl"
-#include "nomstring.idl"
+#include "wpfolder.idl"
 
-/** \interface M_WPFileSystem
+NOMMETACLASS(M_WPDrives);
 
-    This class is the metaclass for the WPFileSystem class.
+/** \interface WPDrives
+
+    Special folder class which contains the drives found in the system.
  */
-interface M_WPFileSystem : M_WPObject
+interface WPDrives : WPFolder
 {
   NOMCLASSVERSION(1, 0);
 
-  /**
-     Query the extensions for instances of this class.
-   */
-  string wpclsQueryInstanceFilter();
-
-  /* Methods overriden by this class */
-  NOMOVERRIDE(wpclsQueryTitle);
-
-  /* Instance variables of this class. Theses are not
-     attributes. */
-  NOMINSTANCEVAR(string nomStringTitle);
+  NOMOVERRIDE(wpOpen);
 };
 
-#endif /* M_WPFILESYSTEM_IDL_INCLUDED */
+#endif  /* WPDRIVES_IDL_INCLUDED */
+
 
 
 

@@ -94,7 +94,7 @@ interface WPFolder : WPFileSystem
 
   gulong wpQueryFldrFlags();
   boolean wpSetFldrFlags(in gulong ulFlags, in gulong ulMask);
-
+  //  NOMPARMCHECK(wpSetFldrFlags, FALSE, !=0);
   /**
      Add an object to the internal list of objects held by
      the folder.

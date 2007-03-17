@@ -57,6 +57,7 @@
 #include "wpnotebook.h"
 #include "wpfolderwindow.h"
 #include "wpfolder.h"
+#include "m_wpfolder.h"
 #include "wpfolderwindow.ih"
 #include "wpobject.h"
 #include "exception.h"
@@ -108,6 +109,7 @@ fldr_checkContextButton(GdkEventButton *event)
   return FALSE;
 }
 
+
 static gboolean
 fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
@@ -128,7 +130,10 @@ fldr_handleButtonEvent (GtkWidget *widget, GdkEventButton *event, gpointer user_
             WPFolder* wpFolder;
             wpFolder=(WPFolder*)WPFolderWindow_wpQueryObject(pWindow, NULLHANDLE);
             TST_OBJECT(wpFolder);
-            
+            //(TRUE ? WPFolder_wpSetFldrFlags(wpFolder, 0, 0, NULLHANDLE) : FALSE) ;
+            //WPFolderWindow_show(pWindow, NULLHANDLE) ;
+            //WPFolder_wpQueryFldrFlags(pWindow, NULLHANDLE) ;
+            //g_message("Result: %d ", (TRUE ? WPFolder_wpSetFldrFlags(NULL/*wpFolder*/, 0, 0, NULLHANDLE) : FALSE)) ;
             if(nomIsObj(wpFolder))
               WPObject_wpDisplayMenu((WPObject*)wpFolder, pWindow, NULL, MENU_OPENVIEWPOPUP, 0, NULL);
             else
