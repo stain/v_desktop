@@ -32,42 +32,38 @@
 *
 * ***** END LICENSE BLOCK ***** */
 /** \file 
-    Class definition file for M_WPFileSystem class.
+    
 */
 
-#ifndef M_WPFILESYSTEM_IDL_INCLUDED
-#define M_WPFILESYSTEM_IDL_INCLUDED
+#ifndef WPROOTFOLDER_IDL_INCLUDED
+#define WPROOTFOLDER_IDL_INCLUDED
 
-#include <nomcls.idl>
+#include "nombase.idl"
 
-NOMCLASSNAME(M_WPFileSystem);
+NOMCLASSNAME(WPRootFolder);
 
-#include "wpnativetypes.idl"
-#include "m_wpobject.idl"
-#include "nomstring.idl"
+#include "wpfolder.idl"
 
-/** \interface M_WPFileSystem
+NOMMETACLASS(M_WPRootFolder);
 
-    This class is the metaclass for the WPFileSystem class.
+/** \interface WPRootFolder
+
+    Special folder class which represents the root direcotory on
+    drives.
+
  */
-interface M_WPFileSystem : M_WPObject
+interface WPRootFolder : WPFolder
 {
   NOMCLASSVERSION(1, 0);
 
-  /**
-     Query the extensions for instances of this class.
-   */
-  string wpclsQueryInstanceFilter();
+  /*  void wpDummy();*/ /* This method is only used, to keep the IDL compiler happy.
+                   May be removed when we have an override. */
 
-  /* Methods overriden by this class */
-  NOMOVERRIDE(wpclsQueryTitle);
-
-  /* Instance variables of this class. Theses are not
-     attributes. */
-  NOMINSTANCEVAR(string nomStringTitle);
+  NOMOVERRIDE(wpOpen);
 };
 
-#endif /* M_WPFILESYSTEM_IDL_INCLUDED */
+#endif  /* WPRootFolder_IDL_INCLUDED */
+
 
 
 

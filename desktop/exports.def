@@ -25,6 +25,20 @@ EXPORTS
 	_M_WPFolderCClassData
 	M_WPFolderNewClass
 
+	_WPRootFolderClassData
+	_WPRootFolderCClassData
+	WPRootFolderNewClass
+	_M_WPRootFolderClassData
+	_M_WPRootFolderCClassData
+	M_WPRootFolderNewClass
+
+	_WPDrivesClassData
+	_WPDrivesCClassData
+	WPDrivesNewClass
+	_M_WPDrivesClassData
+	_M_WPDrivesCClassData
+	M_WPDrivesNewClass
+
 	_WPDataFileClassData
 	_WPDataFileCClassData
 	WPDataFileNewClass
