@@ -45,6 +45,9 @@ NOMCLASSNAME(NOMPath);
  */
 interface NOMPath : NOMString
 {
+#ifdef __NOM_IDL_COMPILER__
+  filestem=nomfilepath;
+#endif
   /**
      The current version of this class is 1.0
    */

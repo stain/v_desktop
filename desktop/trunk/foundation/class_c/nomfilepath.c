@@ -98,6 +98,8 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_appendSeparator(NOMPath* nomSelf, CORBA_
   if((len=NOMPath_length((NOMString*)nomSelf, ev))==0)
     return (NOMPath*)NOMPath_appendCString((NOMString*)nomSelf, G_DIR_SEPARATOR_S, ev);
 
+  /* This is not a copy */
+  chrTemp=NOMPath_queryCString(nomSelf, NULLHANDLE);
   /* Add a separator */
   if(G_DIR_SEPARATOR!=chrTemp[len-1])
     return (NOMPath*)NOMPath_appendCString( (NOMString*)nomSelf, G_DIR_SEPARATOR_S, ev);
@@ -183,7 +185,7 @@ NOM_Scope PNOMPath NOMLINK impl_NOMPath_erasePathBegin(NOMPath* nomSelf, CORBA_E
   /* NOMPathData* nomThis=NOMPathGetData(nomSelf); */
   PNOMPath nomRetval=(PNOMPath) NOMPath_new(nomSelf, NULLHANDLE);
   gchar *chrTemp;
-
+  g_message("In %s", __FUNCTION__);
   chrTemp=NOMPath_queryCString(nomSelf, NULLHANDLE); /* Not a copy */
 
   while(*chrTemp!='\0' && *chrTemp!=G_DIR_SEPARATOR)
