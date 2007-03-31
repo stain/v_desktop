@@ -50,6 +50,10 @@ NOMCLASSNAME(NOMString);
  */
 interface NOMString : NOMObject
 {
+#ifdef __NOM_IDL_COMPILER__
+  filestem=nomstring;
+#endif
+
   /**
      The current version of this class is 1.0
    */

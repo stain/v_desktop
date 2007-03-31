@@ -46,7 +46,7 @@
 
 #include <string.h>
 #include <glib.h>
-
+#include "nomfoundation.h"
 #include "nomstring.ih"
 
 
@@ -118,6 +118,8 @@ NOM_Scope PNOMString NOMLINK impl_NOMString_prependCString(NOMString* nomSelf, c
 NOM_Scope CORBA_unsigned_long NOMLINK impl_NOMString_length(NOMString* nomSelf, CORBA_Environment *ev)
 {
   NOMStringData* nomThis=NOMStringGetData(nomSelf);
+
+  //g_message("In %s %d %s", __FUNCTION__, _gString->len, _gString->str );
 
   return _gString->len;
 }

@@ -23,6 +23,10 @@ INC		= 	./include -I ./class_h \
 			-I $(NOMPATH)/class_h -I $(NOMPATH)/include \
 			-I $(GUITKPATH)/class_h -I $(GUITKPATH)/include
 
+# NOM IDL compiler
+NOMIDLINC	=	-I$(TKIDLDIR)
+NOMIDLCOMPILER	=	$(BINDIR)/nom-idl-compiler.exe 
+
 
 ADDLIBS		=	 -l$(OBJDIR)/nobjtk
 # -l$(OBJDIR)/voywp
@@ -57,9 +61,13 @@ $(BINDIR)/$(DLLNAME).dll:	 $(OBJDIR)/o.dep $(CLASSOBJECTS) exports.def
 #
 ###################################
 
-BASE_NOMCOMPILEH	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --header --output-dir=$(CLASSINC) $<
-BASE_NOMCOMPILEIH	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
+#BASE_NOMCOMPILEH	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --header --output-dir=$(CLASSINC) $<
+#BASE_NOMCOMPILEIH	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
 BASE_NOMCOMPILEC	=	$(IDLCOMP) -include=$(TKIDLDIR) --showcpperrors --c-template --output-dir=$(CLASSTEMPLATEDIR) $< 
+
+BASE_NOMCOMPILEH	=	gcc -E -x c -D__NOM_IDL_COMPILER__ $(NOMIDLINC) $< | $(NOMIDLCOMPILER) --emit-h -d $(CLASSINC) -
+BASE_NOMCOMPILEIH	=	gcc -E -x c -D__NOM_IDL_COMPILER__ $(NOMIDLINC) $< | $(NOMIDLCOMPILER) --emit-ih -d $(CLASSINC) -
+
 
 
 # Rules for desktop classes
