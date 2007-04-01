@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2006
+* Portions created by the Initial Developer are Copyright (C) 2006-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -64,7 +64,6 @@ NOM_Scope PGtkWidget NOMLINK impl_NOMMenu_queryMenuHandle(NOMMenu* nomSelf, CORB
 NOM_Scope void NOMLINK impl_NOMMenu_nomInit(NOMMenu* nomSelf, CORBA_Environment *ev)
 {
   NOMMenuData* nomThis=NOMMenuGetData(nomSelf);
-  GtkWidget* menuItem;
 
   NOMMenu_nomInit_parent((NOMObject*)nomSelf,  ev);
   _pgMenuHandle=gtk_menu_new();

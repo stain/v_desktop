@@ -41,6 +41,9 @@ NOMCLASSNAME(NOMDragInfo);
 
 interface NOMDragInfo : NOMObject
 {
+#ifdef __NOM_IDL_COMPILER__
+  filestem=nomdraginfo;
+#endif
   /**
      Current class version is 1.0
    */

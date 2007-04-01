@@ -42,6 +42,9 @@ NOMCLASSNAME(NOMDragWindow);
 
 interface NOMDragWindow : NOMWindow
 {
+#ifdef __NOM_IDL_COMPILER__
+  filestem=nomdragwindow;
+#endif
   /**
      Current class version is 1.0
    */

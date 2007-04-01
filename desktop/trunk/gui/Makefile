@@ -27,11 +27,15 @@ INC		= 	./include -I ./class_h \
 			-I $(DESKTOPPATH)/class_h -I $(DESKTOPPATH)/include \
 			-I $(FOUNDATIONPATH)/class_h -I $(FOUNDATIONPATH)/include
 
+# NOM IDL compiler
+NOMIDLINC	=	-I$(FOUNDATIONPATH)/idl -I$(TKIDLDIR) \
+			-I$(DESKTOPPATH)/idl -I ./idl
+NOMIDLCOMPILER	=	$(BINDIR)/nom-idl-compiler.exe 
+
 ADDLIBS		=	 -l$(OBJDIR)/nobjtk
 # -l$(OBJDIR)/voywp
 
 # Define objects to build
-
 
 CLASSOBJECTS	=	$(OBJDIR)/nomwindow.o \
 			$(OBJDIR)/nommenu.o \
@@ -65,9 +69,12 @@ $(BINDIR)/$(DLLNAME).dll:	 $(OBJDIR)/o.dep $(CLASSOBJECTS) exports.def
 #
 ###################################
 
-BASE_NOMCOMPILEH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --header --output-dir=$(CLASSINC) $<
+#BASE_NOMCOMPILEH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --header --output-dir=$(CLASSINC) $<
 BASE_NOMCOMPILEIH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
 BASE_NOMCOMPILEC	=	$(IDLCOMP) $(IDLINC) --showcpperrors --c-template --output-dir=$(CLASSTEMPLATEDIR) $< 
+
+BASE_NOMCOMPILEH	=	gcc -E -x c -D__NOM_IDL_COMPILER__ $(NOMIDLINC) $< | $(NOMIDLCOMPILER) --emit-h -d $(CLASSINC) -
+BASE_NOMCOMPILEIH	=	gcc -E -x c -D__NOM_IDL_COMPILER__ $(NOMIDLINC) $< | $(NOMIDLCOMPILER) --emit-ih -d $(CLASSINC) -
 
 
 # Rules for desktop classes
