@@ -22,7 +22,9 @@
 #include "desktoptypes.h"
 #include "wpnotebook.h"
 #include "wpfolderwindow.h"
+#include "wpfolder.h"
 
+#include "m_wpdrives.ih"
 #include "wpdrives.ih"
 
 

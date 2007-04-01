@@ -57,6 +57,7 @@
 #include "wpfolderwindow.h"
 #include "wpnotebook.h"
 #include "wpfolder.h"
+#include "m_wpdatafile.h"
 #include "wpdatafile.ih"
 
 NOM_Scope CORBA_long NOMLINK impl_WPDataFile_wpQueryFileSize(WPDataFile* nomSelf, CORBA_Environment *ev)

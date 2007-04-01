@@ -37,13 +37,6 @@
 #ifndef WPNOTEBOOK_IDL_INCLUDED
 #define WPNOTEBOOK_IDL_INCLUDED
 
-#if 0
-#ifndef WPObject_defined
-#define WPObject_defined
-native PWPObject;
-#endif
-#endif
-
 #include <nomobj.idl>
 
 NOMCLASSNAME(WPNoteBook);
@@ -59,6 +52,9 @@ NOMCLASSNAME(WPNoteBook);
 */
 interface WPNoteBook : WPWindow
 {
+#ifdef __NOM_IDL_COMPILER__
+  filestem=wpnotebook;
+#endif
   NOMCLASSVERSION(1, 0);
 
   PNOMNoteBook wpQueryNoteBook();

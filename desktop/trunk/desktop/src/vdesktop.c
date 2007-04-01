@@ -149,7 +149,6 @@ int _System  main_loop()
 
   /* Init NOM */
   NOMClassMgrObject=nomEnvironmentNew();
-  //dbgPrintf( "NOMClassMgrObject: %x", NOMClassMgrObject);
 
   /* Desktop directory oath */
   nomPath=NOMPathNew();
@@ -192,12 +191,23 @@ int _System  main_loop()
       /* Move to next path part */
       nomPath=NOMPath_erasePathBegin(nomPath, NULLHANDLE);
       //WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE);
-      //g_message("   path: %s", NOMPath_queryCString(WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE),
+      g_message("   path: %s", NOMPath_queryCString(WPFolder_wpQueryFileName(wpFolder, FALSE, NULLHANDLE),
+                                                    NULLHANDLE));
+      //      g_message("   path: %s", NOMPath_queryCString(WPFolder_wpQueryFileName(wpFolder, TRUE, NULLHANDLE),
       //                                            NULLHANDLE));
     };
+  g_message("   --> Desktop dir:");
+  if(nomIsObj(wpTempFolder))
+    g_message("Valid");
 
+  WPFolder_wpQueryFileName(wpTempFolder, TRUE, NULLHANDLE);
+
+  //  g_message("   --> Desktop dir: %s", NOMPath_queryCString(WPFolder_wpQueryFileName(wpTempFolder, FALSE, NULLHANDLE),
+  //                                                       NULLHANDLE));
+
+  g_message("   --> blabla");
   g_message("   --> Desktop dir: %s", NOMPath_queryCString(WPFolder_wpQueryFileName(wpTempFolder, TRUE, NULLHANDLE),
-                                                            NULLHANDLE));
+                                                           NULLHANDLE));
 
   /* Create desktop folder */
   wpDesktop=wpTempFolder;//WPFolderNew();

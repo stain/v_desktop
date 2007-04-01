@@ -54,6 +54,10 @@ NOMMETACLASS(M_WPFileSystem);
  */
 interface WPFileSystem : WPObject
 {
+#ifdef __NOM_IDL_COMPILER__
+  metaclass=M_WPFileSystem;
+  filestem=wpfilesystem;
+#endif
   NOMCLASSVERSION(1, 0);
 
   void tstSetFullPath(in string fullPath);

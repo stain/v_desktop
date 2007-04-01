@@ -29,6 +29,13 @@ ADDLIBS		=	 -l$(OBJDIR)/nobjtk -l$(OBJDIR)/voyfcls -l$(OBJDIR)/voywp
 CLASSDLLLIBS	=	-l$(OBJDIR)/nobjtk -l$(OBJDIR)/voyguitk -l$(OBJDIR)/voyfcls
 GCLIB		=	-l$(OBJDIR)/gc
 
+
+# NOM IDL compiler
+NOMIDLINC	=	-I$(FOUNDATIONPATH)/idl -I$(TKIDLDIR) \
+			-I$(GUITKPATH)/idl
+NOMIDLCOMPILER	=	$(BINDIR)/nom-idl-compiler.exe 
+
+
 # Define objects to build
 
 DLLOBJECTS	=	$(OBJDIR)/vdesktop.o \
@@ -103,8 +110,15 @@ $(BINDIR)/voywp.dll:	 $(OBJDIR)/o.dep $(IHFILES) $(CLASSOBJECTS) exports.def
 #
 ###################################
 
-BASE_NOMCOMPILEH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --header --output-dir=$(CLASSINC) $<
-BASE_NOMCOMPILEIH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
+
+#BASE_NOMCOMPILEH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --header --output-dir=$(CLASSINC) $<
+BASE_NOMCOMPILEH	=	gcc -E -x c -D__NOM_IDL_COMPILER__ $(NOMIDLINC) $< | $(NOMIDLCOMPILER) --emit-h -d $(CLASSINC) -
+
+
+
+#BASE_NOMCOMPILEIH	=	$(IDLCOMP) $(IDLINC) --showcpperrors --ihfile --output-dir=$(CLASSINC) $<
+BASE_NOMCOMPILEIH	=	gcc -E -x c -D__NOM_IDL_COMPILER__ $(NOMIDLINC) $< | $(NOMIDLCOMPILER) --emit-ih -d $(CLASSINC) -
+
 BASE_NOMCOMPILEC	=	$(IDLCOMP) $(IDLINC) --showcpperrors --c-template --output-dir=$(CLASSTEMPLATEDIR) $< 
 
 

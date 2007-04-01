@@ -52,6 +52,10 @@ NOMMETACLASS(M_WPDrives);
  */
 interface WPDrives : WPFolder
 {
+#ifdef __NOM_IDL_COMPILER__
+  metaclass=M_WPDrives;
+  filestem=wpdrives;
+#endif
   NOMCLASSVERSION(1, 0);
 
   NOMOVERRIDE(wpOpen);

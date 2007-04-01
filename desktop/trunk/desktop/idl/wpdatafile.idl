@@ -48,6 +48,10 @@ NOMMETACLASS(M_WPDataFile);
  */
 interface WPDataFile : WPFileSystem
 {
+#ifdef __NOM_IDL_COMPILER__
+  metaclass=M_WPDataFile;
+  filestem=wpdatafile;
+#endif
   NOMCLASSVERSION(1, 0);
   /**
      Query the size of a file.

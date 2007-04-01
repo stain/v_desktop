@@ -54,6 +54,7 @@
 #include "wpfolderwindow.h"
 #include "wpnotebook.h"
 #include "wpfolder.h"
+#include "m_wpfilesystem.h"
 #include "wpfilesystem.ih"
 
 NOM_Scope void NOMLINK impl_WPFileSystem_tstSetFullPath(WPFileSystem* nomSelf, const CORBA_char * fullPath,
@@ -92,6 +93,7 @@ NOM_Scope PNOMPath NOMLINK impl_WPFileSystem_wpQueryFileName(WPFileSystem* nomSe
 
   /* We are a folder somwhere in the chain */
   nomRetval=WPFileSystem_wpQueryFileName((WPFileSystem*)wpParent, bFullPath, NULLHANDLE);
+
   nomPath=NOMPathNew();
   nomPath= (PNOMPath) NOMPath_assignCString(nomPath, _pszFullPath, ev);
 
