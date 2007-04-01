@@ -22,6 +22,8 @@
 #include "desktoptypes.h"
 #include "wpnotebook.h"
 #include "wpfolderwindow.h"
+#include "wpfolder.h"
+#include "m_wprootfolder.h"
 #include "wprootfolder.ih"
 
 

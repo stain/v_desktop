@@ -55,6 +55,7 @@
 
 #include "wpnotebook.h"
 #include "wpfolderwindow.h"
+#include "m_wpfolder.h"
 #include "wpfolder.h"
 #include "wpobject.ih"
 

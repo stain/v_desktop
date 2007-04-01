@@ -52,6 +52,10 @@ NOMMETACLASS(M_WPFolder);
  */
 interface WPFolder : WPFileSystem
 {
+#ifdef __NOM_IDL_COMPILER__
+  metaclass=M_WPFolder;
+  filestem=wpfolder;
+#endif
   NOMCLASSVERSION(1, 0);
 
   /**

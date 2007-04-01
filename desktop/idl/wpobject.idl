@@ -48,20 +48,32 @@ NOMCLASSNAME(WPObject);
 #include "nommenuitem.idl"
 #include "nomwindow.idl"
 
+#ifdef __NOM_IDL_COMPILER__
+interface WPFolderWindow;
+#else
 #ifndef WPFLDRWINDOW_IDL_INCLUDED
 native PWPFolderWindow;
 #endif
+#endif
 
+#ifdef __NOM_IDL_COMPILER__
+interface WPFolder;
+#else
 #ifndef WPFOLDER_IDL_INCLUDED
 native PWPFolder;
 #endif
+#endif
 
+#ifdef __NOM_IDL_COMPILER__
+interface WPNoteBook;
+#else
 #if 1
 #ifndef WPNOTEBOOK_IDL_INCLUDED
 native PWPNoteBook;
 #endif
 #else
 #include "wpnotebook.idl"
+#endif
 #endif
 
 NOMMETACLASS(M_WPObject);
@@ -72,6 +84,10 @@ NOMMETACLASS(M_WPObject);
  */
 interface WPObject : NOMObject
 {
+#ifdef __NOM_IDL_COMPILER__
+  metaclass=M_WPObject;
+  filestem=wpobject;
+#endif
   NOMCLASSVERSION(1, 0);
 
   /* Memory allocation */

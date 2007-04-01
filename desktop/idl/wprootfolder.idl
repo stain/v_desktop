@@ -54,6 +54,10 @@ NOMMETACLASS(M_WPRootFolder);
  */
 interface WPRootFolder : WPFolder
 {
+#ifdef __NOM_IDL_COMPILER__
+  metaclass=M_WPRootFolder;
+  filestem=wprootfolder;
+#endif
   NOMCLASSVERSION(1, 0);
 
   /*  void wpDummy();*/ /* This method is only used, to keep the IDL compiler happy.

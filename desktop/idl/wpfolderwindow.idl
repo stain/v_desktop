@@ -39,6 +39,10 @@
 #ifndef WPFLDRWINDOW_IDL_INCLUDED
 #define WPFLDRWINDOW_IDL_INCLUDED
 
+#ifdef __NOM_IDL_COMPILER__
+interface WPObject;
+#else
+
 /* FIXME: this is an ugly hack to prevent inclusion of the
    wpnotebook.idl file in wpobject.idl which is included
    from wpwindow.idl. wpnotebook doesn't find the WPWindow
@@ -47,6 +51,7 @@
 #ifndef WPNOTEBOOK_IDL_INCLUDED
 #define WPNOTEBOOK_IDL_INCLUDED
 native PWPNoteBook;
+#endif
 #endif
 
 #include <nomobj.idl>
@@ -78,6 +83,9 @@ NOMCLASSNAME(WPFolderWindow);
  */
 interface WPFolderWindow : WPWindow
 {
+#ifdef __NOM_IDL_COMPILER__
+  filestem=wpfolderwindow;
+#endif
   NOMCLASSVERSION(1, 0);
 
   /**

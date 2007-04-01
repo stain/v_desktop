@@ -15,7 +15,7 @@
 *
 * The Initial Developer of the Original Code is
 * netlabs.org: Chris Wohlgemuth <cinc-ml@netlabs.org>.
-* Portions created by the Initial Developer are Copyright (C) 2005-2006
+* Portions created by the Initial Developer are Copyright (C) 2005-2007
 * the Initial Developer. All Rights Reserved.
 *
 * Contributor(s):
@@ -38,25 +38,22 @@
 #ifndef WPWINDOW_IDL_INCLUDED
 #define WPWINDOW_IDL_INCLUDED
 
-#if 0
-#ifndef WPObject_defined
-#define WPObject_defined
-native PWPObject;
-#endif
-#endif
-
 #include <nomobj.idl>
 #include "nomwindow.idl"
 #include "nomstring.idl"
 
 NOMCLASSNAME(WPWindow);
 
+#ifdef __NOM_IDL_COMPILER__
+interface WPObject;
+#else
 #if 1
 #ifndef WPOBJECT_IDL_INCLUDED
 native PWPObject;
 #endif
 #else
 #include "wpobject.idl"
+#endif
 #endif
 
 /** \interface WPWindow
@@ -66,6 +63,9 @@ native PWPObject;
  */
 interface WPWindow : NOMWindow
 {
+#ifdef __NOM_IDL_COMPILER__
+  filestem=wpwindow;
+#endif
   NOMCLASSVERSION(1, 0);
 
   /**
