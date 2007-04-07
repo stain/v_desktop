@@ -12,3 +12,10 @@ EXPORTS
 	_NOMPathCClassData 
 	NOMPathNewClass    
 
+	_NOMPtrArrayClassData  
+	_NOMPtrArrayCClassData 
+	NOMPtrArrayNewClass    
+
+;	_NOMObjArrayClassData  
+;	_NOMObjArrayCClassData 
+;	NOMObjArrayNewClass    
