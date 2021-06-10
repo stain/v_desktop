@@ -1,11 +1,10 @@
 # v_desktop
 
-This repository is a snapshot of [Netlab's Voyager NOM](http://trac.netlabs.org/v_nom) source code and is **no longer maintained**.
+This repository is a snapshot of [Netlab's Voyager Desktop](http://trac.netlabs.org/v_desktop) source code and is **no longer maintained**.
 
 ## License/copyright
 
 License and copyright was not explicit across the original source repository, but where in-line, is indicated as Dual-license CDDL 1.0/LGPL 2.1, e.g.:
-
 
 ```
 /* ***** BEGIN LICENSE BLOCK *****
@@ -43,31 +42,102 @@ License and copyright was not explicit across the original source repository, bu
 * ***** END LICENSE BLOCK ***** */
 ```
 
+Documentation adapted from <http://trac.netlabs.org/v_desktop>:
 
-Documentation adapted from <http://trac.netlabs.org/v_nom>:
+# Voyager Desktop
 
-# NOM the Netlabs Object Model 
+The Voyager Desktop is an object oriented desktop which tries to resemble the unique features of
+the WPS known from OS/2.
+It is based on **NOM** the **N**etlabs **O**bject **M**odel. See <http://svn.netlabs.org/v_nom> for more information.
 
-NOM is the object model on which the [Voyager Desktop](http://voyager.netlabs.org/) is based.
+== About ==
 
-## About 
+The desktop is built from classes which live in shared libraries. 
+Thanks to the underlying object system the user may add classes (whose instances
+represent e.g. files or folders) without recompiling the desktop. Thus independend
+vendors can provide **binary only** extensions to the desktop.
 
-The main feature of NOM is a release to release binary compatibility of classes.
-This means that classes may be enhanced or added to the framework without
-breaking other classes. These other classes may even be subclasses of the
-modified class. Thanks to this feature it's possible to create binary only
-extensions to the object model which won't break when the object model is
-updated.
+== How to contribute ==
 
-NOM allows to do object oriented programming with languages which are not designed as OO languages,
-e.g. C.
+Before implementing new stuff drop a note on the Voyager mailing list.
+This prevents duplicate efforts if someone else is already working on the things you
+have in mind. In addition ML discussions make sure any patches fit into the overall
+architecture of the desktop.
 
-## How to use NOM 
+=== Licensing ===
 
-Classes are described in an Interface Definition Language (IDL). An IDL compiler interprets the file and
-outputs binding and template files for the programming language in question. Right now only
-C is supported but other bindings are possible e.g. C++ or Pascal.
+Only patches and additions covered by the layout license for this project are accepted.
+Compatible licenses are of course ok. No GPL code will be accepted in the main tree.
 
+=== Patch policy ===
+
+Bug fixes may go directly into the tree. Enhancements of classes (like new methods) or
+completely new classes will first have a test drive for some time to make sure they fit
+in. Enhancements should be coded as replacement classes not as direct patches to existing
+classes. If you need to patch an exisiting class to get something done it's likely
+your design isn't optimal. This doesn't mean enhancement of existing classes to
+support new features in subclasses are rejected. If it turns out your enhancements are
+working flawlessly they will go into the main tree which means they will be added
+directly to the classes in question.
+
+### Documentation
+
+Every new feature (e.g. methods) **must** be documented in the source using doxygen
+tags. See the existing source for examples.
+
+Comment your code thouroughly even if you think comments are not necessary because anyone
+should be able to understand your code.
+
+Patches without proper comments or doxygen documentation will be rejected without discussion.
+
+### Coding style
+
+**Function and method names**:
+
+Names are not build with underscores like in the GLib toolkit. Instead uppercase letters
+are used to separate name parts:
+
+```c
+dont_use_this_as_a_name();
+```
+
+```c
+thisIsCorrect();
+```
+
+The first letter is always lowercase. Note that this is true for all functions and methods in NOM.[[BR]]
+In pure C libraries the first letter is usually uppercase. 
+
+**Variables**:
+
+Use verbose variables. i, j, k was ok last century but today we have compilers supporting really long
+variable names. Verbose names make it easier for newcomers to understand your code. Prepend your variables
+with a meaningful marker (e.g. i for int).
+
+```c
+  int main(int argc, char *argv[])
+    {
+    /* This is not ok */
+    gint i, k;
+    char* p;
+
+    printf("Hello World\n");
+    ...
+    }
+```
+
+```c
+  int main(int argc, char *argv[])
+    {
+    /* Use something like this */
+    gint iLoop, iNumberOfItems;
+    gulong ulSize;
+    char* pString;
+
+    printf("Hello World\n");
+    ...
+    }
+``` 
 
 ## Building it
 
