@@ -50,26 +50,26 @@ The Voyager Desktop is an object oriented desktop which tries to resemble the un
 the WPS known from OS/2.
 It is based on **NOM** the **N**etlabs **O**bject **M**odel. See <http://svn.netlabs.org/v_nom> for more information.
 
-== About ==
+## About
 
 The desktop is built from classes which live in shared libraries. 
 Thanks to the underlying object system the user may add classes (whose instances
 represent e.g. files or folders) without recompiling the desktop. Thus independend
 vendors can provide **binary only** extensions to the desktop.
 
-== How to contribute ==
+## How to contribute
 
 Before implementing new stuff drop a note on the Voyager mailing list.
 This prevents duplicate efforts if someone else is already working on the things you
 have in mind. In addition ML discussions make sure any patches fit into the overall
 architecture of the desktop.
 
-=== Licensing ===
+### Licensing
 
 Only patches and additions covered by the layout license for this project are accepted.
 Compatible licenses are of course ok. No GPL code will be accepted in the main tree.
 
-=== Patch policy ===
+### Patch policy
 
 Bug fixes may go directly into the tree. Enhancements of classes (like new methods) or
 completely new classes will first have a test drive for some time to make sure they fit
